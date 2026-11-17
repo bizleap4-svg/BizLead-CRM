@@ -1,7 +1,10 @@
-import { Lead, DEFAULT_PIPELINE_STAGES } from "./types";
+import { Lead, PipelineStage, DEFAULT_PIPELINE_STAGES } from "./types";
 
-// In-memory demo data store
-let memoryLeads: Lead[] = [
+const STORAGE_KEY_LEADS = "bizlead_crm_leads_v1";
+const STORAGE_KEY_STAGES = "bizlead_crm_stages_v1";
+
+// Initial reference demo records
+export const INITIAL_DEMO_LEADS: Lead[] = [
   {
     id: "BL-001",
     name: "Aarav Sharma",
@@ -153,6 +156,49 @@ let memoryLeads: Lead[] = [
   },
 ];
 
+// In-memory working state
+let memoryLeads: Lead[] = [...INITIAL_DEMO_LEADS];
+let memoryStages: PipelineStage[] = [...DEFAULT_PIPELINE_STAGES];
+let isInitialized = false;
+
+// Safe LocalStorage helpers with schema validation
+function loadStorage<T>(key: string, fallback: T): T {
+  if (typeof window === "undefined") return fallback;
+  try {
+    const raw = localStorage.getItem(key);
+    if (!raw) return fallback;
+    const parsed = JSON.parse(raw);
+    if (Array.isArray(parsed) && parsed.length > 0) {
+      return parsed as T;
+    }
+    return fallback;
+  } catch (err) {
+    console.warn(`[BizLead CRM] Error reading ${key} from localStorage`, err);
+    return fallback;
+  }
+}
+
+function persistStorage<T>(key: string, data: T): void {
+  if (typeof window === "undefined") return;
+  try {
+    localStorage.setItem(key, JSON.stringify(data));
+  } catch (err) {
+    console.warn(`[BizLead CRM] Error writing ${key} to localStorage`, err);
+  }
+}
+
+function ensureInitialized() {
+  if (isInitialized) return;
+  if (typeof window !== "undefined") {
+    memoryLeads = loadStorage<Lead[]>(STORAGE_KEY_LEADS, INITIAL_DEMO_LEADS);
+    memoryStages = loadStorage<PipelineStage[]>(
+      STORAGE_KEY_STAGES,
+      DEFAULT_PIPELINE_STAGES
+    );
+    isInitialized = true;
+  }
+}
+
 function getStageDefaultProbability(stageId: string): number {
   switch (stageId.toLowerCase()) {
     case "new":
@@ -175,17 +221,19 @@ function getStageDefaultProbability(stageId: string): number {
 }
 
 export async function listLeads(): Promise<Lead[]> {
-  // Simulates repository async read
+  ensureInitialized();
   return [...memoryLeads];
 }
 
 export async function getLead(id: string): Promise<Lead | undefined> {
+  ensureInitialized();
   return memoryLeads.find((l) => l.id === id);
 }
 
 export async function createLead(
   leadData: Omit<Lead, "id" | "createdAt">
 ): Promise<Lead> {
+  ensureInitialized();
   const newId = `BL-${String(memoryLeads.length + 1).padStart(3, "0")}`;
   const now = new Date().toISOString().split("T")[0];
 
@@ -203,10 +251,12 @@ export async function createLead(
         description: "Opportunity created in CRM",
         timestamp: "Just now",
       },
+      ...(leadData.timeline || []),
     ],
   };
 
   memoryLeads = [newLead, ...memoryLeads];
+  persistStorage(STORAGE_KEY_LEADS, memoryLeads);
   return newLead;
 }
 
@@ -214,6 +264,7 @@ export async function updateLead(
   id: string,
   updates: Partial<Lead>
 ): Promise<Lead> {
+  ensureInitialized();
   const index = memoryLeads.findIndex((l) => l.id === id);
   if (index === -1) {
     throw new Error(`Lead with ID ${id} not found.`);
@@ -226,17 +277,19 @@ export async function updateLead(
   };
 
   memoryLeads[index] = updated;
+  persistStorage(STORAGE_KEY_LEADS, memoryLeads);
   return updated;
 }
 
 export async function moveLead(id: string, stageId: string): Promise<Lead> {
+  ensureInitialized();
   const index = memoryLeads.findIndex((l) => l.id === id);
   if (index === -1) {
     throw new Error(`Lead with ID ${id} not found.`);
   }
 
   const existing = memoryLeads[index];
-  const targetStage = DEFAULT_PIPELINE_STAGES.find((s) => s.id === stageId);
+  const targetStage = memoryStages.find((s) => s.id === stageId);
   const stageName = targetStage?.name || stageId;
 
   const newProbability =
@@ -261,5 +314,27 @@ export async function moveLead(id: string, stageId: string): Promise<Lead> {
   };
 
   memoryLeads[index] = updated;
+  persistStorage(STORAGE_KEY_LEADS, memoryLeads);
   return updated;
+}
+
+export async function listStages(): Promise<PipelineStage[]> {
+  ensureInitialized();
+  return [...memoryStages];
+}
+
+export async function updateStages(
+  stages: PipelineStage[]
+): Promise<PipelineStage[]> {
+  ensureInitialized();
+  memoryStages = [...stages];
+  persistStorage(STORAGE_KEY_STAGES, memoryStages);
+  return memoryStages;
+}
+
+export async function resetCRMData(): Promise<void> {
+  memoryLeads = [...INITIAL_DEMO_LEADS];
+  memoryStages = [...DEFAULT_PIPELINE_STAGES];
+  persistStorage(STORAGE_KEY_LEADS, memoryLeads);
+  persistStorage(STORAGE_KEY_STAGES, memoryStages);
 }

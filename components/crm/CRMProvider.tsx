@@ -18,6 +18,8 @@ type CRMContextType = {
   createLead: (data: Omit<Lead, "id" | "createdAt">) => Promise<Lead>;
   updateLead: (id: string, updates: Partial<Lead>) => Promise<Lead>;
   moveLead: (id: string, stageId: string) => Promise<Lead>;
+  updateStages: (stages: PipelineStage[]) => Promise<PipelineStage[]>;
+  resetCRMData: () => Promise<void>;
   openDealDrawer: (id: string) => void;
   closeDealDrawer: () => void;
   refreshLeads: () => Promise<void>;
@@ -27,14 +29,18 @@ const CRMContext = createContext<CRMContextType | null>(null);
 
 export function CRMProvider({ children }: { children: ReactNode }) {
   const [leads, setLeads] = useState<Lead[]>([]);
-  const [stages] = useState<PipelineStage[]>(DEFAULT_PIPELINE_STAGES);
+  const [stages, setStages] = useState<PipelineStage[]>(DEFAULT_PIPELINE_STAGES);
   const [loading, setLoading] = useState(true);
   const [selectedDealId, setSelectedDealId] = useState<string | null>(null);
 
   const loadData = async () => {
     try {
-      const result = await repo.listLeads();
-      setLeads(result);
+      const [leadsRes, stagesRes] = await Promise.all([
+        repo.listLeads(),
+        repo.listStages(),
+      ]);
+      setLeads(leadsRes);
+      setStages(stagesRes);
     } finally {
       setLoading(false);
     }
@@ -62,6 +68,17 @@ export function CRMProvider({ children }: { children: ReactNode }) {
     return moved;
   };
 
+  const updateStages = async (newStages: PipelineStage[]) => {
+    const updated = await repo.updateStages(newStages);
+    setStages(updated);
+    return updated;
+  };
+
+  const resetCRMData = async () => {
+    await repo.resetCRMData();
+    await loadData();
+  };
+
   const openDealDrawer = (id: string) => {
     setSelectedDealId(id);
   };
@@ -82,6 +99,8 @@ export function CRMProvider({ children }: { children: ReactNode }) {
         createLead,
         updateLead,
         moveLead,
+        updateStages,
+        resetCRMData,
         openDealDrawer,
         closeDealDrawer,
         refreshLeads: loadData,

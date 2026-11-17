@@ -1671,11 +1671,12 @@ body {
 .bl-brand-tagline {
   font-family: "Manrope", sans-serif;
   font-weight: 600;
-  color: #151515;
+  color: var(--text);
   letter-spacing: 0.2px;
   line-height: 1.15;
   white-space: nowrap;
   text-transform: none;
+  transition: color 250ms ease;
 }
 
 .bl-breadcrumb {
