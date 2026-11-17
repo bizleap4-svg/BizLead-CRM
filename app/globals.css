@@ -2278,6 +2278,700 @@ body {
   }
 }
 
+/* ==========================================================================
+   BIZLEAD REVENUE OS — PHASE 03: PIPELINE STUDIO STYLES
+   ========================================================================== */
+
+.bl-pipeline-studio {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* Revenue Intelligence Summary Grid */
+.bl-pipeline-metrics {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.bl-metric-tile {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.bl-metric-tile:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.05);
+}
+
+.bl-metric-highlight {
+  border-color: color-mix(in srgb, var(--accent) 60%, var(--border));
+  background: color-mix(in srgb, var(--accent) 4%, var(--surface));
+}
+
+.bl-metric-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.bl-metric-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: var(--muted);
+}
+
+.bl-metric-icon {
+  color: var(--muted);
+  opacity: 0.8;
+}
+
+.bl-metric-value {
+  font-family: "Manrope", sans-serif;
+  font-size: clamp(22px, 1.8vw, 28px);
+  font-weight: 800;
+  letter-spacing: -0.8px;
+  color: var(--text);
+  line-height: 1.1;
+  margin-bottom: 6px;
+}
+
+.bl-metric-sub {
+  font-size: 11px;
+  color: var(--muted);
+  line-height: 1.35;
+}
+
+/* Pipeline Toolbar & Filter Controls */
+.bl-pipeline-toolbar-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.bl-view-toggle-group {
+  display: inline-flex;
+  align-items: center;
+  background: var(--soft-neutral);
+  border-radius: 11px;
+  padding: 3px;
+  gap: 2px;
+}
+
+.bl-view-toggle-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--muted);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.bl-view-toggle-btn.active {
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.bl-view-toggle-btn:hover:not(.active) {
+  color: var(--text);
+}
+
+.bl-filter-active {
+  border-color: var(--accent) !important;
+  background: color-mix(in srgb, var(--accent) 8%, var(--surface)) !important;
+}
+
+.bl-filter-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+  display: inline-block;
+  margin-left: 2px;
+}
+
+.bl-sort-select-wrapper select {
+  font-size: 12px;
+  font-weight: 500;
+  padding: 9px 12px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  cursor: pointer;
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+
+.bl-sort-select-wrapper select:focus {
+  border-color: var(--accent);
+}
+
+.bl-new-deal-btn {
+  margin-left: auto;
+}
+
+/* Kanban Board Layout */
+.bl-pipeline-board-container {
+  overflow-x: auto;
+  padding-bottom: 20px;
+  margin: 0 -8px;
+  padding-left: 8px;
+  padding-right: 8px;
+  -webkit-overflow-scrolling: touch;
+}
+
+.bl-pipeline-board {
+  display: flex;
+  gap: 16px;
+  min-width: 100%;
+  width: max-content;
+  align-items: flex-start;
+}
+
+/* Kanban Column */
+.bl-kanban-column {
+  width: 310px;
+  min-width: 310px;
+  background: color-mix(in srgb, var(--surface) 65%, var(--background));
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  transition: all 0.2s ease;
+}
+
+.bl-kanban-column.drag-over {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 10%, var(--surface));
+  outline: 2px dashed var(--accent);
+  outline-offset: -2px;
+}
+
+.bl-kanban-column.collapsed {
+  width: 64px;
+  min-width: 64px;
+  padding: 12px 8px;
+}
+
+.bl-kanban-column.collapsed .bl-column-header {
+  margin-bottom: 0;
+}
+
+.bl-kanban-column.collapsed .bl-column-title-row {
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.bl-kanban-column.collapsed .bl-column-name {
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  font-size: 12px;
+  letter-spacing: 0.5px;
+}
+
+.bl-column-header {
+  margin-bottom: 12px;
+}
+
+.bl-column-title-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.bl-collapse-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px;
+  border-radius: 4px;
+  transition: color 0.15s ease;
+}
+
+.bl-collapse-btn:hover {
+  color: var(--text);
+}
+
+.bl-column-name {
+  font-family: "Manrope", sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text);
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.bl-stage-kind-won {
+  background: rgba(22, 130, 91, 0.15);
+  color: #16825B;
+  padding: 2px 7px;
+  border-radius: 6px;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.bl-stage-kind-lost {
+  background: rgba(229, 57, 53, 0.15);
+  color: #e53935;
+  padding: 2px 7px;
+  border-radius: 6px;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.bl-column-count {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--muted);
+  background: var(--soft-neutral);
+  border-radius: 99px;
+  padding: 2px 8px;
+  margin-left: auto;
+}
+
+.bl-column-sub-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--border);
+}
+
+.bl-column-total {
+  font-family: "Manrope", sans-serif;
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--text);
+}
+
+.bl-col-add-btn {
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--muted);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.bl-col-add-btn:hover {
+  border-color: var(--text);
+  color: var(--text);
+  background: var(--surface);
+}
+
+.bl-cards-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-height: 140px;
+}
+
+.bl-column-empty {
+  border: 1px dashed var(--border);
+  border-radius: 12px;
+  padding: 32px 14px;
+  text-align: center;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 500;
+}
+
+/* Deal Card */
+.bl-deal-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 14px;
+  cursor: grab;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+  user-select: none;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.bl-deal-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
+  border-color: color-mix(in srgb, var(--accent) 60%, var(--border));
+}
+
+.bl-deal-card:active {
+  cursor: grabbing;
+}
+
+.bl-deal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.bl-deal-company-group {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  min-width: 0;
+}
+
+.bl-deal-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background: var(--primary);
+  color: var(--on-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 11px;
+  flex-shrink: 0;
+}
+
+.bl-deal-title {
+  font-family: "Manrope", sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  margin: 0;
+  line-height: 1.2;
+  color: var(--text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.bl-deal-contact {
+  font-size: 11px;
+  color: var(--muted);
+  display: block;
+}
+
+.bl-deal-amount {
+  font-family: "Manrope", sans-serif;
+  font-weight: 800;
+  font-size: 13px;
+  color: var(--text);
+  white-space: nowrap;
+}
+
+.bl-deal-meta-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.bl-deal-prob-pill {
+  background: var(--soft-neutral);
+  font-size: 10px;
+  font-weight: 600;
+  padding: 3px 7px;
+  border-radius: 6px;
+  color: var(--text);
+}
+
+.bl-deal-score {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.bl-deal-priority-pill {
+  font-size: 9px;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 5px;
+  border: 1px solid var(--border);
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.bl-deal-priority-pill.bl-priority-high {
+  color: #e53935;
+  border-color: rgba(229, 57, 53, 0.4);
+  background: rgba(229, 57, 53, 0.08);
+}
+
+.bl-deal-priority-pill.bl-priority-medium {
+  color: #fb8c00;
+  border-color: rgba(251, 140, 0, 0.4);
+  background: rgba(251, 140, 0, 0.08);
+}
+
+.bl-deal-priority-pill.bl-priority-low {
+  color: var(--muted);
+  border-color: var(--border);
+}
+
+.bl-deal-dates {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.bl-deal-date,
+.bl-deal-followup {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.bl-deal-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 8px;
+  border-top: 1px solid var(--border);
+}
+
+.bl-deal-owner {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.bl-deal-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.bl-deal-move-btn {
+  border: 1px solid var(--border);
+  background: transparent;
+  border-radius: 6px;
+  padding: 3px 6px;
+  font-size: 10px;
+  cursor: pointer;
+  color: var(--muted);
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  transition: all 0.15s ease;
+}
+
+.bl-deal-move-btn:hover {
+  background: var(--soft-neutral);
+  color: var(--text);
+  border-color: var(--text);
+}
+
+.bl-deal-move-next {
+  font-weight: 600;
+}
+
+/* Deal Drawer Details */
+.bl-deal-drawer {
+  width: min(520px, 94vw);
+}
+
+.bl-deal-drawer-strip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--primary);
+  color: var(--on-primary);
+  border-radius: 14px;
+  padding: 14px 18px;
+  margin: 16px 0;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.bl-strip-stat {
+  display: flex;
+  flex-direction: column;
+}
+
+.bl-strip-label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  opacity: 0.7;
+}
+
+.bl-strip-val {
+  font-family: "Manrope", sans-serif;
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+}
+
+.bl-strip-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.bl-quick-stage-btn {
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.08);
+  color: #ffffff;
+  border-radius: 8px;
+  padding: 6px 12px;
+  font-size: 11px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.bl-quick-stage-btn:hover {
+  background: rgba(255, 255, 255, 0.16);
+}
+
+.bl-quick-stage-btn.active-won {
+  background: #16825B !important;
+  border-color: #16825B !important;
+}
+
+.bl-quick-stage-btn.active-lost {
+  background: #e53935 !important;
+  border-color: #e53935 !important;
+}
+
+.bl-drawer-timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  position: relative;
+  padding: 8px 0 8px 18px;
+  border-left: 2px solid var(--border);
+  margin-left: 6px;
+}
+
+.bl-timeline-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  position: relative;
+}
+
+.bl-timeline-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--accent);
+  margin-top: 4px;
+  margin-left: -23px;
+  flex-shrink: 0;
+  box-shadow: 0 0 0 3px var(--surface);
+}
+
+.bl-timeline-content {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.bl-timeline-desc {
+  font-size: 12px;
+  color: var(--text);
+  font-weight: 600;
+}
+
+.bl-timeline-time {
+  font-size: 10px;
+  color: var(--muted);
+}
+
+/* Compact Table View additions */
+.bl-pipeline-table-panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  overflow: hidden;
+}
+
+.bl-table-stage-select {
+  border: 1px solid var(--border);
+  background: var(--surface);
+  border-radius: 7px;
+  padding: 4px 8px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text);
+  outline: none;
+  cursor: pointer;
+}
+
+.bl-date-cell {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  color: var(--muted);
+}
+
+/* Responsive adjustments for Pipeline */
+@media (max-width: 1200px) {
+  .bl-pipeline-metrics {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 768px) {
+  .bl-pipeline-metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .bl-pipeline-toolbar-container .bl-toolbar {
+    flex-wrap: wrap;
+  }
+
+  .bl-new-deal-btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .bl-pipeline-metrics {
+    grid-template-columns: 1fr;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .bl-root *,
   .bl-root *::before,

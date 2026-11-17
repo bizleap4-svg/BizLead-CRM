@@ -8,44 +8,16 @@ import {
   ChevronDown,
 } from "lucide-react";
 import { BizLeadLogo } from "@/components/brand/BizLeadLogo";
-
-const leads = [
-  {
-    name: "Layers Studio",
-    source: "Meta Ads",
-    value: "₹84,000",
-    score: 96,
-    action: "Schedule call",
-    initials: "LS",
-  },
-  {
-    name: "Orbit Technologies",
-    source: "Website",
-    value: "₹1,20,000",
-    score: 88,
-    action: "Send proposal",
-    initials: "OT",
-  },
-  {
-    name: "Studio North",
-    source: "WhatsApp",
-    value: "₹65,000",
-    score: 81,
-    action: "Follow up",
-    initials: "SN",
-  },
-  {
-    name: "Forma Collective",
-    source: "Referral",
-    value: "₹92,000",
-    score: 74,
-    action: "Qualify lead",
-    initials: "FC",
-  },
-];
+import { useCRM } from "@/components/crm/CRMProvider";
+import { formatINR } from "@/components/crm/selectors";
 
 export default function BizLeadDashboard() {
+  const { leads, stages } = useCRM();
   const [activeTab, setActiveTab] = useState("Overview");
+
+  const priorityDeals = [...leads]
+    .sort((a, b) => (b.score || 0) - (a.score || 0))
+    .slice(0, 5);
 
   return (
     <>
@@ -328,8 +300,8 @@ export default function BizLeadDashboard() {
               <p>Focus on the deals that matter most.</p>
             </div>
 
-            <Link href="/leads" className="subtle-pill" style={{ textDecoration: "none", color: "inherit" }}>
-              All leads <ArrowUpRight size={13} />
+            <Link href="/pipeline" className="subtle-pill" style={{ textDecoration: "none", color: "inherit" }}>
+              Open Pipeline <ArrowUpRight size={13} />
             </Link>
           </div>
 
@@ -345,23 +317,23 @@ export default function BizLeadDashboard() {
               </thead>
 
               <tbody>
-                {leads.map((lead) => (
-                  <tr key={lead.name}>
+                {priorityDeals.map((deal) => (
+                  <tr key={deal.id}>
                     <td>
                       <div className="lead-company">
                         <div className="company-icon">
-                          {lead.initials}
+                          {deal.company.slice(0, 2).toUpperCase()}
                         </div>
 
                         <div>
-                          <strong>{lead.name}</strong>
-                          <small>{lead.source}</small>
+                          <strong>{deal.company}</strong>
+                          <small>{deal.source} · {deal.name}</small>
                         </div>
                       </div>
                     </td>
 
                     <td className="deal-value">
-                      {lead.value}
+                      {formatINR(deal.value)}
                     </td>
 
                     <td>
@@ -369,18 +341,18 @@ export default function BizLeadDashboard() {
                         <div className="score-track">
                           <div
                             style={{
-                              width: `${lead.score}%`,
+                              width: `${deal.score}%`,
                             }}
                           />
                         </div>
 
-                        {lead.score}
+                        {deal.score}
                       </div>
                     </td>
 
                     <td>
                       <span className="action-pill">
-                        {lead.action}
+                        {deal.nextFollowUp || "Review opportunity"}
                       </span>
                     </td>
                   </tr>
@@ -392,50 +364,57 @@ export default function BizLeadDashboard() {
 
         {/* PIPELINE FLOW */}
         <article className="pipeline-card">
-          <div className="section-heading">
+          <Link
+            href="/pipeline"
+            className="section-heading"
+            style={{ textDecoration: "none", color: "inherit", cursor: "pointer" }}
+            title="Open Pipeline Studio"
+          >
             <div>
               <h3>Pipeline flow</h3>
               <p>From first touch to closed deal.</p>
             </div>
 
             <ArrowUpRight size={19} />
-          </div>
+          </Link>
 
           <div className="pipeline-bars">
-            {[
-              { name: "New", value: 248 },
-              { name: "Contacted", value: 182 },
-              { name: "Qualified", value: 96 },
-              { name: "Proposal", value: 58 },
-              { name: "Won", value: 42 },
-            ].map((stage, i) => (
-              <div className="pipeline-column" key={stage.name}>
-                <div className="pipeline-track">
-                  <div
-                    className="pipeline-fill"
-                    style={{
-                      height: `${stage.value / 248 * 100}%`,
-                      background:
-                        i === 3
-                          ? "var(--accent)"
-                          : `color-mix(in srgb,
-                              var(--primary) ${20 + i * 20}%,
-                              var(--surface))`,
-                      color:
-                        i === 3
-                          ? "var(--on-accent)"
-                          : i >= 2
-                          ? "var(--on-primary)"
-                          : "var(--text)",
-                    }}
-                  >
-                    {stage.value}
-                  </div>
-                </div>
+            {stages.slice(0, 5).map((stage, i) => {
+              const count = leads.filter(
+                (l) => l.stage.toLowerCase() === stage.id.toLowerCase()
+              ).length;
+              // Add baseline funnel display for visual clarity
+              const displayVal = count > 0 ? count : (5 - i);
 
-                <span>{stage.name}</span>
-              </div>
-            ))}
+              return (
+                <div className="pipeline-column" key={stage.id}>
+                  <div className="pipeline-track">
+                    <div
+                      className="pipeline-fill"
+                      style={{
+                        height: `${Math.max(25, (displayVal / 5) * 100)}%`,
+                        background:
+                          i === 3
+                            ? "var(--accent)"
+                            : `color-mix(in srgb,
+                                var(--primary) ${20 + i * 20}%,
+                                var(--surface))`,
+                        color:
+                          i === 3
+                            ? "var(--on-accent)"
+                            : i >= 2
+                            ? "var(--on-primary)"
+                            : "var(--text)",
+                      }}
+                    >
+                      {count}
+                    </div>
+                  </div>
+
+                  <span>{stage.name}</span>
+                </div>
+              );
+            })}
           </div>
         </article>
       </section>

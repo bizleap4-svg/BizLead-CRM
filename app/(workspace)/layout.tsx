@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { ThemeProvider } from "../../components/theme/ThemeProvider";
 import WorkspaceShell from "../../components/layout/WorkspaceShell";
+import { CRMProvider } from "../../components/crm/CRMProvider";
 
 export default function Layout({
   children,
@@ -9,9 +10,11 @@ export default function Layout({
 }) {
   return (
     <ThemeProvider>
-      <WorkspaceShell>
-        {children}
-      </WorkspaceShell>
+      <CRMProvider>
+        <WorkspaceShell>
+          {children}
+        </WorkspaceShell>
+      </CRMProvider>
     </ThemeProvider>
   );
 }

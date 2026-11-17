@@ -12,100 +12,27 @@ import {
   ChevronRight,
   UsersRound,
 } from "lucide-react";
+import { useCRM } from "@/components/crm/CRMProvider";
+import { Lead, PIPELINE_OWNERS } from "@/components/crm/types";
 
-const stages = [
-  "New",
-  "Contacted",
-  "Qualified",
-  "Proposal",
-  "Won",
-  "Lost",
-] as const;
-
-type Stage = (typeof stages)[number];
-
-type Lead = {
-  id: string;
-  name: string;
-  company: string;
-  email: string;
-  source: string;
-  stage: Stage;
-  score: number;
-  owner: string;
-  value: number;
-  notes: string;
-};
-
-const initialLeads: Lead[] = [
-  {
-    id: "BL-001",
-    name: "Aarav Sharma",
-    company: "Layers Studio",
-    email: "",
-    source: "Meta Ads",
-    stage: "Qualified",
-    score: 96,
-    owner: "Sales Executive A",
-    value: 84000,
-    notes: "Interested in website development.",
-  },
-  {
-    id: "BL-002",
-    name: "Ananya Patel",
-    company: "Orbit Technologies",
-    email: "",
-    source: "Website",
-    stage: "New",
-    score: 88,
-    owner: "Sales Executive B",
-    value: 120000,
-    notes: "",
-  },
-  {
-    id: "BL-003",
-    name: "Rohan Mehta",
-    company: "Studio North",
-    email: "",
-    source: "WhatsApp",
-    stage: "Contacted",
-    score: 81,
-    owner: "",
-    value: 65000,
-    notes: "",
-  },
-  {
-    id: "BL-004",
-    name: "Neha Gupta",
-    company: "Forma Collective",
-    email: "",
-    source: "Instagram",
-    stage: "Proposal",
-    score: 74,
-    owner: "Sales Executive A",
-    value: 92000,
-    notes: "",
-  },
-];
-
-const owners = [
-  "Sales Executive A",
-  "Sales Executive B",
-  "Sales Executive C",
-];
-
-function newLead(): Lead {
+function newLeadTemplate(): Lead {
   return {
-    id: crypto.randomUUID(),
+    id: `temp-${Date.now()}`,
     name: "",
     company: "",
     email: "",
+    phone: "",
     source: "Manual",
-    stage: "New",
-    score: 0,
+    stage: "new",
+    score: 60,
     owner: "",
     value: 0,
+    probability: 30,
+    expectedCloseDate: new Date().toISOString().split("T")[0],
+    priority: "medium",
+    nextFollowUp: "Schedule intro call",
     notes: "",
+    createdAt: new Date().toISOString(),
   };
 }
 
@@ -117,11 +44,12 @@ const money = (n: number) =>
   }).format(n);
 
 export default function LeadsPage() {
-  const [leads, setLeads] = useState(initialLeads);
+  const { leads, stages, createLead, updateLead } = useCRM();
+
   const [query, setQuery] = useState("");
   const [view, setView] = useState("All leads");
-  const [stage, setStage] = useState("All stages");
-  const [source, setSource] = useState("All sources");
+  const [stageFilter, setStageFilter] = useState("All stages");
+  const [sourceFilter, setSourceFilter] = useState("All sources");
   const [showFilters, setShowFilters] = useState(false);
   const [selected, setSelected] = useState<string[]>([]);
   const [draft, setDraft] = useState<Lead | null>(null);
@@ -138,31 +66,52 @@ export default function LeadsPage() {
         (view === "High intent" && lead.score >= 80) ||
         (view === "Unassigned" && !lead.owner);
 
-      return (
-        matchesSearch &&
-        matchesView &&
-        (stage === "All stages" || lead.stage === stage) &&
-        (source === "All sources" || lead.source === source)
-      );
-    });
-  }, [leads, query, view, stage, source]);
+      const matchesStage =
+        stageFilter === "All stages" ||
+        lead.stage.toLowerCase() === stageFilter.toLowerCase();
 
-  function saveLead(event: FormEvent) {
+      const matchesSource =
+        sourceFilter === "All sources" || lead.source === sourceFilter;
+
+      return matchesSearch && matchesView && matchesStage && matchesSource;
+    });
+  }, [leads, query, view, stageFilter, sourceFilter]);
+
+  async function saveLead(event: FormEvent) {
     event.preventDefault();
     if (!draft || !draft.name.trim()) return;
 
-    const updated = {
-      ...draft,
-      name: draft.name.trim(),
-    };
-
-    setLeads((previous) =>
-      previous.some((lead) => lead.id === updated.id)
-        ? previous.map((lead) =>
-            lead.id === updated.id ? updated : lead
-          )
-        : [updated, ...previous]
-    );
+    const exists = leads.some((l) => l.id === draft.id);
+    if (exists) {
+      await updateLead(draft.id, {
+        name: draft.name.trim(),
+        company: draft.company || draft.name,
+        email: draft.email || "",
+        phone: draft.phone || "",
+        source: draft.source,
+        stage: draft.stage,
+        score: draft.score,
+        owner: draft.owner,
+        value: draft.value,
+        notes: draft.notes,
+      });
+    } else {
+      await createLead({
+        name: draft.name.trim(),
+        company: draft.company.trim() || draft.name.trim(),
+        email: draft.email || "",
+        phone: draft.phone || "",
+        source: draft.source || "Manual",
+        stage: draft.stage || "new",
+        score: draft.score || 50,
+        owner: draft.owner || "",
+        value: draft.value || 0,
+        probability: draft.probability || 30,
+        expectedCloseDate: draft.expectedCloseDate || new Date().toISOString().split("T")[0],
+        priority: draft.priority || "medium",
+        notes: draft.notes || "",
+      });
+    }
 
     setDraft(null);
   }
@@ -175,14 +124,10 @@ export default function LeadsPage() {
     );
   }
 
-  function assignSelected(owner: string) {
-    setLeads((previous) =>
-      previous.map((lead) =>
-        selected.includes(lead.id)
-          ? { ...lead, owner }
-          : lead
-      )
-    );
+  async function assignSelected(owner: string) {
+    for (const id of selected) {
+      await updateLead(id, { owner });
+    }
     setSelected([]);
   }
 
@@ -223,7 +168,7 @@ export default function LeadsPage() {
     );
     const link = document.createElement("a");
     link.href = url;
-    link.download = "bizlead-leads.csv";
+    link.download = `bizlead-leads-${new Date().toISOString().split("T")[0]}.csv`;
     link.click();
     URL.revokeObjectURL(url);
   }
@@ -241,7 +186,7 @@ export default function LeadsPage() {
 
         <button
           className="bl-primary"
-          onClick={() => setDraft(newLead())}
+          onClick={() => setDraft(newLeadTemplate())}
         >
           <Plus size={18} /> Add lead
         </button>
@@ -250,7 +195,7 @@ export default function LeadsPage() {
       <div className="bl-lead-metrics">
         {[
           ["All leads", leads.length],
-          ["New leads", leads.filter(l => l.stage === "New").length],
+          ["New leads", leads.filter(l => l.stage.toLowerCase() === "new").length],
           ["High intent", leads.filter(l => l.score >= 80).length],
           ["Unassigned", leads.filter(l => !l.owner).length],
         ].map(([label, value], index) => (
@@ -314,20 +259,24 @@ export default function LeadsPage() {
           <div className="bl-filter-row">
             <select
               aria-label="Filter by stage"
-              value={stage}
-              onChange={(e) => setStage(e.target.value)}
+              value={stageFilter}
+              onChange={(e) => setStageFilter(e.target.value)}
             >
               <option>All stages</option>
-              {stages.map(s => <option key={s}>{s}</option>)}
+              {stages.map((s) => (
+                <option key={s.id} value={s.id}>
+                  {s.name}
+                </option>
+              ))}
             </select>
 
             <select
               aria-label="Filter by source"
-              value={source}
-              onChange={(e) => setSource(e.target.value)}
+              value={sourceFilter}
+              onChange={(e) => setSourceFilter(e.target.value)}
             >
               <option>All sources</option>
-              {[...new Set(leads.map(l => l.source))].map(s => (
+              {Array.from(new Set(leads.map((l) => l.source))).map((s) => (
                 <option key={s}>{s}</option>
               ))}
             </select>
@@ -336,8 +285,8 @@ export default function LeadsPage() {
               className="bl-secondary"
               onClick={() => {
                 setQuery("");
-                setStage("All stages");
-                setSource("All sources");
+                setStageFilter("All stages");
+                setSourceFilter("All sources");
                 setView("All leads");
                 setSelected([]);
               }}
@@ -361,7 +310,9 @@ export default function LeadsPage() {
               }}
             >
               <option value="">Assign owner</option>
-              {owners.map(o => <option key={o}>{o}</option>)}
+              {PIPELINE_OWNERS.map((o) => (
+                <option key={o}>{o}</option>
+              ))}
             </select>
 
             <button
@@ -383,19 +334,19 @@ export default function LeadsPage() {
                     aria-label="Select all visible leads"
                     checked={
                       filtered.length > 0 &&
-                      filtered.every(l => selected.includes(l.id))
+                      filtered.every((l) => selected.includes(l.id))
                     }
                     onChange={(e) =>
-                      setSelected(previous =>
+                      setSelected((previous) =>
                         e.target.checked
                           ? [
                               ...new Set([
                                 ...previous,
-                                ...filtered.map(l => l.id),
+                                ...filtered.map((l) => l.id),
                               ]),
                             ]
                           : previous.filter(
-                              id => !filtered.some(l => l.id === id)
+                              (id) => !filtered.some((l) => l.id === id)
                             )
                       )
                     }
@@ -412,65 +363,72 @@ export default function LeadsPage() {
             </thead>
 
             <tbody>
-              {filtered.map((lead) => (
-                <tr key={lead.id}>
-                  <td>
-                    <input
-                      type="checkbox"
-                      aria-label={`Select ${lead.name}`}
-                      checked={selected.includes(lead.id)}
-                      onChange={() => toggleSelection(lead.id)}
-                    />
-                  </td>
+              {filtered.map((lead) => {
+                const stageObj = stages.find(
+                  (s) => s.id.toLowerCase() === lead.stage.toLowerCase()
+                );
+                const displayStageName = stageObj ? stageObj.name : lead.stage;
 
-                  <td>
-                    <button
-                      className="bl-person"
-                      onClick={() => setDraft({ ...lead })}
-                    >
-                      <div className="bl-person-avatar">
-                        {lead.name.slice(0, 1).toUpperCase()}
+                return (
+                  <tr key={lead.id}>
+                    <td>
+                      <input
+                        type="checkbox"
+                        aria-label={`Select ${lead.name}`}
+                        checked={selected.includes(lead.id)}
+                        onChange={() => toggleSelection(lead.id)}
+                      />
+                    </td>
+
+                    <td>
+                      <button
+                        className="bl-person"
+                        onClick={() => setDraft({ ...lead })}
+                      >
+                        <div className="bl-person-avatar">
+                          {lead.name.slice(0, 1).toUpperCase()}
+                        </div>
+                        <div>
+                          <strong>{lead.name}</strong>
+                          <small>{lead.company || "No company"}</small>
+                        </div>
+                      </button>
+                    </td>
+
+                    <td>{lead.source}</td>
+
+                    <td>
+                      <span
+                        className={`bl-status ${lead.stage.toLowerCase()}`}
+                      >
+                        {displayStageName}
+                      </span>
+                    </td>
+
+                    <td>
+                      <div className="bl-score">
+                        <div className="bl-score-track">
+                          <span style={{ width: `${lead.score}%` }} />
+                        </div>
+                        {lead.score}
                       </div>
-                      <div>
-                        <strong>{lead.name}</strong>
-                        <small>{lead.company || "No company"}</small>
-                      </div>
-                    </button>
-                  </td>
+                    </td>
 
-                  <td>{lead.source}</td>
+                    <td>{money(lead.value)}</td>
+                    <td>{lead.owner || "Unassigned"}</td>
 
-                  <td>
-                    <span
-                      className={`bl-status ${lead.stage.toLowerCase()}`}
-                    >
-                      {lead.stage}
-                    </span>
-                  </td>
-
-                  <td>
-                    <div className="bl-score">
-                      <div className="bl-score-track">
-                        <span style={{ width: `${lead.score}%` }} />
-                      </div>
-                      {lead.score}
-                    </div>
-                  </td>
-
-                  <td>{money(lead.value)}</td>
-                  <td>{lead.owner || "Unassigned"}</td>
-
-                  <td>
-                    <button
-                      className="bl-icon"
-                      aria-label={`Open ${lead.name}`}
-                      onClick={() => setDraft({ ...lead })}
-                    >
-                      <ChevronRight size={16} />
-                    </button>
-                  </td>
-                </tr>
-              ))}
+                    <td>
+                      <button
+                        className="bl-icon"
+                        aria-label={`Open ${lead.name}`}
+                        onClick={() => setDraft({ ...lead })}
+                      >
+                        <ChevronRight size={16} />
+                      </button>
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
 
@@ -555,15 +513,19 @@ export default function LeadsPage() {
               <label>
                 Stage
                 <select
-                  value={draft.stage}
+                  value={draft.stage.toLowerCase()}
                   onChange={(e) =>
                     setDraft({
                       ...draft,
-                      stage: e.target.value as Stage,
+                      stage: e.target.value,
                     })
                   }
                 >
-                  {stages.map(s => <option key={s}>{s}</option>)}
+                  {stages.map((s) => (
+                    <option key={s.id} value={s.id.toLowerCase()}>
+                      {s.name}
+                    </option>
+                  ))}
                 </select>
               </label>
 
@@ -579,7 +541,9 @@ export default function LeadsPage() {
                   }
                 >
                   <option value="">Unassigned</option>
-                  {owners.map(o => <option key={o}>{o}</option>)}
+                  {PIPELINE_OWNERS.map((o) => (
+                    <option key={o}>{o}</option>
+                  ))}
                 </select>
               </label>
 

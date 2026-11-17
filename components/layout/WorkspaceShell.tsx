@@ -32,7 +32,7 @@ import { BizLeadLogo } from "../brand/BizLeadLogo";
 const navigation = [
   { name: "Overview", route: "/dashboard", icon: LayoutDashboard, ready: true },
   { name: "Leads", route: "/leads", icon: UsersRound, ready: true },
-  { name: "Pipeline", route: "/pipeline", icon: Kanban, ready: false },
+  { name: "Pipeline", route: "/pipeline", icon: Kanban, ready: true },
   { name: "Contacts", route: "/contacts", icon: ContactRound, ready: false },
   { name: "Inbox", route: "/inbox", icon: Inbox, ready: false },
   { name: "Tasks", route: "/tasks", icon: CalendarDays, ready: false },
