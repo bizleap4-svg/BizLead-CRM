@@ -7,6 +7,7 @@ interface BizLeadLogoProps {
   showIcon?: boolean;
   size?: "sm" | "md" | "lg" | "xl" | "header";
   variant?: "default" | "badge";
+  tagline?: string | boolean;
   className?: string;
   style?: React.CSSProperties;
 }
@@ -15,6 +16,7 @@ export function BizLeadLogo({
   showIcon = true,
   size = "md",
   variant = "default",
+  tagline,
   className = "",
   style,
 }: BizLeadLogoProps) {
@@ -41,12 +43,29 @@ export function BizLeadLogo({
   const letterSpacing = letterSpacings[size] || letterSpacings.md;
   const isBadge = variant === "badge";
 
+  const taglineText =
+    typeof tagline === "string"
+      ? tagline
+      : tagline === true || (tagline === undefined && size === "header")
+      ? "The Intelligence Behind Growth."
+      : undefined;
+
+  const taglineFontSizes: Record<string, string> = {
+    sm: "9px",
+    md: "10px",
+    lg: "11px",
+    xl: "12px",
+    header: "clamp(11px, 0.9vw, 12px)",
+  };
+
+  const taglineFontSize = taglineFontSizes[size] || "11px";
+
   return (
     <div
       className={`bl-brand-logo ${isBadge ? "bl-brand-badge" : ""} ${className}`}
       style={{
         display: "inline-flex",
-        alignItems: "center",
+        alignItems: showIcon ? "center" : "flex-start",
         gap: size === "sm" ? "6px" : "10px",
         fontFamily: "'Manrope', sans-serif",
         fontWeight: 900,
@@ -73,34 +92,66 @@ export function BizLeadLogo({
         </div>
       )}
 
-      <span
+      <div
+        className="bl-brand-text-block"
         style={{
           display: "inline-flex",
-          alignItems: "center",
-          fontSize,
-          letterSpacing,
-          textTransform: "uppercase",
+          flexDirection: "column",
+          alignItems: "flex-start",
+          justifyContent: "center",
+          lineHeight: 1,
         }}
       >
         <span
-          className="bl-logo-biz"
+          className="bl-brand-wordmark"
           style={{
-            color: isBadge ? "#FFFFFF" : "var(--text)",
-            transition: "color 250ms ease",
+            display: "inline-flex",
+            alignItems: "center",
+            fontSize,
+            letterSpacing,
+            textTransform: "uppercase",
+            lineHeight: 1,
           }}
         >
-          BIZ
+          <span
+            className="bl-logo-biz"
+            style={{
+              color: isBadge ? "#FFFFFF" : "var(--text)",
+              transition: "color 250ms ease",
+            }}
+          >
+            BIZ
+          </span>
+          <span
+            className="bl-logo-lead"
+            style={{
+              color: "var(--accent)",
+              transition: "color 250ms ease",
+            }}
+          >
+            LEAD
+          </span>
         </span>
-        <span
-          className="bl-logo-lead"
-          style={{
-            color: "var(--accent)",
-            transition: "color 250ms ease",
-          }}
-        >
-          LEAD
-        </span>
-      </span>
+
+        {taglineText && (
+          <span
+            className="bl-brand-tagline"
+            style={{
+              fontFamily: "'Manrope', sans-serif",
+              fontSize: taglineFontSize,
+              fontWeight: 600,
+              color: "#151515",
+              letterSpacing: "0.2px",
+              marginTop: size === "header" ? "4px" : "2px",
+              lineHeight: 1.2,
+              whiteSpace: "nowrap",
+              textTransform: "none",
+            }}
+          >
+            {taglineText}
+          </span>
+        )}
+      </div>
     </div>
   );
 }

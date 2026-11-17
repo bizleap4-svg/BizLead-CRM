@@ -125,7 +125,11 @@ export default function WorkspaceShell({
               style={{ textDecoration: "none" }}
               title="BizLead Dashboard"
             >
-              <BizLeadLogo size="header" showIcon={false} />
+              <BizLeadLogo
+                size="header"
+                showIcon={false}
+                tagline="The Intelligence Behind Growth."
+              />
             </Link>
 
             <span className="bl-breadcrumb">

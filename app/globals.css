@@ -1671,6 +1671,8 @@ body {
 .bl-breadcrumb {
   font-size: 12px;
   color: var(--muted);
+  border-left: 1px solid var(--border);
+  padding-left: 14px;
 }
 
 .bl-page-heading {
