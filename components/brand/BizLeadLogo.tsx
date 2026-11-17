@@ -142,8 +142,9 @@ export function BizLeadLogo({
               fontWeight: 600,
               color: "#151515",
               letterSpacing: "0.2px",
-              marginTop: size === "header" ? "4px" : "2px",
-              lineHeight: 1.2,
+              marginTop: size === "header" ? "-2px" : "0px",
+              paddingLeft: size === "header" ? "2.5px" : "1px",
+              lineHeight: 1.15,
               whiteSpace: "nowrap",
               textTransform: "none",
             }}
