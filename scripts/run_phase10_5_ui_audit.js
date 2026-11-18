@@ -26,7 +26,7 @@ const CHROME_PATH = fs.existsSync('C:\\Program Files\\Google\\Chrome\\Applicatio
   : 'C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe';
 
 const BASE_URL = process.env.BASE_URL || 'http://localhost:3000';
-const EVIDENCE_BASE = path.resolve(__dirname, '..', 'qa_evidence', 'phase_10_5');
+const EVIDENCE_BASE = process.env.EVIDENCE_DIR || path.resolve(__dirname, '..', 'qa_evidence', 'phase_10_5');
 
 const ROUTES = [
   'dashboard',

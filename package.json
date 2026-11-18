@@ -6,9 +6,10 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "test:unit": "npx tsx scripts/test_phase06_gap_audit.js && npx tsx scripts/test_phase08_automations.js && npx tsx scripts/test_phase09_ai.js && npx tsx scripts/test_phase10_control_center.js",
+    "test:unit": "npx tsx scripts/test_phase06_gap_audit.js && npx tsx scripts/test_metrics.js && npx tsx scripts/test_phase08_automations.js && npx tsx scripts/test_phase09_ai.js && npx tsx scripts/test_phase10_control_center.js",
+    "qa:behavioral": "node scripts/run_qa.js && node scripts/run_phase06_qa.js && node scripts/run_phase07_qa.js && node scripts/run_phase08_qa.js && node scripts/run_phase09_qa.js && node scripts/run_phase10_qa.js && node scripts/run_phase10_5_logic_audit.js",
     "qa:ui": "node scripts/run_phase10_5_ui_audit.js",
-    "qa:all": "npm run test:unit && npm run qa:ui"
+    "qa:all": "npm run test:unit && npm run qa:behavioral && npm run qa:ui"
   },
   "dependencies": {
     "lucide-react": "^1.16.0",

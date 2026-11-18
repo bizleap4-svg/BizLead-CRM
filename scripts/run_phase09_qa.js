@@ -192,12 +192,12 @@ async function runQA() {
     await sleep(600);
 
     // Context popover opens
-    const popoverHeading = await page.$eval('.z-40 h4, .z-40 span.font-bold', (el) => el.innerText);
+    const popoverHeading = await page.$eval('[style*="--z-dropdown"] span.font-bold, .z-40 h4, .z-40 span.font-bold', (el) => el.innerText);
     console.log(`Context Popover Header: "${popoverHeading}"`);
     assert(popoverHeading.includes('Attach Record Context'), 'Expected Attach Record Context popover');
 
     // Click first item in list
-    const firstContextItem = await page.$('.z-40 .cursor-pointer');
+    const firstContextItem = await page.$('[style*="--z-dropdown"] .cursor-pointer, .z-40 .cursor-pointer');
     assert(firstContextItem, 'Context item must exist');
     await firstContextItem.click();
     await sleep(600);

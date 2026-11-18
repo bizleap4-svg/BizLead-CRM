@@ -353,8 +353,8 @@ async function runQA() {
     }
 
     // Submit lead
-    const saveLeadBtn = await findButtonByText(page, 'Save lead');
-    assert(saveLeadBtn, 'Save lead button must exist');
+    const saveLeadBtn = (await findButtonByText(page, 'Create lead')) || (await findButtonByText(page, 'Save lead'));
+    assert(saveLeadBtn, 'Save/Create lead button must exist');
     await saveLeadBtn.click();
     await sleep(1500);
 
