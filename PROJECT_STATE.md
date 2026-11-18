@@ -1,69 +1,104 @@
 # BizLead Revenue OS — Project State Documentation
-**Current Phase:** Phase 03 Complete · Ready for Phase 04  
+**Current Phase:** Phase 05 Complete · Ready for Phase 06  
 **Workspace:** `E:\BizLead`  
-**Last Audited:** November 17, 2026  
+**Last Audited:** November 18, 2026  
 
 ---
 
 ## 1. System Architecture Overview
 
-BizLead Revenue OS is built with Next.js 15 App Router, React 19, TypeScript, and CSS variables. The system features a centralized CRM state layer, persistent theme system, floating dock navigation, and modular CRM suites.
+BizLead Revenue OS is built with Next.js 15 App Router, React 19, TypeScript, and CSS variables. The system features a centralized CRM state layer, persistent theme system, floating dock navigation, modular CRM suites, and an omnichannel communication engine.
 
 ```
 src/
 ├── app/
 │   ├── layout.tsx                      # Root layout with DM Sans & Manrope fonts
-│   ├── globals.css                     # Design tokens, themes, layouts, animations
+│   ├── globals.css                     # Design tokens, themes, layouts, animations, Phase 05 styles
 │   └── (workspace)/
 │       ├── layout.tsx                  # Wraps workspace with ThemeProvider & CRMProvider
 │       ├── dashboard/page.tsx          # Overview: Bento dashboard, revenue chart, priority deals
-│       ├── leads/page.tsx              # Phase 02: Lead Intelligence table, filters, drawer
-│       └── pipeline/page.tsx           # Phase 03: Pipeline Studio Kanban, metrics, filters
+│       ├── leads/page.tsx              # Phase 02: Lead Intelligence table, filters, drawer, LeadConvertModal
+│       ├── pipeline/page.tsx           # Phase 03: Pipeline Studio Kanban, metrics, filters
+│       ├── contacts/page.tsx           # Phase 04: Contact 360° workspace (master-detail + full table)
+│       ├── companies/page.tsx          # Phase 04: Company Intelligence (grid + table + detail modal)
+│       └── inbox/page.tsx              # Phase 05: Unified Inbox 3-column omnichannel workspace
 ├── components/
 │   ├── brand/
 │   │   ├── BizLeadIcon.tsx             # Vector logo icon with theme-reactive accent
 │   │   └── BizLeadLogo.tsx             # Wordmark + adaptive "The Intelligence Behind Growth." tagline
 │   ├── theme/
-│   │   └── ThemeProvider.tsx           # Theme context, 6 palettes, custom picker, live preview
+│   │   └── ThemeProvider.tsx           # Theme context, 7 verified palettes, custom picker, live preview
 │   ├── layout/
-│   │   └── WorkspaceShell.tsx          # Floating dock, header, theme studio drawer
+│   │   └── WorkspaceShell.tsx          # Floating dock, header, theme studio drawer, active nav items
 │   ├── crm/
-│   │   ├── types.ts                    # Lead, PipelineStage, DealPriority, TimelineEvent
-│   │   ├── repository.ts               # Repository facade, localStorage persistence, fallback
-│   │   ├── selectors.ts                # Revenue, win rate, forecast metric calculators
-│   │   └── CRMProvider.tsx             # Global CRM context provider (useCRM hook)
-│   └── pipeline/
-│       ├── PipelineMetrics.tsx         # Revenue intelligence cards (Open, Forecast, Won, Win Rate)
-│       ├── PipelineFilters.tsx         # Search, view toggle, filters popover, sort, CSV export
-│       ├── PipelineBoard.tsx           # Multi-column horizontal Kanban board
-│       ├── PipelineColumn.tsx          # Collapsible stage column with drop handlers
-│       ├── DealCard.tsx                # Interactive deal card with drag, probability, dates, actions
-│       ├── PipelineTable.tsx           # Compact tabular pipeline alternative with inline stages
-│       └── DealDrawer.tsx              # 3-tab contextual detail drawer (Specs, Timeline, Notes)
+│   │   ├── types.ts                    # Lead, Contact, Company, Deal, CRMActivity, CRMNote, CRMFile, CRMTask
+│   │   ├── repository.ts               # Storage facade with localStorage persistence, convertLead, communications
+│   │   ├── selectors.ts                # Selectors for Contacts, Companies, Pipeline, Revenue, and Inbox
+│   │   └── CRMProvider.tsx             # Global CRM context provider (useCRM hook with communications)
+│   ├── communications/
+│   │   ├── types.ts                    # Channel, Conversation, Message, Participant, Template, Connection
+│   │   └── adapters/
+│   │       ├── types.ts                # ChannelAdapter interface
+│   │       ├── whatsapp.ts             # WhatsApp Business Cloud API adapter (integration ready)
+│   │       ├── instagram.ts            # Instagram Professional Messaging API adapter
+│   │       ├── messenger.ts            # Facebook Page Messenger adapter
+│   │       ├── email.ts                # Corporate Email (SMTP/IMAP / SendGrid) adapter
+│   │       ├── website.ts              # Embedded Live Chat Widget adapter
+│   │       └── index.ts                # Adapter resolution registry
+│   ├── inbox/
+│   │   ├── InboxMetrics.tsx            # KPI tiles: Open, Unread, Pending, Avg First Response, Resolved
+│   │   ├── ConversationFilters.tsx     # Scope tabs, channel pills, sort selector, channels/templates triggers
+│   │   ├── ConversationDirectory.tsx   # Searchable conversation list, channel icons, unread pills, priority dots
+│   │   ├── ConversationThread.tsx      # Active conversation workspace with date separators and message stream
+│   │   ├── MessageBubble.tsx           # Incoming/outgoing bubbles, channel badges, delivery status, internal notes
+│   │   ├── MessageComposer.tsx         # Customer reply vs Private Internal Note tabs, emoji, attachments, draft
+│   │   ├── CustomerContextPanel.tsx    # Right CRM panel: Contact 360, won revenue, deals, lead capture for unlinked
+│   │   ├── ConversationActions.tsx     # Thread header controls: status, priority, owner assignment, unread toggle
+│   │   ├── ReplyTemplates.tsx          # Saved reply manager with live dynamic placeholder preview
+│   │   ├── ChannelConnectionCenter.tsx # Channel connection manager with honest setup guides and capability specs
+│   │   └── BizAIAssistant.tsx          # Contextual assistant: intent classification, summary, tone-based replies
+│   ├── contacts/
+│   │   ├── ContactHero.tsx             # Dark hero panel: avatar, designation, company, stats, direct action links
+│   │   ├── ContactProfile.tsx          # 6-tab customer 360 profile (Overview, Activity, Deals, Notes, Files, Tasks)
+│   │   ├── ContactDirectory.tsx        # Searchable directory sidebar with filter chips, owners, bulk assignment
+│   │   ├── ContactTable.tsx            # Full table view alternative with sorting, badges, actions
+│   │   ├── ContactModal.tsx            # Create / Edit contact dialog with duplicate email check
+│   │   ├── ActivityTimeline.tsx        # Reusable activity timeline with "Log Interaction" modal
+│   │   ├── NotesManager.tsx            # Interactive notes manager with creation and deletion
+│   │   ├── FilesManager.tsx            # Audited metadata-only document manager with client-side validation
+│   │   └── TasksManager.tsx            # Task checklist with due dates and priority badges
+│   ├── companies/
+│   │   ├── CompanyMetrics.tsx          # KPI cards: Tracked Accounts, Active Accounts, Pipeline, Won Revenue
+│   │   ├── CompanyGrid.tsx             # Card grid view with company logo, contacts, deals, won/pipeline
+│   │   ├── CompanyTable.tsx            # Detailed tabular list of organizations
+│   │   ├── CompanyDetailModal.tsx      # Comprehensive 6-tab account workspace modal
+│   │   └── CompanyModal.tsx            # Create / Edit company modal with duplicate check
+│   └── leads/
+│       └── LeadConvertModal.tsx        # Lead qualification dialog: links to Contact, Company, and Deal
 ```
 
 ---
 
-## 2. Phase 03 Audit & Verification Matrix
+## 2. Phase 05 Implementation & Audit Matrix
 
 | Feature | Status | Details |
 |---|---|---|
-| Centralized CRMProvider | **Completed** | Synchronizes data across Dashboard, Leads, and Pipeline via `useCRM()`. |
-| Repository Facade | **Completed** | Single entry point in `repository.ts` exposing `listLeads`, `getLead`, `createLead`, `updateLead`, `moveLead`. |
-| Pipeline Route & Navigation | **Completed** | `/pipeline` route active; dock icon enabled (`ready: true`). |
-| Drag-and-Drop Kanban | **Completed** | HTML5 drag-and-drop on `DealCard` and `PipelineColumn` with visual drop targets. |
-| Stage Advancement Buttons | **Completed** | Forward/back buttons on each deal card for touch & keyboard accessibility. |
-| Custom Pipeline Stages | **Completed** | 7 typed stages with `kind: "open" \| "won" \| "lost"`, ad-conversion mapping fields, and persistence. |
-| Deal Creation & Editing | **Completed** | Full lifecycle editing in `DealDrawer` with probability slider, close dates, follow-up, and lost reasons. |
-| Contextual Detail Drawer | **Completed** | Backdrop-blurred right drawer with *Deal Specs*, *Timeline & Activity*, and *Notes* tabs. |
-| Revenue Intelligence Metrics | **Completed** | Open Pipeline Value, Weighted Forecast, Closed Won Value, Win Rate %, Average Deal Size. |
-| Board & Table Dual Views | **Completed** | Seamless switching between Kanban board and dense data table with inline stage selector. |
-| Advanced Filters & Sorting | **Completed** | Substring search, multi-filter dropdowns, 5 sorting modes, formula-injection-safe CSV export. |
-| Module Synchronization | **Completed** | Modifying deals in Pipeline instantly updates Leads table and Dashboard Priority workspace. |
-| LocalStorage Persistence | **Completed** | Safe SSR check (`typeof window !== "undefined"`), JSON validation, fallback to reference demo leads. |
-| Theme Studio Reactivity | **Completed** | CSS variables used exclusively; tagline `"The Intelligence Behind Growth."` dynamically inherits `var(--text)`. |
-| Responsive Layouts | **Completed** | Responsive metric grid, horizontal board touch scrolling, mobile drawer width (`min(520px, 94vw)`). |
-| Production Build | **Completed** | `next build` passes with 0 errors across all routes (`/`, `/dashboard`, `/leads`, `/pipeline`). |
+| Three-Column Inbox Workspace (`/inbox`) | **Completed** | Left directory (330px), Center active conversation thread, Right customer intelligence panel (330px, collapsible). |
+| Communication Domain Models | **Completed** | Typed `Conversation`, `Message`, `Participant`, `Channel`, `ChannelConnection`, `MessageTemplate`, `InternalNote`, `Attachment`. |
+| Channel Adapter Architecture | **Completed** | Unified in `components/communications/adapters/`: WhatsApp Cloud API, Instagram Direct, Facebook Messenger, Corporate Email, Website Widget. |
+| Demo Engine vs Real Integration | **Completed** | Local simulation clearly labeled; no fake OAuth flows; zero client-side credential storage. |
+| Private Internal Notes Isolation | **Completed** | Dedicated warm amber/gold composer mode & bubble styling (`🔒 Internal Team Note`); never transmitted to customers; logged to CRM activity stream. |
+| Unlinked Inbound Lead Capture | **Completed** | Unlinked conversations (e.g. `@neha_designs` on Instagram) feature "Capture as New Lead" and "Attach to Existing Contact" workflows. |
+| Conversation Directory & Filtering | **Completed** | Substring search, status scope chips (All, Unread, Assigned, Open, Pending, Resolved, Archived), channel pills, sort selector. |
+| Customer Intelligence Sidebar | **Completed** | Contact card, direct call/email shortcuts, won revenue, open pipeline, associated deals, schedule task modal. |
+| Smart Reply Templates | **Completed** | Categories: First response, Lead qualification, Pricing inquiry, Scheduling, Proposal follow-up, Support, General. Placeholders `{contact_name}`, `{company_name}`, `{executive_name}`, `{deal_value}` resolved live. |
+| Biz AI Assistance | **Completed** | Contextual intent classification, 1-click summary, tone adjustment (Professional, Friendly, Urgent, Concise) with mandatory user review before insertion. |
+| Communication Analytics | **Completed** | `InboxMetrics.tsx`: Total Open, Unread, Pending, Avg First Response (calculated from valid timestamp pairs), Resolved. |
+| Channel Connection Center | **Completed** | `ChannelConnectionCenter.tsx`: Modal showing connection state, capability chips, honest setup guides, and webhook specs. |
+| FilesManager Audit Resolution | **Completed** | Replaced simulated fake file downloads with verified metadata-only inspection dialog and client-side validation (10MB limit). |
+| Theme Palettes Verification | **Completed** | Verified all 7 predefined theme presets exist in code (`Electric Yellow`, `Acid Lime`, `Digital Sky`, `Neo Lavender`, `Electric Coral`, `Glacier Mint`, `Midnight Yellow`). |
+| Floating Dock Navigation | **Completed** | `/inbox` route active and dock item set to `ready: true`. |
+| Production Build Verification | **Completed** | `next build` passes with zero errors; all 6 routes statically pre-rendered (`/`, `/dashboard`, `/leads`, `/pipeline`, `/contacts`, `/companies`, `/inbox`). |
 
 ---
 
@@ -80,6 +115,15 @@ src/
 
 ---
 
-## 4. Readiness for Phase 04
+## 4. Roadmap Status
 
-Phase 03 is complete, verified, and locked in Git history. The codebase is prepared to begin **Phase 04 (Unified Inbox: WhatsApp, Email, Instagram integration & API layer)**.
+- [x] **Phase 01 — Workspace & Global Theme Studio:** Completed
+- [x] **Phase 02 — Lead Intelligence:** Completed
+- [x] **Phase 03 — Pipeline Studio:** Completed
+- [x] **Phase 04 — Contact 360° & Company Intelligence:** Completed
+- [x] **Phase 05 — Unified Inbox & Omnichannel Communication:** Completed & Verified
+- [ ] **Phase 06 — Focus Center (Tasks, Calendar, Meetings & Smart Follow-ups):** Up next
+- [ ] **Phase 07 — Campaign Intelligence & Analytics:** Pending
+- [ ] **Phase 08 — Automation Studio:** Pending
+- [ ] **Phase 09 — Biz AI:** Pending
+- [ ] **Phase 10 — Administration & Permissions:** Pending

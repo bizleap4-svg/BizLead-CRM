@@ -11,9 +11,12 @@ import {
   Sparkles,
   ChevronRight,
   UsersRound,
+  UserCheck,
+  CheckCircle2,
 } from "lucide-react";
 import { useCRM } from "@/components/crm/CRMProvider";
 import { Lead, PIPELINE_OWNERS } from "@/components/crm/types";
+import { LeadConvertModal } from "@/components/leads/LeadConvertModal";
 
 function newLeadTemplate(): Lead {
   return {
@@ -44,7 +47,15 @@ const money = (n: number) =>
   }).format(n);
 
 export default function LeadsPage() {
-  const { leads, stages, createLead, updateLead } = useCRM();
+  const {
+    leads,
+    stages,
+    contacts,
+    companies,
+    createLead,
+    updateLead,
+    convertLead,
+  } = useCRM();
 
   const [query, setQuery] = useState("");
   const [view, setView] = useState("All leads");
@@ -53,6 +64,15 @@ export default function LeadsPage() {
   const [showFilters, setShowFilters] = useState(false);
   const [selected, setSelected] = useState<string[]>([]);
   const [draft, setDraft] = useState<Lead | null>(null);
+  const [convertTarget, setConvertTarget] = useState<Lead | null>(null);
+
+  const handlePerformConversion = async (params: any) => {
+    await convertLead(params);
+    setConvertTarget(null);
+    if (draft && draft.id === params.leadId) {
+      setDraft((prev) => (prev ? { ...prev, isConverted: true } : null));
+    }
+  };
 
   const filtered = useMemo(() => {
     return leads.filter((lead) => {
@@ -389,7 +409,17 @@ export default function LeadsPage() {
                           {lead.name.slice(0, 1).toUpperCase()}
                         </div>
                         <div>
-                          <strong>{lead.name}</strong>
+                          <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                            <strong>{lead.name}</strong>
+                            {lead.isConverted && (
+                              <span
+                                className="bl-tag-pill bl-converted-badge"
+                                title="Converted to Contact & Company"
+                              >
+                                Converted
+                              </span>
+                            )}
+                          </div>
                           <small>{lead.company || "No company"}</small>
                         </div>
                       </button>
@@ -418,13 +448,36 @@ export default function LeadsPage() {
                     <td>{lead.owner || "Unassigned"}</td>
 
                     <td>
-                      <button
-                        className="bl-icon"
-                        aria-label={`Open ${lead.name}`}
-                        onClick={() => setDraft({ ...lead })}
+                      <div
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "6px",
+                          justifyContent: "flex-end",
+                        }}
                       >
-                        <ChevronRight size={16} />
-                      </button>
+                        {!lead.isConverted && (
+                          <button
+                            type="button"
+                            className="bl-mini-convert-btn"
+                            title="Convert lead into Contact, Company & Deal"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setConvertTarget(lead);
+                            }}
+                          >
+                            <UserCheck size={13} />
+                            <span>Convert</span>
+                          </button>
+                        )}
+                        <button
+                          className="bl-icon"
+                          aria-label={`Open ${lead.name}`}
+                          onClick={() => setDraft({ ...lead })}
+                        >
+                          <ChevronRight size={16} />
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 );
@@ -484,6 +537,61 @@ export default function LeadsPage() {
                 </p>
               </div>
             </div>
+
+            {draft.isConverted ? (
+              <div
+                className="bl-insight"
+                style={{
+                  borderColor: "rgba(16, 185, 129, 0.35)",
+                  background: "rgba(16, 185, 129, 0.08)",
+                  marginTop: "10px",
+                }}
+              >
+                <CheckCircle2 size={18} color="#10B981" />
+                <div>
+                  <strong style={{ color: "#10B981" }}>Converted Lead</strong>
+                  <p>
+                    Graduated into Contact 360° and Company Intelligence.
+                  </p>
+                </div>
+              </div>
+            ) : (
+              <div
+                className="bl-drawer-conversion-banner"
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  gap: "12px",
+                  padding: "12px 14px",
+                  borderRadius: "10px",
+                  background: "rgba(255, 225, 59, 0.1)",
+                  border: "1px solid rgba(255, 225, 59, 0.3)",
+                  marginTop: "10px",
+                }}
+              >
+                <div>
+                  <strong style={{ fontSize: "13px", display: "block" }}>
+                    Qualify & Convert
+                  </strong>
+                  <span style={{ fontSize: "11px", color: "var(--muted)" }}>
+                    Graduate into Contact, Company & Deal
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  className="bl-primary"
+                  style={{
+                    padding: "6px 12px",
+                    fontSize: "12px",
+                    whiteSpace: "nowrap",
+                  }}
+                  onClick={() => setConvertTarget(draft)}
+                >
+                  <UserCheck size={14} /> Convert
+                </button>
+              </div>
+            )}
 
             <div className="bl-form-grid">
               {(
@@ -610,6 +718,17 @@ export default function LeadsPage() {
           </form>
         </aside>
       )}
+
+      {/* Lead Conversion Modal */}
+      <LeadConvertModal
+        isOpen={Boolean(convertTarget)}
+        onClose={() => setConvertTarget(null)}
+        lead={convertTarget}
+        contacts={contacts}
+        companies={companies}
+        stages={stages}
+        onConvert={handlePerformConversion}
+      />
     </section>
   );
 }
