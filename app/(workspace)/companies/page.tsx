@@ -25,6 +25,7 @@ import { CompanyTable } from "@/components/companies/CompanyTable";
 import { CompanyDetailModal } from "@/components/companies/CompanyDetailModal";
 import { CompanyModal } from "@/components/companies/CompanyModal";
 import { ContactModal } from "@/components/contacts/ContactModal";
+import { useControlCenter } from "@/components/settings/ControlCenterContext";
 
 export default function CompaniesPage() {
   const {
@@ -36,6 +37,7 @@ export default function CompaniesPage() {
     updateCompany,
     createContact,
   } = useCRM();
+  const { canCreate, canEdit } = useControlCenter();
 
   // View & Filter States
   const [view, setView] = useState<"grid" | "table">("grid");
@@ -221,9 +223,11 @@ export default function CompaniesPage() {
         </div>
 
         <div className="bl-header-actions">
-          <button className="bl-primary" onClick={handleOpenCreateModal}>
-            <Plus size={18} /> Add company
-          </button>
+          {canCreate("companies") && (
+            <button className="bl-primary" onClick={handleOpenCreateModal}>
+              <Plus size={18} /> Add company
+            </button>
+          )}
         </div>
       </div>
 

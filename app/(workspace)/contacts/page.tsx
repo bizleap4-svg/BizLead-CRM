@@ -15,6 +15,7 @@ import { ContactDirectory } from "@/components/contacts/ContactDirectory";
 import { ContactProfile } from "@/components/contacts/ContactProfile";
 import { ContactTable } from "@/components/contacts/ContactTable";
 import { ContactModal } from "@/components/contacts/ContactModal";
+import { useControlCenter } from "@/components/settings/ControlCenterContext";
 
 export default function ContactsPage() {
   const {
@@ -26,6 +27,7 @@ export default function ContactsPage() {
     updateContact,
     createDeal,
   } = useCRM();
+  const { canCreate, canEdit } = useControlCenter();
 
   const [viewMode, setViewMode] = useState<"split" | "table">("split");
   const [selectedContactId, setSelectedContactId] = useState<string | null>(
@@ -181,13 +183,15 @@ export default function ContactsPage() {
             </button>
           </div>
 
-          <button
-            type="button"
-            className="bl-primary"
-            onClick={handleOpenCreate}
-          >
-            <Plus size={16} /> Add Contact
-          </button>
+          {canCreate("contacts") && (
+            <button
+              type="button"
+              className="bl-primary"
+              onClick={handleOpenCreate}
+            >
+              <Plus size={16} /> Add Contact
+            </button>
+          )}
         </div>
       </section>
 

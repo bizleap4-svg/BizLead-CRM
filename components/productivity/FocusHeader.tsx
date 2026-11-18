@@ -14,10 +14,12 @@ import {
 } from "lucide-react";
 import { useCRM } from "../crm/CRMProvider";
 import { ExternalSyncModal } from "./ExternalSyncModal";
+import { useControlCenter } from "../settings/ControlCenterContext";
 
 export function FocusHeader() {
   const pathname = usePathname();
   const { openTaskDrawer, openMeetingDrawer } = useCRM();
+  const { canCreate } = useControlCenter();
   const [showSyncModal, setShowSyncModal] = useState(false);
 
   const tabs = [
@@ -59,25 +61,29 @@ export function FocusHeader() {
             <span>Sync / Export</span>
           </button>
 
-          <button
-            type="button"
-            className="bl-secondary bl-btn-sm"
-            onClick={() => openMeetingDrawer()}
-            title="Schedule a new client consultation or demo"
-          >
-            <CalendarPlus size={14} />
-            <span>Schedule Meeting</span>
-          </button>
+          {canCreate("meetings") && (
+            <button
+              type="button"
+              className="bl-secondary bl-btn-sm"
+              onClick={() => openMeetingDrawer()}
+              title="Schedule a new client consultation or demo"
+            >
+              <CalendarPlus size={14} />
+              <span>Schedule Meeting</span>
+            </button>
+          )}
 
-          <button
-            type="button"
-            className="bl-accent bl-btn-sm bl-primary-btn"
-            onClick={() => openTaskDrawer()}
-            title="Create a new task or follow-up item"
-          >
-            <Plus size={15} />
-            <span>New Task</span>
-          </button>
+          {canCreate("tasks") && (
+            <button
+              type="button"
+              className="bl-accent bl-btn-sm bl-primary-btn"
+              onClick={() => openTaskDrawer()}
+              title="Create a new task or follow-up item"
+            >
+              <Plus size={15} />
+              <span>New Task</span>
+            </button>
+          )}
         </div>
       </div>
 

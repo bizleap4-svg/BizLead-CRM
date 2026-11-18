@@ -17,7 +17,9 @@ import {
   Layers,
   ArrowRight,
   ShieldCheck,
+  ShieldAlert,
 } from "lucide-react";
+import { useControlCenter } from "@/components/settings/ControlCenterContext";
 
 export default function AutomationsPage() {
   const {
@@ -30,6 +32,7 @@ export default function AutomationsPage() {
     toggleWorkflowStatus,
     emergencyPauseAllWorkflows,
   } = useCRM();
+  const { canView, canCreate, activeRole } = useControlCenter();
 
   // Active builder workflow state
   const [editingWorkflow, setEditingWorkflow] = useState<Workflow | null>(null);
@@ -142,6 +145,19 @@ export default function AutomationsPage() {
     );
   }
 
+  // RBAC guard
+  if (!canView("automations")) {
+    return (
+      <div className="bl-empty" style={{ padding: "80px 20px", textAlign: "center" }}>
+        <ShieldAlert size={48} opacity={0.6} style={{ margin: "0 auto 12px" }} />
+        <h3 style={{ margin: "0 0 6px 0", fontSize: "18px" }}>Access Restricted</h3>
+        <p style={{ margin: 0, color: "var(--muted)", fontSize: "13px" }}>
+          Your current role ({activeRole.name}) does not have permission to view or manage Workflow Automations.
+        </p>
+      </div>
+    );
+  }
+
   return (
     <div className="p-6 max-w-7xl mx-auto space-y-6">
       {/* Page Header */}
@@ -178,14 +194,16 @@ export default function AutomationsPage() {
             <span>Template Library</span>
           </button>
 
-          <button
-            onClick={handleCreateNew}
-            id="btn-new-workflow"
-            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-primary text-primary-foreground text-xs font-semibold hover:bg-primary/90 transition-colors shadow-sm"
-          >
-            <Plus className="w-3.5 h-3.5" />
-            <span>New Workflow</span>
-          </button>
+          {canCreate("automations") && (
+            <button
+              onClick={handleCreateNew}
+              id="btn-new-workflow"
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-primary text-primary-foreground text-xs font-semibold hover:bg-primary/90 transition-colors shadow-sm"
+            >
+              <Plus className="w-3.5 h-3.5" />
+              <span>New Workflow</span>
+            </button>
+          )}
         </div>
       </div>
 

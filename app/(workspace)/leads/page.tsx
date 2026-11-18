@@ -18,6 +18,7 @@ import { useCRM } from "@/components/crm/CRMProvider";
 import { Lead, PIPELINE_OWNERS } from "@/components/crm/types";
 import { LeadConvertModal } from "@/components/leads/LeadConvertModal";
 import { Tabs } from "@/components/ui/Tabs";
+import { useControlCenter } from "@/components/settings/ControlCenterContext";
 
 function newLeadTemplate(): Lead {
   return {
@@ -57,6 +58,7 @@ export default function LeadsPage() {
     updateLead,
     convertLead,
   } = useCRM();
+  const { canCreate, canEdit, canDelete } = useControlCenter();
 
   const [query, setQuery] = useState("");
   const [view, setView] = useState("All leads");
@@ -205,12 +207,14 @@ export default function LeadsPage() {
           <p>Capture, qualify and convert every lead.</p>
         </div>
 
-        <button
-          className="bl-primary"
-          onClick={() => setDraft(newLeadTemplate())}
-        >
-          <Plus size={18} /> Add lead
-        </button>
+        {canCreate("leads") && (
+          <button
+            className="bl-primary"
+            onClick={() => setDraft(newLeadTemplate())}
+          >
+            <Plus size={18} /> Add lead
+          </button>
+        )}
       </div>
 
       <div className="bl-lead-metrics">
@@ -457,7 +461,7 @@ export default function LeadsPage() {
                           justifyContent: "flex-end",
                         }}
                       >
-                        {!lead.isConverted && (
+                        {!lead.isConverted && canEdit("leads", lead.owner) && (
                           <button
                             type="button"
                             className="bl-mini-convert-btn"
@@ -712,9 +716,21 @@ export default function LeadsPage() {
                 Cancel
               </button>
 
-              <button type="submit" className="bl-primary">
-                Save lead <ArrowUpRight size={16} />
-              </button>
+              {draft.id.startsWith("temp-") ? (
+                canCreate("leads") && (
+                  <button type="submit" className="bl-primary">
+                    Create lead <ArrowUpRight size={16} />
+                  </button>
+                )
+              ) : canEdit("leads", draft.owner) ? (
+                <button type="submit" className="bl-primary">
+                  Save lead <ArrowUpRight size={16} />
+                </button>
+              ) : (
+                <span style={{ fontSize: "12px", color: "var(--muted)", fontWeight: 600, padding: "8px 12px" }}>
+                  Read-only view
+                </span>
+              )}
             </div>
           </form>
         </aside>

@@ -4,6 +4,7 @@ import React, { useState, useMemo } from "react";
 import { Plus } from "lucide-react";
 import { useCRM } from "@/components/crm/CRMProvider";
 import { PIPELINE_OWNERS, PIPELINE_SOURCES, Lead } from "@/components/crm/types";
+import { useControlCenter } from "@/components/settings/ControlCenterContext";
 import { PipelineMetrics } from "@/components/pipeline/PipelineMetrics";
 import {
   PipelineFilters,
@@ -24,6 +25,7 @@ export default function PipelinePage() {
     openDealDrawer,
     closeDealDrawer,
   } = useCRM();
+  const { canCreate, canEdit } = useControlCenter();
 
   const [viewMode, setViewMode] = useState<"kanban" | "table">("kanban");
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -175,13 +177,15 @@ export default function PipelinePage() {
           <p>Turn conversations into opportunities.</p>
         </div>
 
-        <button
-          type="button"
-          className="bl-primary"
-          onClick={() => handleOpenCreateModal()}
-        >
-          <Plus size={18} /> Add Deal
-        </button>
+        {canCreate("pipeline") && (
+          <button
+            type="button"
+            className="bl-primary"
+            onClick={() => handleOpenCreateModal()}
+          >
+            <Plus size={18} /> Add Deal
+          </button>
+        )}
       </section>
 
       {/* Revenue Intelligence Panel */}
