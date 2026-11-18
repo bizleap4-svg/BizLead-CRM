@@ -142,8 +142,7 @@ export function AccountPreferencesPanel() {
                   type="button"
                   className={`bl-theme-palette-chip ${isSelected ? "selected" : ""}`}
                   onClick={() => {
-                    setDraft(p);
-                    apply();
+                    apply(p);
                   }}
                 >
                   <div

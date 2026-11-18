@@ -98,7 +98,7 @@ type ThemeContextType = {
   setLivePreview: (value: boolean) => void;
   openStudio: () => void;
   cancel: () => void;
-  apply: () => void;
+  apply: (themeToApply?: any) => void;
   reset: () => void;
 };
 
@@ -156,16 +156,23 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     setStudioOpen(false);
   }
 
-  function apply() {
-    setTheme({ ...draft });
+  function apply(themeToApply?: any) {
+    const next =
+      themeToApply && typeof themeToApply === "object" && "primary" in themeToApply
+        ? (themeToApply as Theme)
+        : draft;
+    setTheme({ ...next });
+    setDraft({ ...next });
     try {
-      localStorage.setItem("bizlead-theme", JSON.stringify(draft));
+      localStorage.setItem("bizlead-theme", JSON.stringify(next));
+      window.dispatchEvent(new Event("bizlead-theme-change"));
     } catch {}
     setStudioOpen(false);
   }
 
   function reset() {
     setDraft({ ...defaultTheme });
+    apply(defaultTheme);
   }
 
   const isDark = contrastColor(active.background) === "#FFFFFF";
@@ -181,7 +188,32 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     "--color-danger": isDark ? "#f87171" : "#dc2626",
     "--color-warning": isDark ? "#fbbf24" : "#b45309",
     "--color-info": isDark ? "#60a5fa" : "#2563eb",
+    "--surface-secondary": isDark
+      ? "color-mix(in srgb, var(--text) 7%, var(--surface))"
+      : "color-mix(in srgb, var(--text) 4%, var(--surface))",
   } as CSSProperties;
+
+  useEffect(() => {
+    if (typeof document === "undefined") return;
+    const root = document.documentElement;
+    root.style.setProperty("--primary", active.primary);
+    root.style.setProperty("--accent", active.accent);
+    root.style.setProperty("--background", active.background);
+    root.style.setProperty("--surface", active.surface);
+    root.style.setProperty("--text", active.text);
+    root.style.setProperty("--on-primary", contrastColor(active.primary));
+    root.style.setProperty("--on-accent", contrastColor(active.accent));
+    root.style.setProperty("--color-success", isDark ? "#34d399" : "#047857");
+    root.style.setProperty("--color-danger", isDark ? "#f87171" : "#dc2626");
+    root.style.setProperty("--color-warning", isDark ? "#fbbf24" : "#b45309");
+    root.style.setProperty("--color-info", isDark ? "#60a5fa" : "#2563eb");
+    root.style.setProperty(
+      "--surface-secondary",
+      isDark
+        ? "color-mix(in srgb, var(--text) 7%, var(--surface))"
+        : "color-mix(in srgb, var(--text) 4%, var(--surface))"
+    );
+  }, [active, isDark]);
 
   return (
     <ThemeContext.Provider

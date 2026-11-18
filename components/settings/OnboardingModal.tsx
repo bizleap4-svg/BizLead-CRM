@@ -248,8 +248,7 @@ export function OnboardingModal({ isOpen, onClose }: OnboardingModalProps) {
                       type="button"
                       className={`bl-onboarding-palette-btn ${isSel ? "selected" : ""}`}
                       onClick={() => {
-                        setDraft(p);
-                        apply();
+                        apply(p);
                       }}
                     >
                       <div className="bl-palette-dot" style={{ backgroundColor: p.accent }} />
