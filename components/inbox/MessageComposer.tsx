@@ -45,9 +45,12 @@ export function MessageComposer({
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Sync draft when switching conversations
+  // Sync draft when switching conversations or when draftMessage updates externally (e.g. template inserted or Biz AI)
   useEffect(() => {
     setContent(conversation.draftMessage || "");
+  }, [conversation.draftMessage, conversation.id]);
+
+  useEffect(() => {
     setAttachments([]);
     setFileError(null);
     setMode("reply");

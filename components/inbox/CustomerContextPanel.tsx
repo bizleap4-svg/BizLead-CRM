@@ -65,15 +65,16 @@ export function CustomerContextPanel({
   const [showQuickTaskModal, setShowQuickTaskModal] = useState(false);
 
   // Form states for Lead Capture
+  const isEmail =
+    conversation.participant.handleOrIdentifier.includes("@") &&
+    conversation.participant.handleOrIdentifier.includes(".");
   const [leadName, setLeadName] = useState(conversation.participant.name);
   const [leadCompany, setLeadCompany] = useState("");
   const [leadEmail, setLeadEmail] = useState(
-    conversation.participant.handleOrIdentifier.includes("@")
-      ? conversation.participant.handleOrIdentifier
-      : ""
+    isEmail ? conversation.participant.handleOrIdentifier : ""
   );
   const [leadPhone, setLeadPhone] = useState(
-    !conversation.participant.handleOrIdentifier.includes("@")
+    !isEmail && !conversation.participant.handleOrIdentifier.startsWith("@")
       ? conversation.participant.handleOrIdentifier
       : "+91 "
   );
@@ -384,6 +385,7 @@ export function CustomerContextPanel({
                 Company / Organization *
                 <input
                   required
+                  aria-label="Company or Organization"
                   placeholder="e.g. Acme Design Studio"
                   value={leadCompany}
                   onChange={(e) => setLeadCompany(e.target.value)}

@@ -2293,6 +2293,10 @@ export async function resetCRMData(): Promise<void> {
   memoryNotes = [...INITIAL_DEMO_NOTES];
   memoryFiles = [...INITIAL_DEMO_FILES];
   memoryTasks = [...INITIAL_DEMO_TASKS];
+  memoryConversations = [...INITIAL_DEMO_CONVERSATIONS];
+  memoryMessages = [...INITIAL_DEMO_MESSAGES];
+  memoryTemplates = [...INITIAL_DEMO_TEMPLATES];
+  memoryChannels = [...INITIAL_DEMO_CHANNELS];
 
   persistStorage(STORAGE_KEY_LEADS, memoryLeads);
   persistStorage(STORAGE_KEY_STAGES, memoryStages);
@@ -2303,6 +2307,10 @@ export async function resetCRMData(): Promise<void> {
   persistStorage(STORAGE_KEY_NOTES, memoryNotes);
   persistStorage(STORAGE_KEY_FILES, memoryFiles);
   persistStorage(STORAGE_KEY_TASKS, memoryTasks);
+  persistStorage(STORAGE_KEY_CONVERSATIONS, memoryConversations);
+  persistStorage(STORAGE_KEY_MESSAGES, memoryMessages);
+  persistStorage(STORAGE_KEY_TEMPLATES, memoryTemplates);
+  persistStorage(STORAGE_KEY_CHANNELS, memoryChannels);
 }
 
 // ==========================================
@@ -2666,11 +2674,71 @@ export async function createLeadFromConversation(
     notes: `Captured directly from ${conv.channel.toUpperCase()} conversation with ${conv.participant.name}.`,
   });
 
-  // 2. Link Lead to Conversation
+  // 2. Create or associate Company
+  const companyName = leadData.company.trim() || "Independent Account";
+  let comp = memoryCompanies.find(
+    (c) => c.name.toLowerCase() === companyName.toLowerCase()
+  );
+  if (!comp) {
+    comp = {
+      id: `COM-${String(memoryCompanies.length + 1).padStart(3, "0")}`,
+      name: companyName,
+      industry: "Design & Professional Services",
+      website: "https://example.com",
+      companySize: "11-50",
+      businessEmail: leadData.email || "hello@example.com",
+      businessPhone: leadData.phone || "+91 98000 00000",
+      city: "Mumbai",
+      country: "India",
+      owner: leadData.owner || conv.assignedOwner || "Sales Executive A",
+      lifecycleStatus: "prospect",
+      accountNotes: `Account created via ${conv.channel.toUpperCase()} lead conversion.`,
+      tags: ["Inbound", conv.channel.toUpperCase()],
+      contactIds: [],
+      dealIds: [newLead.id],
+      annualRevenue: (newLead.value || 50000) * 12,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+    memoryCompanies.push(comp);
+    persistStorage(STORAGE_KEY_COMPANIES, memoryCompanies);
+  } else {
+    comp.dealIds.push(newLead.id);
+    persistStorage(STORAGE_KEY_COMPANIES, memoryCompanies);
+  }
+
+  // 3. Create Contact
+  const newContact: Contact = {
+    id: `CON-${String(memoryContacts.length + 1).padStart(3, "0")}`,
+    name: leadData.name.trim() || conv.participant.name,
+    email: leadData.email || (conv.participant.handleOrIdentifier.includes("@") ? conv.participant.handleOrIdentifier : ""),
+    phone: leadData.phone || (!conv.participant.handleOrIdentifier.includes("@") ? conv.participant.handleOrIdentifier : ""),
+    designation: "Founder / Prospect",
+    companyId: comp.id,
+    companyName: comp.name,
+    owner: leadData.owner || conv.assignedOwner || "Sales Executive A",
+    lifecycleStatus: "lead",
+    source: conv.channel === "whatsapp" ? "WhatsApp" : conv.channel === "instagram" ? "Instagram" : "Website",
+    relationshipScore: 85,
+    tags: ["Inbound Lead", conv.channel.toUpperCase()],
+    avatar: conv.participant.avatar || conv.participant.name.slice(0, 2).toUpperCase(),
+    leadId: newLead.id,
+    dealIds: [newLead.id],
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  };
+  memoryContacts.push(newContact);
+  comp.contactIds.push(newContact.id);
+  persistStorage(STORAGE_KEY_CONTACTS, memoryContacts);
+  persistStorage(STORAGE_KEY_COMPANIES, memoryCompanies);
+
+  // 4. Link Lead, Contact, and Company to Conversation
   const convIdx = memoryConversations.findIndex((c) => c.id === conversationId);
   const updatedConv: Conversation = {
     ...conv,
     leadId: newLead.id,
+    contactId: newContact.id,
+    companyId: comp.id,
     tags: [...conv.tags.filter((t) => t !== "Inbound Lead"), "Lead Qualified"],
     updatedAt: new Date().toISOString(),
   };

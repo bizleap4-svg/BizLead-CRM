@@ -267,6 +267,7 @@ export default function InboxPage() {
         {/* Right Column: Customer Intelligence & CRM Context */}
         {showRightContext && activeConversation && (
           <CustomerContextPanel
+            key={activeConversation.id}
             conversation={activeConversation}
             contacts={contacts}
             companies={companies}
