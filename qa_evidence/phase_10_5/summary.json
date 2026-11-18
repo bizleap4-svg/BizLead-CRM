@@ -1,0 +1,42 @@
+{
+  "phase": "10.5",
+  "audit": "Full UI + Logic Comprehensive Automated Audit",
+  "totalRuns": 300,
+  "passedRuns": 300,
+  "failedRuns": 0,
+  "routesAudited": [
+    "dashboard",
+    "leads",
+    "pipeline",
+    "contacts",
+    "companies",
+    "inbox",
+    "tasks",
+    "calendar",
+    "meetings",
+    "campaigns",
+    "analytics",
+    "reports",
+    "automations",
+    "ai",
+    "settings"
+  ],
+  "viewports": [
+    { "name": "375", "width": 375, "height": 667 },
+    { "name": "768", "width": 768, "height": 1024 },
+    { "name": "1280", "width": 1280, "height": 800 },
+    { "name": "1440", "width": 1440, "height": 900 },
+    { "name": "1920", "width": 1920, "height": 1080 }
+  ],
+  "themes": ["light", "dark"],
+  "aiStates": ["closed", "open"],
+  "checks": {
+    "zeroElementOverlap": true,
+    "zeroHorizontalOverflow": true,
+    "zeroTabIntersections": true,
+    "zeroConsoleErrors": true,
+    "wcagAAContrast": true
+  },
+  "timestamp": "2026-11-19T00:54:00+05:30",
+  "gitCommit": "f837089"
+}

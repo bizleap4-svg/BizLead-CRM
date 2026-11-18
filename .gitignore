@@ -14,3 +14,6 @@ yarn-error.log*
 # Typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# QA Evidence Artifacts (PNGs excluded from git; summary JSON/MD retained)
+qa_evidence/**/*.png
