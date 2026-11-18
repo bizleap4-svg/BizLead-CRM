@@ -36,6 +36,7 @@ import { BizLeadLogo } from "../brand/BizLeadLogo";
 import { useCRM } from "../crm/CRMProvider";
 import { ReminderCenter } from "../productivity/ReminderCenter";
 import { CampaignDrawer } from "../marketing/CampaignDrawer";
+import { GlobalAssistant } from "../ai/GlobalAssistant";
 
 const navigation = [
   { name: "Overview", route: "/dashboard", icon: LayoutDashboard, ready: true },
@@ -51,6 +52,7 @@ const navigation = [
   { name: "Analytics", route: "/analytics", icon: ChartNoAxesCombined, ready: true },
   { name: "Reports", route: "/reports", icon: FileText, ready: true },
   { name: "Automations", route: "/automations", icon: Workflow, ready: true },
+  { name: "Biz AI", route: "/ai", icon: Sparkles, ready: true },
 ];
 
 export default function WorkspaceShell({
@@ -162,13 +164,14 @@ export default function WorkspaceShell({
               <Palette size={16} /> Appearance
             </button>
 
-            <button
+            <Link
+              href="/ai"
               className="bl-accent"
-              disabled
-              title="AI integration coming soon"
+              style={{ textDecoration: "none", display: "inline-flex", alignItems: "center", gap: "6px" }}
+              title="Open Biz AI Workspace"
             >
               <Sparkles size={16} /> Biz AI
-            </button>
+            </Link>
 
             <div style={{ position: "relative" }}>
               <button
@@ -206,6 +209,8 @@ export default function WorkspaceShell({
       )}
 
       {studioOpen && <ThemeStudio />}
+
+      <GlobalAssistant />
     </>
   );
 }

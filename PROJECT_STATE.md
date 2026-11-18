@@ -1,14 +1,14 @@
 # BizLead Revenue OS — Project State Documentation
-**Current Phase:** Phase 08 Complete · Ready for Phase 09  
+**Current Phase:** Phase 09 Complete · Ready for Phase 10  
 **Workspace:** `E:\BizLead`  
 **Last Audited:** November 18, 2026  
-**Roadmap Progress:** 80% (8 of 10 Phases Complete)
+**Roadmap Progress:** 90% (9 of 10 Phases Complete)
 
 ---
 
 ## 1. System Architecture Overview
 
-BizLead Revenue OS is built with Next.js 15 App Router, React 19, TypeScript, and CSS variables. The system features a centralized CRM state layer, persistent theme system, floating dock navigation, modular CRM suites, an omnichannel communication engine, a sales productivity command center, a complete marketing intelligence ecosystem, and an event-driven visual Automation Studio with deterministic execution.
+BizLead Revenue OS is built with Next.js 15 App Router, React 19, TypeScript, and CSS variables. The system features a centralized CRM state layer, persistent theme system, floating dock navigation, modular CRM suites, an omnichannel communication engine, a sales productivity command center, a complete marketing intelligence ecosystem, an event-driven visual Automation Studio, and Biz AI — a centralized, deterministic intelligence layer and assistant workspace with safe action execution.
 
 ```
 E:/BizLead/
@@ -29,7 +29,8 @@ E:/BizLead/
 │       ├── campaigns/page.tsx          # Phase 07: Campaign Manager ("Every campaign counts." grid & table)
 │       ├── analytics/page.tsx          # Phase 07: Growth Intelligence ("Growth, decoded." executive bento)
 │       ├── reports/page.tsx            # Phase 07: Report Studio ("Performance, made clear." A4 PDF print-ready)
-│       └── automations/page.tsx        # Phase 08: Automation Studio ("Workflows that work for you." visual builder)
+│       ├── automations/page.tsx        # Phase 08: Automation Studio ("Workflows that work for you." visual builder)
+│       └── ai/page.tsx                 # Phase 09: Biz AI ("Intelligence, unlocked." executive workspace)
 ├── components/
 │   ├── brand/
 │   │   ├── BizLeadIcon.tsx             # Vector logo icon with theme-reactive accent
@@ -37,21 +38,30 @@ E:/BizLead/
 │   ├── theme/
 │   │   └── ThemeProvider.tsx           # Theme context, 7 verified palettes, custom picker, live preview
 │   ├── layout/
-│   │   └── WorkspaceShell.tsx          # Floating dock, header, theme studio, CampaignDrawer, notifications bell
+│   │   └── WorkspaceShell.tsx          # Floating dock, header, theme studio, CampaignDrawer, notifications bell, GlobalAssistant
 │   ├── crm/
-│   │   ├── types.ts                    # Extended AutomationTriggerType, Workflow, WorkflowNode, WorkflowEdge, etc.
+│   │   ├── types.ts                    # Extended types for CRM, marketing, automations, and AI
 │   │   ├── repository.ts               # Storage facade with CRM + Marketing + Automation CRUD and deterministic seeds
 │   │   ├── selectors.ts                # Selectors: selectCampaignPerformanceList, selectGrowthExecutiveMetrics, etc.
 │   │   └── CRMProvider.tsx             # Global CRM context provider (useCRM hook with event dispatcher & engine)
-│   ├── automations/
-│   │   ├── WorkflowEngine.ts           # Condition evaluator, graph cycle validator, and dry-run engine
-│   │   ├── AutomationRepository.ts     # Persistence facade, 7 prebuilt inactive templates, and audit logs
-│   │   ├── AutomationMetrics.tsx       # Executive KPI metrics (Active Workflows, Executions, Success %, Completed Actions)
-│   │   ├── WorkflowBuilder.tsx         # Interactive SVG canvas with zoom/pan, node dragging, Bezier curves, undo/redo
-│   │   ├── WorkflowList.tsx            # Grid/table views, search, category/status filters, duplicate, delete
-│   │   ├── DryRunModal.tsx             # Zero-mutation simulation viewer with trigger evaluation and branch decisions
-│   │   ├── ExecutionHistoryModal.tsx   # Execution audit trail with step status, timestamps, and error logs
-│   │   └── TemplateGalleryModal.tsx    # 7 prebuilt industry blueprints with 1-click clone into draft
+│   ├── ai/
+│   │   ├── types.ts                    # AI interfaces: providers, sessions, messages, action proposals, tools, context
+│   │   ├── ToolRegistry.ts             # 8 structured read-only CRM query tools over live state
+│   │   ├── ContextEngine.ts            # Sanitization engine, ASCII control stripping, entity extraction
+│   │   ├── IntentRouter.ts             # Deterministic classifier for 11 CRM intents + transparent rejection
+│   │   ├── LocalAssistant.ts           # Rule-based natural language generator, lead cards, inline data tables
+│   │   ├── ActionExecutor.ts           # Strict idempotency guard, CRM mutation executor, audit trails
+│   │   ├── AIRepository.ts             # Versioned persistence under bizlead_ai_sessions_v1 and seed data
+│   │   ├── AIActionApproval.tsx        # Structured approval card with diff preview and one-click execution
+│   │   ├── AIMessageCard.tsx           # Message bubble renderer, tool invocation chips, card blocks
+│   │   ├── AIContextPicker.tsx         # Context attachment popover for leads, deals, companies, campaigns
+│   │   ├── AIComposer.tsx              # Textarea composer, suggestion chips, context banner
+│   │   ├── DailyBriefing.tsx           # Executive briefing modal (meetings, overdue tasks, high intent leads, pipeline)
+│   │   ├── AIProviderSettings.tsx      # Zero-exfiltration disclosure, gateway readiness panel (Phase 10)
+│   │   ├── AIConversationSidebar.tsx   # Session management, rename, delete, clear, and provider status pill
+│   │   ├── BizAIWorkspace.tsx          # Main conversational AI workspace layout
+│   │   └── GlobalAssistant.tsx         # Global floating launcher (#btn-global-ai-launcher) and slide-over copilot
+│   ├── automations/                    # Phase 08: Visual workflow builder, execution engine, prebuilt blueprints
 │   ├── marketing/                      # Phase 07: Campaign Manager, Growth Intelligence, Attribution
 │   ├── analytics/                      # Phase 07: Metric calculators, funnel, trend chart, insight engine
 │   ├── reports/                        # Phase 07: Report Studio builder and print preview
@@ -66,28 +76,28 @@ E:/BizLead/
 └── qa_evidence/
     ├── phase_06/                       # Phase 06 verified screenshots
     ├── phase_07/                       # Phase 07 verified screenshots
-    └── phase_08/                       # 10 High-resolution behavioral QA screenshots committed in repo
+    ├── phase_08/                       # Phase 08 verified screenshots
+    └── phase_09/                       # 10 High-resolution behavioral QA screenshots committed in repo
 ```
 
 ---
 
-## 2. Phase 08 Implementation & Verification Matrix
+## 2. Phase 09 Implementation & Verification Matrix
 
 | Capability / Module | Status | Verification & Functional Highlights |
 |---|---|---|
-| **Automation Studio (`/automations`)** | **Completed** | Full automation orchestration workspace with headline `"Workflows that work for you."`, subtitle `"Build once. Automate intelligently."`, and executive KPI metrics. |
-| **Executive Automation KPIs** | **Completed** | Real-time metric cards for Active Workflows, Total Executions, Success Rate (%), and Completed Actions with Emergency "Pause All Workflows" control. |
-| **Visual Workflow Builder Canvas** | **Completed** | Bespoke React 19-compatible SVG canvas with pan/zoom viewport controls, node dragging, Bezier connection curves with conditional branch styling, and accessible sequence list toggle. |
-| **Structured Condition Evaluator** | **Completed** | Safe evaluation of rules across fields, operators (`equals`, `not_equals`, `contains`, `greater_than`, `less_than`, `in`), and nested AND/OR groups without `eval` or unsafe execution. (7/7 unit tests passed). |
-| **Graph Topology & Cycle Detection** | **Completed** | DFS cycle detection identifying recursive loops and missing triggers before execution. (Topology audit passed). |
-| **Dry-Run Mode Simulation** | **Completed** | Zero-mutation test run simulating inbound CRM payloads against workflow triggers and branches, logging proposed actions without altering CRM contacts, deals, tasks, or pipeline states. |
-| **Prebuilt Workflow Library (7 Templates)** | **Completed** | 7 prebuilt industry automation blueprints (Enterprise Lead Routing, Instant Inbound Engagement, Stalled Proposal Cadence, Overdue Follow-up Escalation, Deal Won Kickoff, Inbound Conversation Alert, Campaign Quality Audit). Inactive by default until explicitly activated. |
-| **Functional CRM Actions** | **Completed** | Real execution of local CRM mutations: Assign Lead Owner, Update Priority, Add Tag, Create Task in Focus Center, Update Deal Stage, Create In-App Reminder, and Add Internal Note. External delivery (Email/WhatsApp/SMS) labeled as unavailable/Phase 10 without fake delivery simulation. |
-| **Execution History Audit Logs** | **Completed** | Detailed execution log viewer tracking workflow triggers, path traversal, step timestamps, and action execution outcomes. |
-| **Cross-Module Event Dispatching** | **Completed** | Ingesting a lead or converting/updating records in `CRMProvider` dispatches events that trigger matching active workflows in real time. |
-| **Dock Navigation & Shell Sync** | **Completed** | Dock updated: `Automations` (`/automations`, `ready: true`) with Lucide Workflow icon. |
-| **Production Build Validation** | **Completed** | `npm run build` succeeds with zero errors; all 17 static pages generated cleanly. |
-| **Behavioral QA Suite** | **Completed** | `run_phase08_qa.js` executed in an isolated browser session passing all 10 end-to-end flows and workspace regression with 10 screenshots saved directly to `qa_evidence/phase_08/`. |
+| **Biz AI Workspace (`/ai`)** | **Completed** | Full assistant workspace with headline `"Intelligence, unlocked."`, subtitle `"Your entire business ecosystem. One conversation."`, and rule-based badge. |
+| **Provider Transparency & Zero Hallucination** | **Completed** | Active Local CRM Assistant (Rule-Based Mode). Explicit disclosure that cloud LLMs (OpenAI, Gemini, Anthropic) are pending Phase 10 gateway. Zero fake LLM calls or token exfiltration. |
+| **CRM Tool Registry (8 Structured Tools)** | **Completed** | Structured query tools (`search_leads`, `get_lead_details`, `get_deal_details`, `get_company_details`, `get_contact_details`, `calculate_pipeline_metrics`, `find_closing_deals`, `find_stalled_deals`, `get_campaign_performance`, `get_pending_tasks`, `get_upcoming_meetings`, `get_workflow_health`) operating over live CRM state with source record citations. |
+| **Safe Action Proposal & Approval System** | **Completed** | Assistant proposes structured mutations (`create_task`, `create_followup`, `assign_lead_owner`, `add_internal_note`, `update_lead_priority`, `update_deal_stage`, `create_meeting_draft`, `create_automation_draft`). Actions require explicit user approval. |
+| **Strict Idempotency Guard** | **Completed** | `ActionExecutor` enforces single-execution guard. Status transitions (`pending` -> `executed` / `rejected`) prevent duplicate database writes on re-clicks or page reloads. |
+| **Natural Language Automation Drafts** | **Completed** | Generates validated, inactive workflow drafts directly saved to Automation Studio with complete trigger and action node definitions. |
+| **Executive Daily Briefing** | **Completed** | Bento-style modal displaying today's agenda, overdue actions, high-intent leads, and closing pipeline value in Indian Lakhs/Crores. |
+| **Global Contextual Assistant** | **Completed** | Floating launcher (`#btn-global-ai-launcher`) and slide-over contextual assistant mounted in `WorkspaceShell.tsx`, available across all 14 CRM routes. |
+| **Dock Navigation & Shell Sync** | **Completed** | Dock updated: `Biz AI` (`/ai`, `ready: true`) with Sparkles icon; header quick link enabled. |
+| **Targeted Unit & Risk Audits** | **Completed** | `test_phase09_ai.js` verified tool accuracy, query classification, input sanitization, idempotency enforcement, and residual Phase 08 safety (14/14 assertions passed). |
+| **Behavioral QA Suite** | **Completed** | `run_phase09_qa.js` executed in an isolated browser session passing all 10 end-to-end flows with 10 screenshots saved in `qa_evidence/phase_09/`. |
+| **Production Build Validation** | **Completed** | `npm run build` succeeds with zero errors; all 18 static pages generated cleanly. |
 
 ---
 
@@ -109,5 +119,5 @@ E:/BizLead/
 6. **Phase 06 — Focus Center — Tasks, Calendar, Meetings & Smart Follow-ups:** Completed  
 7. **Phase 07 — Campaign Intelligence & Analytics:** Completed  
 8. **Phase 08 — Automation Studio:** Completed  
-9. **Phase 09 — Biz AI:** Up next  
-10. **Phase 10 — Administration & Permissions:** Pending    
+9. **Phase 09 — Biz AI:** Completed  
+10. **Phase 10 — Administration & Permissions:** Up next    
