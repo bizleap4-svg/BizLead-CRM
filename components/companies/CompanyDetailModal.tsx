@@ -21,6 +21,7 @@ import { formatINR, selectCompanySummary } from "@/components/crm/selectors";
 import { ActivityTimeline } from "@/components/contacts/ActivityTimeline";
 import { NotesManager } from "@/components/contacts/NotesManager";
 import { FilesManager } from "@/components/contacts/FilesManager";
+import { Tabs } from "@/components/ui/Tabs";
 
 interface CompanyDetailModalProps {
   company: Company | null;
@@ -130,25 +131,20 @@ export function CompanyDetailModal({
         </div>
 
         {/* Navigation Tabs */}
-        <div className="bl-tabs">
-          {[
+        <Tabs
+          items={[
             { id: "overview", label: "Account Overview" },
-            { id: "contacts", label: `Contacts (${companyContacts.length})` },
-            { id: "deals", label: `Deals (${companyDeals.length})` },
+            { id: "contacts", label: "Contacts", count: companyContacts.length },
+            { id: "deals", label: "Deals", count: companyDeals.length },
             { id: "activity", label: "Activity Timeline" },
             { id: "notes", label: "Account Notes" },
             { id: "files", label: "Attachments" },
-          ].map((t) => (
-            <button
-              key={t.id}
-              type="button"
-              className={activeTab === t.id ? "active" : ""}
-              onClick={() => setActiveTab(t.id as any)}
-            >
-              {t.label}
-            </button>
-          ))}
-        </div>
+          ]}
+          activeTab={activeTab}
+          onChange={(t) => setActiveTab(t as any)}
+          variant="nested"
+          style={{ marginBottom: "16px" }}
+        />
 
         {/* Tab Content */}
         <div style={{ marginTop: "18px" }}>

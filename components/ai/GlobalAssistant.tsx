@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
 import { useCRM } from "../crm/CRMProvider";
 import { AIComposer } from "./AIComposer";
@@ -9,10 +9,11 @@ import { LocalAssistant } from "./LocalAssistant";
 import { AIMessage, AIContext } from "./types";
 import { Sparkles, X, Maximize2, Minimize2, ExternalLink } from "lucide-react";
 import Link from "next/link";
+import { useGlobalAI } from "./GlobalAIContext";
 
 export const GlobalAssistant: React.FC = () => {
   const pathname = usePathname();
-  const [isOpen, setIsOpen] = useState(false);
+  const { isAIOpen, openAI, closeAI } = useGlobalAI();
   const [messages, setMessages] = useState<AIMessage[]>([
     {
       id: "msg-global-seed",
@@ -23,6 +24,17 @@ export const GlobalAssistant: React.FC = () => {
     },
   ]);
   const [isLoading, setIsLoading] = useState(false);
+
+  // Close with Escape key
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && isAIOpen) {
+        closeAI();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isAIOpen, closeAI]);
 
   const {
     leads,
@@ -116,22 +128,23 @@ export const GlobalAssistant: React.FC = () => {
   return (
     <>
       {/* Floating Launcher Trigger */}
-      {!isOpen && (
+      {!isAIOpen && (
         <button
-          onClick={() => setIsOpen(true)}
+          onClick={openAI}
           id="btn-global-ai-launcher"
+          aria-label="Open Biz AI Assistant"
           style={{
             position: "fixed",
             bottom: "24px",
             right: "24px",
-            zIndex: 9999,
+            zIndex: "var(--z-sticky, 10)",
             display: "inline-flex",
             alignItems: "center",
             gap: "8px",
             padding: "10px 18px",
             borderRadius: "9999px",
-            backgroundColor: "var(--accent, #FFD028)",
-            color: "#0d0d0d",
+            backgroundColor: "var(--accent)",
+            color: "var(--on-accent)",
             fontWeight: 700,
             fontSize: "13px",
             boxShadow: "0 8px 24px rgba(0,0,0,0.25)",
@@ -146,174 +159,195 @@ export const GlobalAssistant: React.FC = () => {
         </button>
       )}
 
-      {/* Floating Contextual Assistant Slide-over Drawer */}
-      {isOpen && (
-        <div
-          id="global-ai-slideover-drawer"
-          style={{
-            position: "fixed",
-            bottom: "24px",
-            right: "24px",
-            zIndex: 9999,
-            width: "420px",
-            maxWidth: "calc(100vw - 48px)",
-            height: "560px",
-            maxHeight: "calc(100vh - 48px)",
-            backgroundColor: "var(--card-bg, #1e1e1e)",
-            color: "var(--text, #ffffff)",
-            border: "1px solid var(--border, rgba(255,255,255,0.1))",
-            borderRadius: "16px",
-            boxShadow: "0 20px 40px rgba(0,0,0,0.45)",
-            display: "flex",
-            flexDirection: "column",
-            overflow: "hidden",
-          }}
-        >
-          {/* Header */}
+      {/* Floating Contextual Assistant Slide-over / Docked Drawer */}
+      {isAIOpen && (
+        <>
+          {/* Backdrop for screens < 1280px */}
           <div
+            className="bl-ai-backdrop"
+            onClick={closeAI}
+            aria-hidden="true"
             style={{
-              padding: "12px 16px",
-              borderBottom: "1px solid var(--border, rgba(255,255,255,0.1))",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-              backgroundColor: "rgba(255,255,255,0.03)",
+              position: "fixed",
+              inset: 0,
+              backgroundColor: "var(--color-overlay)",
+              backdropFilter: "blur(4px)",
+              WebkitBackdropFilter: "blur(4px)",
+              zIndex: "var(--z-drawer, 30)",
             }}
-          >
-            <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-              <div
-                style={{
-                  width: "30px",
-                  height: "30px",
-                  borderRadius: "8px",
-                  backgroundColor: "rgba(255,208,40,0.15)",
-                  color: "var(--accent, #FFD028)",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
-              >
-                <Sparkles style={{ width: "16px", height: "16px" }} />
-              </div>
-              <div>
-                <h4
-                  style={{
-                    margin: 0,
-                    fontWeight: 700,
-                    fontSize: "13px",
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "6px",
-                  }}
-                >
-                  <span>Biz AI Assistant</span>
-                  <span
-                    style={{
-                      width: "6px",
-                      height: "6px",
-                      borderRadius: "50%",
-                      backgroundColor: "#10b981",
-                    }}
-                  />
-                </h4>
-                <span style={{ fontSize: "11px", color: "var(--muted, #888888)" }}>
-                  Contextual Copilot · Rule-Based Mode
-                </span>
-              </div>
-            </div>
+          />
 
-            <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-              <Link
-                href="/ai"
-                onClick={() => setIsOpen(false)}
-                style={{
-                  padding: "4px",
-                  borderRadius: "6px",
-                  color: "var(--muted, #888888)",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
-                title="Expand to Full AI Workspace"
-              >
-                <Maximize2 style={{ width: "16px", height: "16px" }} />
-              </Link>
-              <button
-                onClick={() => setIsOpen(false)}
-                style={{
-                  background: "none",
-                  border: "none",
-                  cursor: "pointer",
-                  padding: "4px",
-                  borderRadius: "6px",
-                  color: "var(--muted, #888888)",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
-              >
-                <X style={{ width: "16px", height: "16px" }} />
-              </button>
-            </div>
-          </div>
-
-          {/* Messages Feed */}
-          <div
+          <aside
+            id="global-ai-slideover-drawer"
+            role="dialog"
+            aria-label="Biz AI Contextual Assistant"
+            className="bl-ai-docked-panel"
             style={{
-              flex: 1,
-              overflowY: "auto",
-              padding: "16px",
+              position: "fixed",
+              top: "12px",
+              bottom: "12px",
+              right: "12px",
+              zIndex: "var(--z-ai-panel, 40)",
+              width: "380px",
+              maxWidth: "calc(100vw - 24px)",
+              backgroundColor: "var(--surface)",
+              color: "var(--text)",
+              border: "1px solid var(--border)",
+              borderRadius: "20px",
+              boxShadow: "0 20px 40px rgba(0,0,0,0.35)",
               display: "flex",
               flexDirection: "column",
-              gap: "12px",
+              overflow: "hidden",
             }}
           >
-            {messages.map((msg) => (
-              <AIMessageCard
-                key={msg.id}
-                message={msg}
-                executionContext={executionContext}
-                onActionStatusChange={() => {}}
-              />
-            ))}
-            {isLoading && (
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "8px",
-                  fontSize: "12px",
-                  color: "var(--muted, #888888)",
-                  padding: "8px 0",
-                }}
-              >
-                <Sparkles style={{ width: "14px", height: "14px", color: "var(--accent)" }} />
-                <span>Formulating response...</span>
+            {/* Header */}
+            <div
+              style={{
+                padding: "12px 16px",
+                borderBottom: "1px solid var(--border)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                backgroundColor: "var(--soft-neutral)",
+              }}
+            >
+              <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                <div
+                  style={{
+                    width: "30px",
+                    height: "30px",
+                    borderRadius: "8px",
+                    backgroundColor: "color-mix(in srgb, var(--accent) 15%, transparent)",
+                    color: "var(--accent)",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  <Sparkles style={{ width: "16px", height: "16px" }} />
+                </div>
+                <div>
+                  <h4
+                    style={{
+                      margin: 0,
+                      fontWeight: 700,
+                      fontSize: "13px",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "6px",
+                    }}
+                  >
+                    <span>Biz AI Assistant</span>
+                    <span
+                      style={{
+                        width: "6px",
+                        height: "6px",
+                        borderRadius: "50%",
+                        backgroundColor: "var(--color-success, #10b981)",
+                      }}
+                    />
+                  </h4>
+                  <span style={{ fontSize: "11px", color: "var(--muted)" }}>
+                    Contextual Copilot · Rule-Based Mode
+                  </span>
+                </div>
               </div>
-            )}
-          </div>
 
-          {/* Quick Composer */}
-          <div
-            style={{
-              padding: "12px",
-              borderTop: "1px solid var(--border, rgba(255,255,255,0.1))",
-              backgroundColor: "var(--card-bg, #1e1e1e)",
-            }}
-          >
-            <AIComposer
-              onSendMessage={handleSend}
-              isLoading={isLoading}
-              activeContext={null}
-              onSelectContext={() => {}}
-              leads={leads}
-              deals={deals}
-              companies={companies}
-              campaigns={campaigns}
-              contacts={contacts}
-            />
-          </div>
-        </div>
+              <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                <Link
+                  href="/ai"
+                  onClick={closeAI}
+                  style={{
+                    padding: "4px",
+                    borderRadius: "6px",
+                    color: "var(--muted)",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                  title="Expand to Full AI Workspace"
+                  aria-label="Expand to Full AI Workspace"
+                >
+                  <Maximize2 style={{ width: "16px", height: "16px" }} />
+                </Link>
+                <button
+                  onClick={closeAI}
+                  aria-label="Close Biz AI Assistant"
+                  style={{
+                    background: "none",
+                    border: "none",
+                    cursor: "pointer",
+                    padding: "4px",
+                    borderRadius: "6px",
+                    color: "var(--muted)",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  <X style={{ width: "16px", height: "16px" }} />
+                </button>
+              </div>
+            </div>
+
+            {/* Messages Feed */}
+            <div
+              style={{
+                flex: 1,
+                overflowY: "auto",
+                padding: "16px",
+                display: "flex",
+                flexDirection: "column",
+                gap: "12px",
+              }}
+            >
+              {messages.map((msg) => (
+                <AIMessageCard
+                  key={msg.id}
+                  message={msg}
+                  executionContext={executionContext}
+                  onActionStatusChange={() => {}}
+                />
+              ))}
+              {isLoading && (
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "8px",
+                    fontSize: "12px",
+                    color: "var(--muted)",
+                    padding: "8px 0",
+                  }}
+                >
+                  <Sparkles style={{ width: "14px", height: "14px", color: "var(--accent)" }} />
+                  <span>Formulating response...</span>
+                </div>
+              )}
+            </div>
+
+            {/* Quick Composer */}
+            <div
+              style={{
+                padding: "12px",
+                borderTop: "1px solid var(--border)",
+                backgroundColor: "var(--surface)",
+              }}
+            >
+              <AIComposer
+                onSendMessage={handleSend}
+                isLoading={isLoading}
+                activeContext={null}
+                onSelectContext={() => {}}
+                leads={leads}
+                deals={deals}
+                companies={companies}
+                campaigns={campaigns}
+                contacts={contacts}
+              />
+            </div>
+          </aside>
+        </>
       )}
     </>
   );

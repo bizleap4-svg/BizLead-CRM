@@ -17,6 +17,7 @@ import {
 import { useCRM } from "@/components/crm/CRMProvider";
 import { Lead, PIPELINE_OWNERS } from "@/components/crm/types";
 import { LeadConvertModal } from "@/components/leads/LeadConvertModal";
+import { Tabs } from "@/components/ui/Tabs";
 
 function newLeadTemplate(): Lead {
   return {
@@ -233,20 +234,20 @@ export default function LeadsPage() {
       </div>
 
       <article className="bl-table-panel">
-        <div className="bl-tabs">
-          {["All leads", "High intent", "Unassigned"].map((item) => (
-            <button
-              key={item}
-              className={view === item ? "active" : ""}
-              onClick={() => {
-                setView(item);
-                setSelected([]);
-              }}
-            >
-              {item}
-            </button>
-          ))}
-        </div>
+        <Tabs
+          items={[
+            { id: "All leads", label: "All leads", count: leads.length },
+            { id: "High intent", label: "High intent", count: leads.filter((l) => l.score >= 80).length },
+            { id: "Unassigned", label: "Unassigned", count: leads.filter((l) => !l.owner).length },
+          ]}
+          activeTab={view}
+          onChange={(v) => {
+            setView(v);
+            setSelected([]);
+          }}
+          queryParamKey="view"
+          variant="underline"
+        />
 
         <div className="bl-toolbar">
           <div className="bl-search">

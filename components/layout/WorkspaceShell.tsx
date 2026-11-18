@@ -38,6 +38,7 @@ import { ReminderCenter } from "../productivity/ReminderCenter";
 import { CampaignDrawer } from "../marketing/CampaignDrawer";
 import { GlobalAssistant } from "../ai/GlobalAssistant";
 import { useControlCenter } from "../settings/ControlCenterContext";
+import { useGlobalAI } from "../ai/GlobalAIContext";
 
 const navigation = [
   { name: "Overview", route: "/dashboard", icon: LayoutDashboard, ready: true },
@@ -70,6 +71,7 @@ export default function WorkspaceShell({
     closeCampaignDrawer,
   } = useCRM();
   const { activeMember, activeRole } = useControlCenter();
+  const { isAIOpen } = useGlobalAI();
   const [reminderOpen, setReminderOpen] = useState(false);
 
   const current = navigation.find(
@@ -150,7 +152,7 @@ export default function WorkspaceShell({
         </div>
       </aside>
 
-      <main className="bl-main">
+      <main className={`bl-main ${isAIOpen ? "bl-main-ai-open" : ""}`}>
         <header className="bl-header">
           <div className="bl-brand-group">
             <Link

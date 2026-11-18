@@ -10,6 +10,7 @@ import {
 import { BizLeadLogo } from "@/components/brand/BizLeadLogo";
 import { useCRM } from "@/components/crm/CRMProvider";
 import { formatINR } from "@/components/crm/selectors";
+import { Tabs } from "@/components/ui/Tabs";
 
 export default function BizLeadDashboard() {
   const { leads, stages } = useCRM();
@@ -35,18 +36,19 @@ export default function BizLeadDashboard() {
         </div>
       </section>
 
-      <div className="tabs">
-        {["Overview", "Revenue", "Acquisition", "Team"].map((t) => (
-          <span
-            key={t}
-            className={activeTab === t ? "selected" : ""}
-            onClick={() => setActiveTab(t)}
-            style={{ cursor: "pointer" }}
-          >
-            {t}
-          </span>
-        ))}
-      </div>
+      <Tabs
+        items={[
+          { id: "Overview", label: "Overview" },
+          { id: "Revenue", label: "Revenue" },
+          { id: "Acquisition", label: "Acquisition" },
+          { id: "Team", label: "Team" },
+        ]}
+        activeTab={activeTab}
+        onChange={setActiveTab}
+        queryParamKey="tab"
+        variant="underline"
+        style={{ marginBottom: "20px" }}
+      />
 
       {/* BENTO DASHBOARD */}
       <section className="dashboard-grid">

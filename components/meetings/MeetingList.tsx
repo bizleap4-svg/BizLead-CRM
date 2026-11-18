@@ -24,6 +24,7 @@ import { formatTaskTime } from "../crm/selectors";
 import { useCRM } from "../crm/CRMProvider";
 import { MeetingBrief } from "./MeetingBrief";
 import { MeetingOutcomeModal } from "./MeetingOutcomeModal";
+import { Tabs } from "../ui/Tabs";
 
 interface MeetingListProps {
   meetings: CRMMeeting[];
@@ -65,37 +66,20 @@ export function MeetingList({ meetings }: MeetingListProps) {
   return (
     <div className="bl-meeting-list-container">
       {/* Top Filter and Search Bar */}
-      <div className="bl-meeting-filters-bar bl-between">
-        <div className="bl-meeting-filter-tabs">
-          <button
-            type="button"
-            className={`bl-filter-pill ${activeFilter === "all" ? "active" : ""}`}
-            onClick={() => setActiveFilter("all")}
-          >
-            All Sessions ({meetings.length})
-          </button>
-          <button
-            type="button"
-            className={`bl-filter-pill ${activeFilter === "scheduled" ? "active" : ""}`}
-            onClick={() => setActiveFilter("scheduled")}
-          >
-            Scheduled ({meetings.filter((m) => m.status === "scheduled").length})
-          </button>
-          <button
-            type="button"
-            className={`bl-filter-pill ${activeFilter === "completed" ? "active" : ""}`}
-            onClick={() => setActiveFilter("completed")}
-          >
-            Completed ({meetings.filter((m) => m.status === "completed").length})
-          </button>
-          <button
-            type="button"
-            className={`bl-filter-pill ${activeFilter === "cancelled" ? "active" : ""}`}
-            onClick={() => setActiveFilter("cancelled")}
-          >
-            Cancelled ({meetings.filter((m) => m.status === "cancelled").length})
-          </button>
-        </div>
+      <div className="bl-meeting-filters-bar bl-between" style={{ gap: "12px", flexWrap: "wrap" }}>
+        <Tabs
+          items={[
+            { id: "all", label: "All Sessions", count: meetings.length },
+            { id: "scheduled", label: "Scheduled", count: meetings.filter((m) => m.status === "scheduled").length },
+            { id: "completed", label: "Completed", count: meetings.filter((m) => m.status === "completed").length },
+            { id: "cancelled", label: "Cancelled", count: meetings.filter((m) => m.status === "cancelled").length },
+          ]}
+          activeTab={activeFilter}
+          onChange={(f) => setActiveFilter(f as any)}
+          variant="pills"
+          size="sm"
+          style={{ width: "auto" }}
+        />
 
         <div className="bl-task-search-wrap" style={{ maxWidth: "260px" }}>
           <Search size={14} className="bl-search-icon" />

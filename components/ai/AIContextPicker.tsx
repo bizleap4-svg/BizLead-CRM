@@ -94,7 +94,10 @@ export const AIContextPicker: React.FC<AIContextPickerProps> = ({
 
       {/* Popover */}
       {isOpen && (
-        <div className="absolute bottom-full mb-2 left-0 z-40 w-80 bg-card border border-border rounded-xl shadow-xl p-3 space-y-2.5 animate-in zoom-in-95 duration-100">
+        <div
+          className="absolute bottom-full mb-2 left-0 w-80 bg-card border border-border rounded-xl shadow-xl p-3 space-y-2.5 animate-in zoom-in-95 duration-100"
+          style={{ zIndex: "var(--z-dropdown)" }}
+        >
           <div className="flex items-center justify-between pb-2 border-b">
             <span className="text-xs font-bold text-foreground">Attach Record Context</span>
             <button

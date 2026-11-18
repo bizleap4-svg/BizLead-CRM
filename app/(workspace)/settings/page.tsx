@@ -60,6 +60,17 @@ function SettingsContent() {
   const [searchQuery, setSearchQuery] = useState("");
   const [isOnboardingOpen, setIsOnboardingOpen] = useState(false);
 
+  const handleTabChange = (tabId: SettingsTab) => {
+    setActiveTab(tabId);
+    if (typeof window !== "undefined") {
+      try {
+        const url = new URL(window.location.href);
+        url.searchParams.set("tab", tabId);
+        window.history.replaceState(null, "", url.toString());
+      } catch {}
+    }
+  };
+
   // If search query matches a tab label or keyword, switch to it or highlight
   const handleSearchChange = (q: string) => {
     setSearchQuery(q);
@@ -67,25 +78,25 @@ function SettingsContent() {
 
     const lower = q.toLowerCase();
     if (lower.includes("team") || lower.includes("member") || lower.includes("workload")) {
-      setActiveTab("team");
+      handleTabChange("team");
     } else if (lower.includes("role") || lower.includes("permission") || lower.includes("matrix")) {
-      setActiveTab("roles");
+      handleTabChange("roles");
     } else if (lower.includes("dept") || lower.includes("department")) {
-      setActiveTab("departments");
+      handleTabChange("departments");
     } else if (lower.includes("stage") || lower.includes("source") || lower.includes("tag") || lower.includes("scoring") || lower.includes("field")) {
-      setActiveTab("crm_config");
+      handleTabChange("crm_config");
     } else if (lower.includes("integration") || lower.includes("webhook") || lower.includes("whatsapp") || lower.includes("openai") || lower.includes("gemini")) {
-      setActiveTab("integrations");
+      handleTabChange("integrations");
     } else if (lower.includes("audit") || lower.includes("log") || lower.includes("history")) {
-      setActiveTab("audit");
+      handleTabChange("audit");
     } else if (lower.includes("export") || lower.includes("backup") || lower.includes("reset") || lower.includes("import")) {
-      setActiveTab("data");
+      handleTabChange("data");
     } else if (lower.includes("plan") || lower.includes("billing") || lower.includes("pricing") || lower.includes("quota")) {
-      setActiveTab("billing");
+      handleTabChange("billing");
     } else if (lower.includes("theme") || lower.includes("profile") || lower.includes("appearance") || lower.includes("notification")) {
-      setActiveTab("preferences");
+      handleTabChange("preferences");
     } else if (lower.includes("org") || lower.includes("currency") || lower.includes("timezone") || lower.includes("business")) {
-      setActiveTab("org");
+      handleTabChange("org");
     }
   };
 
@@ -108,7 +119,7 @@ function SettingsContent() {
                 key={id}
                 type="button"
                 className={`bl-settings-nav-btn ${activeTab === id ? "active" : ""}`}
-                onClick={() => setActiveTab(id)}
+                onClick={() => handleTabChange(id)}
               >
                 <Icon size={17} />
                 <span>{label}</span>
@@ -123,7 +134,7 @@ function SettingsContent() {
                 key={id}
                 type="button"
                 className={`bl-settings-nav-btn ${activeTab === id ? "active" : ""}`}
-                onClick={() => setActiveTab(id)}
+                onClick={() => handleTabChange(id)}
               >
                 <Icon size={17} />
                 <span>{label}</span>
@@ -138,7 +149,7 @@ function SettingsContent() {
                 key={id}
                 type="button"
                 className={`bl-settings-nav-btn ${activeTab === id ? "active" : ""}`}
-                onClick={() => setActiveTab(id)}
+                onClick={() => handleTabChange(id)}
               >
                 <Icon size={17} />
                 <span>{label}</span>

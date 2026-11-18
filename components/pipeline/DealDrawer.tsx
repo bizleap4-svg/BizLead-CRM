@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import { Lead, PipelineStage, DealPriority } from "@/components/crm/types";
 import { formatINR } from "@/components/crm/selectors";
+import { Tabs } from "@/components/ui/Tabs";
 
 interface DealDrawerProps {
   deal: Lead | null;
@@ -121,9 +122,9 @@ export function DealDrawer({
         style={{
           position: "fixed",
           inset: 0,
-          background: "rgba(0,0,0,0.5)",
+          background: "var(--color-overlay, rgba(0,0,0,0.5))",
           backdropFilter: "blur(4px)",
-          zIndex: 80,
+          zIndex: "var(--z-drawer, 30)",
           animation: "fadeIn 200ms ease",
         }}
       />
@@ -133,7 +134,7 @@ export function DealDrawer({
         className="bl-drawer bl-deal-drawer"
         role="dialog"
         aria-label="Deal Details"
-        style={{ zIndex: 90 }}
+        style={{ zIndex: "var(--z-drawer, 30)" }}
       >
         <form onSubmit={handleSubmit}>
           {/* Header */}
@@ -197,29 +198,17 @@ export function DealDrawer({
           </div>
 
           {/* Navigation Tabs */}
-          <div className="bl-tabs" style={{ padding: "0 0 10px 0", margin: "18px 0 16px" }}>
-            <button
-              type="button"
-              className={activeTab === "overview" ? "active" : ""}
-              onClick={() => setActiveTab("overview")}
-            >
-              Deal Specs
-            </button>
-            <button
-              type="button"
-              className={activeTab === "timeline" ? "active" : ""}
-              onClick={() => setActiveTab("timeline")}
-            >
-              Timeline & Activity
-            </button>
-            <button
-              type="button"
-              className={activeTab === "notes" ? "active" : ""}
-              onClick={() => setActiveTab("notes")}
-            >
-              Notes
-            </button>
-          </div>
+          <Tabs
+            items={[
+              { id: "overview", label: "Deal Specs" },
+              { id: "timeline", label: "Timeline & Activity" },
+              { id: "notes", label: "Notes" },
+            ]}
+            activeTab={activeTab}
+            onChange={(t) => setActiveTab(t as any)}
+            variant="nested"
+            style={{ margin: "16px 0" }}
+          />
 
           {/* Tab 1: Deal Specs */}
           {activeTab === "overview" && (

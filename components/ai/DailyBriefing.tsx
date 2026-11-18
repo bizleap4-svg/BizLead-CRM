@@ -48,7 +48,10 @@ export const DailyBriefing: React.FC<DailyBriefingProps> = ({
     .reduce((sum, d) => sum + (d.value || 0), 0);
 
   return (
-    <div className="fixed inset-0 z-50 overflow-hidden bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+    <div
+      className="fixed inset-0 overflow-hidden backdrop-blur-sm flex items-center justify-center p-4"
+      style={{ zIndex: "var(--z-modal)", backgroundColor: "var(--color-overlay)" }}
+    >
       <div className="w-full max-w-3xl bg-card border border-border rounded-2xl shadow-2xl p-6 flex flex-col max-h-[90vh] animate-in zoom-in-95 duration-150 space-y-5">
         {/* Header */}
         <div className="flex items-center justify-between border-b pb-4">

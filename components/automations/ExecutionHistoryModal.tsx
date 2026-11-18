@@ -22,7 +22,10 @@ export const ExecutionHistoryModal: React.FC<ExecutionHistoryModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 overflow-hidden bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+    <div
+      className="fixed inset-0 overflow-hidden backdrop-blur-sm flex items-center justify-center p-4"
+      style={{ zIndex: "var(--z-modal)", backgroundColor: "var(--color-overlay)" }}
+    >
       <div className="w-full max-w-4xl bg-card border border-border rounded-xl shadow-2xl p-6 flex flex-col max-h-[90vh] animate-in zoom-in-95 duration-150">
         {/* Header */}
         <div className="flex items-center justify-between border-b pb-4">

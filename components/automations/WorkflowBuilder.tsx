@@ -413,11 +413,12 @@ export const WorkflowBuilder: React.FC<WorkflowBuilderProps> = ({
       {/* Validation Toast */}
       {validationToast && (
         <div
-          className={`absolute top-16 left-1/2 -translate-x-1/2 z-40 px-4 py-2 rounded-lg text-xs font-semibold shadow-lg flex items-center gap-2 ${
+          className={`absolute top-16 left-1/2 -translate-x-1/2 px-4 py-2 rounded-lg text-xs font-semibold shadow-lg flex items-center gap-2 ${
             validationToast.type === "success"
               ? "bg-emerald-500 text-white"
               : "bg-rose-500 text-white"
           }`}
+          style={{ zIndex: "var(--z-toast)" }}
         >
           {validationToast.type === "success" ? (
             <CheckCircle2 className="w-4 h-4" />
@@ -445,7 +446,10 @@ export const WorkflowBuilder: React.FC<WorkflowBuilderProps> = ({
             }}
           >
             {/* Canvas Zoom & Add Toolbar */}
-            <div className="absolute top-4 left-4 z-20 flex flex-col gap-2">
+            <div
+              className="absolute top-4 left-4 flex flex-col gap-2"
+              style={{ zIndex: "var(--z-sticky)" }}
+            >
               <div className="p-1.5 rounded-xl border bg-card/90 backdrop-blur-xs shadow-md flex items-center gap-1">
                 <button
                   onClick={() => setZoom((z) => Math.min(1.6, z + 0.1))}

@@ -174,7 +174,10 @@ export const CampaignDrawer: React.FC<CampaignDrawerProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 overflow-hidden bg-black/60 backdrop-blur-sm flex justify-end">
+    <div
+      className="fixed inset-0 overflow-hidden backdrop-blur-sm flex justify-end"
+      style={{ zIndex: "var(--z-drawer)", backgroundColor: "var(--color-overlay)" }}
+    >
       <div className="w-full max-w-xl h-full bg-card border-l border-border shadow-2xl flex flex-col animate-in slide-in-from-right duration-200">
         {/* Drawer Header */}
         <div className="p-5 border-b border-border flex items-center justify-between">

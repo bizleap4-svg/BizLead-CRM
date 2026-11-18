@@ -30,7 +30,10 @@ export const DryRunModal: React.FC<DryRunModalProps> = ({
   if (!isOpen || !result) return null;
 
   return (
-    <div className="fixed inset-0 z-50 overflow-hidden bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+    <div
+      className="fixed inset-0 overflow-hidden backdrop-blur-sm flex items-center justify-center p-4"
+      style={{ zIndex: "var(--z-modal)", backgroundColor: "var(--color-overlay)" }}
+    >
       <div className="w-full max-w-2xl bg-card border border-border rounded-xl shadow-2xl p-6 space-y-5 max-h-[90vh] overflow-y-auto animate-in zoom-in-95 duration-150">
         {/* Header */}
         <div className="flex items-center justify-between border-b pb-4">

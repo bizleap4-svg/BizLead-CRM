@@ -3,6 +3,7 @@ import { ThemeProvider } from "../../components/theme/ThemeProvider";
 import WorkspaceShell from "../../components/layout/WorkspaceShell";
 import { CRMProvider } from "../../components/crm/CRMProvider";
 import { ControlCenterProvider } from "../../components/settings/ControlCenterContext";
+import { GlobalAIProvider } from "../../components/ai/GlobalAIContext";
 
 export default function Layout({
   children,
@@ -13,9 +14,11 @@ export default function Layout({
     <ThemeProvider>
       <ControlCenterProvider>
         <CRMProvider>
-          <WorkspaceShell>
-            {children}
-          </WorkspaceShell>
+          <GlobalAIProvider>
+            <WorkspaceShell>
+              {children}
+            </WorkspaceShell>
+          </GlobalAIProvider>
         </CRMProvider>
       </ControlCenterProvider>
     </ThemeProvider>

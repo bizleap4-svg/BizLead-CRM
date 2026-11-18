@@ -21,6 +21,7 @@ import { ActivityTimeline } from "./ActivityTimeline";
 import { NotesManager } from "./NotesManager";
 import { FilesManager } from "./FilesManager";
 import { TasksManager } from "./TasksManager";
+import { Tabs } from "@/components/ui/Tabs";
 
 interface ContactProfileProps {
   contact: Contact;
@@ -61,25 +62,20 @@ export function ContactProfile({
       />
 
       {/* Profile Navigation Tabs */}
-      <div className="bl-tabs bl-profile-tabs">
-        {[
+      <Tabs
+        items={[
           { id: "overview", label: "Overview" },
           { id: "activity", label: "Activity Stream" },
-          { id: "deals", label: `Opportunities (${contactDeals.length})` },
+          { id: "deals", label: "Opportunities", count: contactDeals.length },
           { id: "notes", label: "Notes" },
           { id: "files", label: "Files & Documents" },
           { id: "tasks", label: "Tasks" },
-        ].map((tab) => (
-          <button
-            key={tab.id}
-            type="button"
-            className={activeTab === tab.id ? "active" : ""}
-            onClick={() => setActiveTab(tab.id as any)}
-          >
-            {tab.label}
-          </button>
-        ))}
-      </div>
+        ]}
+        activeTab={activeTab}
+        onChange={(t) => setActiveTab(t as any)}
+        variant="nested"
+        style={{ marginTop: "14px", marginBottom: "8px" }}
+      />
 
       {/* Tab Panels */}
       <div className="bl-tab-content" style={{ marginTop: "20px" }}>
