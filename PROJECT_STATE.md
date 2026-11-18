@@ -1,22 +1,22 @@
 # BizLead Revenue OS — Project State Documentation
-**Current Phase:** Phase 09 Complete · Ready for Phase 10  
+**Current Phase:** Phase 10 Complete · Original Frontend Roadmap 100% Complete  
 **Workspace:** `E:\BizLead`  
 **Last Audited:** November 18, 2026  
-**Roadmap Progress:** 90% (9 of 10 Phases Complete)
+**Roadmap Progress:** 100% (10 of 10 Phases Complete)
 
 ---
 
 ## 1. System Architecture Overview
 
-BizLead Revenue OS is built with Next.js 15 App Router, React 19, TypeScript, and CSS variables. The system features a centralized CRM state layer, persistent theme system, floating dock navigation, modular CRM suites, an omnichannel communication engine, a sales productivity command center, a complete marketing intelligence ecosystem, an event-driven visual Automation Studio, and Biz AI — a centralized, deterministic intelligence layer and assistant workspace with safe action execution.
+BizLead Revenue OS is built with Next.js 15 App Router, React 19, TypeScript, and CSS variables. The system features a centralized CRM state layer, persistent theme system, floating dock navigation, modular CRM suites, an omnichannel communication engine, a sales productivity command center, a complete marketing intelligence ecosystem, an event-driven visual Automation Studio, Biz AI copilot with safe action execution, and the Phase 10 Control Center — a comprehensive organization administration, team directory, role-based access control (RBAC), CRM configuration, audit trail, and workspace settings system.
 
 ```
 E:/BizLead/
 ├── app/
 │   ├── layout.tsx                      # Root layout with DM Sans & Manrope fonts
-│   ├── globals.css                     # Design tokens, themes, layouts, animations, Phase 07 print styles
+│   ├── globals.css                     # Design tokens, themes, layouts, animations, print & Control Center styles
 │   └── (workspace)/
-│       ├── layout.tsx                  # Wraps workspace with ThemeProvider & CRMProvider
+│       ├── layout.tsx                  # Wraps workspace with ThemeProvider, ControlCenterProvider & CRMProvider
 │       ├── dashboard/page.tsx          # Overview: Bento dashboard, revenue chart, priority deals
 │       ├── leads/page.tsx              # Phase 02: Lead Intelligence table, filters, drawer, LeadConvertModal
 │       ├── pipeline/page.tsx           # Phase 03: Pipeline Studio Kanban, metrics, filters
@@ -30,7 +30,8 @@ E:/BizLead/
 │       ├── analytics/page.tsx          # Phase 07: Growth Intelligence ("Growth, decoded." executive bento)
 │       ├── reports/page.tsx            # Phase 07: Report Studio ("Performance, made clear." A4 PDF print-ready)
 │       ├── automations/page.tsx        # Phase 08: Automation Studio ("Workflows that work for you." visual builder)
-│       └── ai/page.tsx                 # Phase 09: Biz AI ("Intelligence, unlocked." executive workspace)
+│       ├── ai/page.tsx                 # Phase 09: Biz AI ("Intelligence, unlocked." executive workspace)
+│       └── settings/page.tsx           # Phase 10: Control Center ("Your business. Your rules.")
 ├── components/
 │   ├── brand/
 │   │   ├── BizLeadIcon.tsx             # Vector logo icon with theme-reactive accent
@@ -38,29 +39,30 @@ E:/BizLead/
 │   ├── theme/
 │   │   └── ThemeProvider.tsx           # Theme context, 7 verified palettes, custom picker, live preview
 │   ├── layout/
-│   │   └── WorkspaceShell.tsx          # Floating dock, header, theme studio, CampaignDrawer, notifications bell, GlobalAssistant
+│   │   └── WorkspaceShell.tsx          # Floating dock, header, theme studio, CampaignDrawer, notifications bell, active role switcher
+│   ├── settings/
+│   │   ├── types.ts                    # Phase 10 typed entities (Org, Member, Role, Permission, Audit, Integration, Plan)
+│   │   ├── PermissionService.ts        # Centralized RBAC engine, deny-by-default logic, record filter, action revalidation
+│   │   ├── SettingsRepository.ts       # Persistent storage facade, seeds, last-owner guard, backup export & validation
+│   │   ├── ControlCenterContext.tsx    # Context provider & useControlCenter hook
+│   │   ├── ControlCenterHeader.tsx     # Header card, search bar, active identity testing switcher, tagline pill
+│   │   ├── OrganizationSettings.tsx    # Organization profile, INR currency, Asia/Kolkata timezone, financial year
+│   │   ├── TeamManagement.tsx          # Directory table, workload chips, add member modal, last-owner protection
+│   │   ├── RolesPermissionsMatrix.tsx  # Interactive matrix for 16 resources across 6 role presets and custom roles
+│   │   ├── DepartmentManagement.tsx    # Department architecture (Sales, Marketing, Support, Management, Custom)
+│   │   ├── CRMConfigurationPanel.tsx   # Centralized pipeline stages, lead sources, lost reasons, tags, custom fields
+│   │   ├── IntegrationsCenter.tsx      # 14 adapters with connection status and Phase 13 cloud gateway disclosure
+│   │   ├── AuditHistoryPanel.tsx       # Chronological audit trail with filtering and CSV export
+│   │   ├── DataManagementPanel.tsx     # Validated backup download, schema validation preview, selective demo reset
+│   │   ├── PlanBillingPanel.tsx        # Starter/Pro/Enterprise tiers, resource meters, Phase 15 billing disclosure
+│   │   ├── AccountPreferencesPanel.tsx # User display name, 7-palette switcher, notification toggles, default view
+│   │   └── OnboardingModal.tsx         # 5-step guided onboarding wizard
 │   ├── crm/
 │   │   ├── types.ts                    # Extended types for CRM, marketing, automations, and AI
 │   │   ├── repository.ts               # Storage facade with CRM + Marketing + Automation CRUD and deterministic seeds
 │   │   ├── selectors.ts                # Selectors: selectCampaignPerformanceList, selectGrowthExecutiveMetrics, etc.
 │   │   └── CRMProvider.tsx             # Global CRM context provider (useCRM hook with event dispatcher & engine)
-│   ├── ai/
-│   │   ├── types.ts                    # AI interfaces: providers, sessions, messages, action proposals, tools, context
-│   │   ├── ToolRegistry.ts             # 8 structured read-only CRM query tools over live state
-│   │   ├── ContextEngine.ts            # Sanitization engine, ASCII control stripping, entity extraction
-│   │   ├── IntentRouter.ts             # Deterministic classifier for 11 CRM intents + transparent rejection
-│   │   ├── LocalAssistant.ts           # Rule-based natural language generator, lead cards, inline data tables
-│   │   ├── ActionExecutor.ts           # Strict idempotency guard, CRM mutation executor, audit trails
-│   │   ├── AIRepository.ts             # Versioned persistence under bizlead_ai_sessions_v1 and seed data
-│   │   ├── AIActionApproval.tsx        # Structured approval card with diff preview and one-click execution
-│   │   ├── AIMessageCard.tsx           # Message bubble renderer, tool invocation chips, card blocks
-│   │   ├── AIContextPicker.tsx         # Context attachment popover for leads, deals, companies, campaigns
-│   │   ├── AIComposer.tsx              # Textarea composer, suggestion chips, context banner
-│   │   ├── DailyBriefing.tsx           # Executive briefing modal (meetings, overdue tasks, high intent leads, pipeline)
-│   │   ├── AIProviderSettings.tsx      # Zero-exfiltration disclosure, gateway readiness panel (Phase 10)
-│   │   ├── AIConversationSidebar.tsx   # Session management, rename, delete, clear, and provider status pill
-│   │   ├── BizAIWorkspace.tsx          # Main conversational AI workspace layout
-│   │   └── GlobalAssistant.tsx         # Global floating launcher (#btn-global-ai-launcher) and slide-over copilot
+│   ├── ai/                             # Phase 09: Biz AI Copilot, Tool Registry, Context Engine, Action Executor
 │   ├── automations/                    # Phase 08: Visual workflow builder, execution engine, prebuilt blueprints
 │   ├── marketing/                      # Phase 07: Campaign Manager, Growth Intelligence, Attribution
 │   ├── analytics/                      # Phase 07: Metric calculators, funnel, trend chart, insight engine
@@ -77,27 +79,35 @@ E:/BizLead/
     ├── phase_06/                       # Phase 06 verified screenshots
     ├── phase_07/                       # Phase 07 verified screenshots
     ├── phase_08/                       # Phase 08 verified screenshots
-    └── phase_09/                       # 10 High-resolution behavioral QA screenshots committed in repo
+    ├── phase_09/                       # Phase 09 verified screenshots
+    └── phase_10/                       # 10 High-resolution behavioral QA screenshots
 ```
 
 ---
 
-## 2. Phase 09 Implementation & Verification Matrix
+## 2. Phase 10 Implementation & Verification Matrix
 
 | Capability / Module | Status | Verification & Functional Highlights |
 |---|---|---|
-| **Biz AI Workspace (`/ai`)** | **Completed** | Full assistant workspace with headline `"Intelligence, unlocked."`, subtitle `"Your entire business ecosystem. One conversation."`, and rule-based badge. |
-| **Provider Transparency & Zero Hallucination** | **Completed** | Active Local CRM Assistant (Rule-Based Mode). Explicit disclosure that cloud LLMs (OpenAI, Gemini, Anthropic) are pending Phase 10 gateway. Zero fake LLM calls or token exfiltration. |
-| **CRM Tool Registry (8 Structured Tools)** | **Completed** | Structured query tools (`search_leads`, `get_lead_details`, `get_deal_details`, `get_company_details`, `get_contact_details`, `calculate_pipeline_metrics`, `find_closing_deals`, `find_stalled_deals`, `get_campaign_performance`, `get_pending_tasks`, `get_upcoming_meetings`, `get_workflow_health`) operating over live CRM state with source record citations. |
-| **Safe Action Proposal & Approval System** | **Completed** | Assistant proposes structured mutations (`create_task`, `create_followup`, `assign_lead_owner`, `add_internal_note`, `update_lead_priority`, `update_deal_stage`, `create_meeting_draft`, `create_automation_draft`). Actions require explicit user approval. |
-| **Strict Idempotency Guard** | **Completed** | `ActionExecutor` enforces single-execution guard. Status transitions (`pending` -> `executed` / `rejected`) prevent duplicate database writes on re-clicks or page reloads. |
-| **Natural Language Automation Drafts** | **Completed** | Generates validated, inactive workflow drafts directly saved to Automation Studio with complete trigger and action node definitions. |
-| **Executive Daily Briefing** | **Completed** | Bento-style modal displaying today's agenda, overdue actions, high-intent leads, and closing pipeline value in Indian Lakhs/Crores. |
-| **Global Contextual Assistant** | **Completed** | Floating launcher (`#btn-global-ai-launcher`) and slide-over contextual assistant mounted in `WorkspaceShell.tsx`, available across all 14 CRM routes. |
-| **Dock Navigation & Shell Sync** | **Completed** | Dock updated: `Biz AI` (`/ai`, `ready: true`) with Sparkles icon; header quick link enabled. |
-| **Targeted Unit & Risk Audits** | **Completed** | `test_phase09_ai.js` verified tool accuracy, query classification, input sanitization, idempotency enforcement, and residual Phase 08 safety (14/14 assertions passed). |
-| **Behavioral QA Suite** | **Completed** | `run_phase09_qa.js` executed in an isolated browser session passing all 10 end-to-end flows with 10 screenshots saved in `qa_evidence/phase_09/`. |
-| **Production Build Validation** | **Completed** | `npm run build` succeeds with zero errors; all 18 static pages generated cleanly. |
+| **Control Center Workspace (`/settings`)** | **Completed** | Full administration workspace with headline `"Your business. Your rules."`, subtitle `"Manage your people, permissions and workspace."`, and tagline `"The Intelligence Behind Growth."`. |
+| **Categorized Navigation & Layout** | **Completed** | 10 categorized navigation sections (Organization, Team, Roles, Departments, CRM Configuration, Integrations, Audit History, Data Management, Plans & Quotas, Preferences). |
+| **Organization Management & Localization** | **Completed** | Validated organization profile editor with default timezone `Asia/Kolkata` (IST) and reporting currency `INR` (₹). Form validation and persistence. |
+| **Team Management & Last-Owner Protection** | **Completed** | Full team directory with member avatars, emails, departments, roles, reporting managers, and live workload stats. Enforced strict last-owner protection guard preventing deactivation or removal of the last Workspace Owner. |
+| **Roles & Granular Permissions Matrix** | **Completed** | 6 default role presets (`owner`, `admin`, `sales_manager`, `sales_executive`, `marketing_manager`, `viewer`) covering 16 CRM resources across operations and scopes (`organization`, `department`, `team`, `assigned`, `none`). Deny-by-default evaluation. |
+| **Active Testing Role Switcher** | **Completed** | Interactive identity switcher in header enabling instant 1-click testing of CRM views and access scopes as Owner, Manager, Sales Executive, or Viewer. |
+| **Biz AI & Automation RBAC Revalidation** | **Completed** | `ActionExecutor` and `WorkflowEngine` revalidate permissions at execution time. Mutations proposed by AI are blocked for read-only roles (Viewer) or unauthorized operations. |
+| **Departments & Record Reassignment** | **Completed** | Department hierarchy with color coding and leadership assignment. Explicit record reassignment workflow transferring leads, deals, tasks, and contacts when members shift roles. |
+| **Centralized CRM Configuration** | **Completed** | Centralized management for pipeline stages, lead sources, lost reasons, tags, custom fields, and lead scoring weights with referential integrity checks (cannot delete stage with active deals). |
+| **Integration Center (14 Adapters)** | **Completed** | Consolidated hub for WhatsApp, Instagram, Messenger, Email, Meta Ads, Google Ads, LinkedIn Ads, Google/Outlook Calendars, OpenAI, Gemini, Anthropic, and Webhooks with honest Phase 13 cloud gateway disclosures. |
+| **Audit Trail & Activity Log** | **Completed** | Chronological audit logging recording member mutations, role changes, AI action approvals, and exports with actor, action, timestamp, target entity, and CSV export. |
+| **Data Management & Versioned Backups** | **Completed** | Validated backup exporter (`bizlead_backup_v10`), schema validation preview, and safe scoped demo reset (cleans only `bizlead_*` localStorage keys without touching other browser data). |
+| **Plans, Quotas & Honest Billing UI** | **Completed** | Starter, Professional, and Enterprise subscription tiers with live resource quota utilization meters (seats, leads, automations, AI queries) and Phase 15 billing disclosure. |
+| **Account Preferences & Theme Studio Sync** | **Completed** | User profile editor, 7-palette Theme Studio quick selector, notification toggles, and default landing view preferences. |
+| **Reusable Onboarding Tour** | **Completed** | 5-step guided modal (Org Details, Localization, Pipeline Model, Team Directory, Appearance) accessible on-demand from Control Center. |
+| **Dock Overflow Audit** | **Completed** | `.bl-dock` audited for navigation overflow: `.bl-navigation` updated with smooth hidden vertical scrolling, 40px compact items, and active Settings link. |
+| **Targeted Unit & RBAC Tests** | **Completed** | `test_phase10_control_center.js` passed all 16/16 assertions covering RBAC, deny-by-default, last-owner guard, scoping, AI revalidation, and backup validation. |
+| **Behavioral QA Suite** | **Completed** | `run_phase10_qa.js` executed in an isolated browser session passing all 10/10 end-to-end flows with 10 screenshots saved in `qa_evidence/phase_10/`. |
+| **Production Build Validation** | **Completed** | `npm run build` succeeds with zero errors; all 19 static pages generated cleanly. |
 
 ---
 
@@ -105,11 +115,11 @@ E:/BizLead/
 
 - **Wordmark:** `BIZLEAD` (Bold sans uppercase `#151515` in light mode, `#FFFFFF` in dark mode, with `LEAD` in `var(--accent)`).
 - **Tagline:** `"The Intelligence Behind Growth."` (Adaptive subtitle positioned beneath the wordmark).
-- **Global Theme Studio:** 7 verified preset palettes (Electric Yellow, Tech Violet, Deep Teal, Emerald Growth, Warm Terracotta, Cobalt Enterprise, Monolith Dark) with live preview and custom picker.
+- **Global Theme Studio:** 7 verified preset palettes (Electric Yellow, Acid Lime, Digital Sky, Neo Lavender, Electric Coral, Glacier Mint, Midnight Yellow) with live preview and custom picker.
 
 ---
 
-## 4. Development Roadmap Progress
+## 4. Original Frontend Roadmap Completion
 
 1. **Phase 01 — Workspace & Global Theme Studio:** Completed  
 2. **Phase 02 — Lead Intelligence:** Completed  
@@ -120,4 +130,15 @@ E:/BizLead/
 7. **Phase 07 — Campaign Intelligence & Analytics:** Completed  
 8. **Phase 08 — Automation Studio:** Completed  
 9. **Phase 09 — Biz AI:** Completed  
-10. **Phase 10 — Administration & Permissions:** Up next    
+10. **Phase 10 — Control Center — Administration & Permissions:** Completed (100% of Original Frontend Roadmap)
+
+---
+
+## 5. Upcoming Milestones (Production SaaS Infrastructure)
+
+- **Proposed Phase 11 — Cloud Infrastructure:** Database (PostgreSQL/Supabase), backend REST/GraphQL APIs, Prisma ORM, migrations, and S3-compatible file storage.
+- **Proposed Phase 12 — Authentication & Multi-Tenancy:** Secure authentication (Auth0 / Supabase Auth), JWT session handling, server-side tenant isolation, and cryptographic RBAC enforcement.
+- **Proposed Phase 13 — Live Integrations & Omnichannel Gateways:** Meta Graph API, WhatsApp Cloud API, Google Ads API v17, SMTP/IMAP background workers, and Google/Microsoft Calendar webhooks.
+- **Proposed Phase 14 — Production Biz AI Gateway:** Secure LLM gateway (OpenAI, Gemini 2.0, Claude 3.5), prompt safety shields, token budgeting, and live function calling over PostgreSQL.
+- **Proposed Phase 15 — Commercial SaaS & Monetization:** Stripe / Razorpay billing, recurring subscription webhooks, seat management, trial lifecycles, and invoice generation.
+- **Proposed Phase 16 — Production Hardening & Global Launch:** SOC2 compliance readiness, rate limiting, Sentry error telemetry, automated CI/CD pipelines, and high-availability cloud deployment.

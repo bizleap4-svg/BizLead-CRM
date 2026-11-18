@@ -37,6 +37,7 @@ import { useCRM } from "../crm/CRMProvider";
 import { ReminderCenter } from "../productivity/ReminderCenter";
 import { CampaignDrawer } from "../marketing/CampaignDrawer";
 import { GlobalAssistant } from "../ai/GlobalAssistant";
+import { useControlCenter } from "../settings/ControlCenterContext";
 
 const navigation = [
   { name: "Overview", route: "/dashboard", icon: LayoutDashboard, ready: true },
@@ -68,6 +69,7 @@ export default function WorkspaceShell({
     campaignDrawerCampaignId,
     closeCampaignDrawer,
   } = useCRM();
+  const { activeMember, activeRole } = useControlCenter();
   const [reminderOpen, setReminderOpen] = useState(false);
 
   const current = navigation.find(
@@ -124,18 +126,27 @@ export default function WorkspaceShell({
             aria-label="Theme Studio"
           >
             <Palette size={21} />
+            <span className="bl-tooltip">Theme Studio</span>
           </button>
 
-          <button
-            className="bl-nav-item"
-            disabled
-            title="Settings — coming soon"
-            aria-label="Settings"
+          <Link
+            href="/settings"
+            className={`bl-nav-item ${pathname.startsWith("/settings") ? "active" : ""}`}
+            title="Control Center & Settings"
+            aria-label="Control Center"
           >
-            <Settings2 size={21} />
-          </button>
+            <Settings2 size={21} strokeWidth={1.7} />
+            <span className="bl-tooltip">Settings</span>
+          </Link>
 
-          <div className="bl-avatar">BL</div>
+          <Link
+            href="/settings?tab=preferences"
+            className="bl-avatar"
+            title={`Active User: ${activeMember.name} (${activeRole.name})`}
+            style={{ textDecoration: "none" }}
+          >
+            {activeMember.avatar}
+          </Link>
         </div>
       </aside>
 
@@ -155,11 +166,23 @@ export default function WorkspaceShell({
             </Link>
 
             <span className="bl-breadcrumb">
-              Workspace / {current?.name ?? "Overview"}
+              Workspace / {pathname.startsWith("/settings") ? "Control Center" : (current?.name ?? "Overview")}
             </span>
           </div>
 
           <div className="bl-header-actions">
+            <Link
+              href="/settings"
+              className="bl-role-header-pill"
+              title={`Active Testing Role: ${activeMember.name} (${activeRole.name})`}
+            >
+              <span className="bl-role-pill-avatar">{activeMember.avatar}</span>
+              <span className="bl-role-pill-text">{activeMember.name}</span>
+              <span className="bl-role-pill-role" style={{ color: activeRole.color || "var(--accent)" }}>
+                {activeRole.name}
+              </span>
+            </Link>
+
             <button className="bl-secondary" onClick={openStudio}>
               <Palette size={16} /> Appearance
             </button>

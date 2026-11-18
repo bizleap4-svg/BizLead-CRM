@@ -18,6 +18,8 @@ import {
   PipelineStage,
 } from "../crm/types";
 import { CRMToolDefinition, CRMToolResult } from "./types";
+import { PermissionService } from "../settings/PermissionService";
+import { Role } from "../settings/types";
 
 export interface ToolRegistryData {
   leads: Lead[];
@@ -32,13 +34,27 @@ export interface ToolRegistryData {
   conversations: Conversation[];
   workflows: Workflow[];
   executions: WorkflowExecution[];
+  activeMember?: { name: string; departmentId?: string; roleId?: string };
+  activeRole?: Role;
 }
 
 export class ToolRegistry {
   private data: ToolRegistryData;
 
   constructor(data: ToolRegistryData) {
-    this.data = data;
+    if (data.activeMember) {
+      const role = data.activeRole || data.activeMember.roleId || "owner";
+      this.data = {
+        ...data,
+        leads: PermissionService.filterRecords(data.leads || [], role, "leads", data.activeMember),
+        deals: PermissionService.filterRecords(data.deals || [], role, "pipeline", data.activeMember),
+        contacts: PermissionService.filterRecords(data.contacts || [], role, "contacts", data.activeMember),
+        tasks: PermissionService.filterRecords(data.tasks || [], role, "tasks", data.activeMember),
+        meetings: PermissionService.filterRecords(data.meetings || [], role, "meetings", data.activeMember),
+      };
+    } else {
+      this.data = data;
+    }
   }
 
   // Tool Definitions

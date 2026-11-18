@@ -1,12 +1,16 @@
 /**
  * BizLead Revenue OS — AI Action Executor
- * Safely executes explicitly approved CRM action proposals with strict idempotency guards.
+ * Safely executes explicitly approved CRM action proposals with strict idempotency guards
+ * and Phase 10 role-based permission revalidation.
  */
 
 import { AIActionProposal } from "./types";
 import { CRMTask, Lead, Deal, CRMMeeting, Workflow } from "../crm/types";
 import * as repo from "../crm/repository";
 import { AutomationRepository } from "../automations/AutomationRepository";
+import { PermissionService } from "../settings/PermissionService";
+import { SettingsRepository } from "../settings/SettingsRepository";
+import { WorkspaceMember, Role } from "../settings/types";
 
 export interface ExecutionContext {
   leads: Lead[];
@@ -14,6 +18,8 @@ export interface ExecutionContext {
   tasks: CRMTask[];
   meetings: CRMMeeting[];
   workflows: Workflow[];
+  executingMember?: WorkspaceMember;
+  executingRole?: Role;
   createTask?: (task: Partial<CRMTask> & { title: string }) => Promise<CRMTask>;
   updateLead?: (id: string, updates: Partial<Lead>) => Promise<Lead>;
   updateDeal?: (id: string, updates: Partial<Deal>) => Promise<Deal>;
@@ -25,7 +31,8 @@ export interface ExecutionContext {
 export class ActionExecutor {
   /**
    * Executes an action proposal once approved.
-   * Throws an error if already executed (idempotency protection).
+   * Throws an error if already executed (idempotency protection)
+   * or if executing identity lacks requisite permissions (Phase 10 RBAC).
    */
   static async executeAction(
     proposal: AIActionProposal,
@@ -39,9 +46,25 @@ export class ActionExecutor {
       throw new Error(`Action "${proposal.title}" was rejected and cannot be executed.`);
     }
 
-    const now = new Date().toISOString();
-
     try {
+      // Phase 10: Revalidate permissions at action execution time
+      const activeMember = ctx.executingMember || SettingsRepository.getActiveMember();
+      const activeRole = ctx.executingRole || activeMember.roleId;
+
+      const validation = PermissionService.validateActionExecution(
+        activeRole,
+        proposal.actionType,
+        proposal.entityType || "lead",
+        proposal.parameters?.owner,
+        activeMember.name
+      );
+
+      if (!validation.allowed) {
+        const errMessage = validation.reason || "Permission Denied: User role lacks permission to execute this CRM action.";
+        throw new Error(errMessage);
+      }
+
+      const now = new Date().toISOString();
       switch (proposal.actionType) {
         case "create_task":
         case "create_followup": {
@@ -50,7 +73,7 @@ export class ActionExecutor {
             priority: proposal.parameters.priority || "high",
             dueDate: proposal.parameters.dueDate || new Date(Date.now() + 86400000).toISOString().split("T")[0],
             taskType: proposal.parameters.taskType || "follow_up",
-            assignedTo: proposal.parameters.assignedTo || "Rahul Sharma",
+            assignedTo: proposal.parameters.assignedTo || activeMember.name,
             entityType: proposal.entityType as any,
             entityId: proposal.entityId,
             entityName: proposal.entityName || "CRM Contact",
@@ -66,7 +89,7 @@ export class ActionExecutor {
 
         case "assign_lead_owner": {
           if (!proposal.entityId) throw new Error("Missing lead entity ID for owner assignment.");
-          const updates = { owner: proposal.parameters.owner || "Rahul Sharma" };
+          const updates = { owner: proposal.parameters.owner || activeMember.name };
 
           if (ctx.updateLead) {
             await ctx.updateLead(proposal.entityId, updates);
@@ -165,6 +188,17 @@ export class ActionExecutor {
         default:
           throw new Error(`Unsupported action type: ${(proposal as any).actionType}`);
       }
+
+      // Record audit event for action execution
+      SettingsRepository.logAuditEvent({
+        actorId: activeMember.id,
+        actorName: activeMember.name,
+        actorEmail: activeMember.email,
+        action: "AI_ACTION_APPROVED_AND_EXECUTED",
+        category: "ai",
+        targetEntity: `${proposal.entityType || "CRM Record"}: ${proposal.entityName || proposal.entityId || "General"}`,
+        details: `Approved and executed AI proposal: "${proposal.title}". Action type: ${proposal.actionType}.`,
+      });
 
       // Refresh CRM data if available
       if (ctx.refreshAll) {
