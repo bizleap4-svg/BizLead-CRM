@@ -5,7 +5,10 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start"
+    "start": "next start",
+    "test:unit": "npx tsx scripts/test_phase06_gap_audit.js && npx tsx scripts/test_phase08_automations.js && npx tsx scripts/test_phase09_ai.js && npx tsx scripts/test_phase10_control_center.js",
+    "qa:ui": "node scripts/run_phase10_5_ui_audit.js",
+    "qa:all": "npm run test:unit && npm run qa:ui"
   },
   "dependencies": {
     "lucide-react": "^1.16.0",

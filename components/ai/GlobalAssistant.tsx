@@ -133,26 +133,7 @@ export const GlobalAssistant: React.FC = () => {
           onClick={openAI}
           id="btn-global-ai-launcher"
           aria-label="Open Biz AI Assistant"
-          style={{
-            position: "fixed",
-            bottom: "24px",
-            right: "24px",
-            zIndex: "var(--z-sticky, 10)",
-            display: "inline-flex",
-            alignItems: "center",
-            gap: "8px",
-            padding: "10px 18px",
-            borderRadius: "9999px",
-            backgroundColor: "var(--accent)",
-            color: "var(--on-accent)",
-            fontWeight: 700,
-            fontSize: "13px",
-            boxShadow: "0 8px 24px rgba(0,0,0,0.25)",
-            border: "none",
-            cursor: "pointer",
-            transition: "transform 0.2s ease, box-shadow 0.2s ease",
-          }}
-          className="hover:scale-105"
+          className="bl-global-ai-launcher"
         >
           <Sparkles className="w-4 h-4" style={{ fill: "rgba(0,0,0,0.2)" }} />
           <span>Ask Biz AI</span>
@@ -167,14 +148,6 @@ export const GlobalAssistant: React.FC = () => {
             className="bl-ai-backdrop"
             onClick={closeAI}
             aria-hidden="true"
-            style={{
-              position: "fixed",
-              inset: 0,
-              backgroundColor: "var(--color-overlay)",
-              backdropFilter: "blur(4px)",
-              WebkitBackdropFilter: "blur(4px)",
-              zIndex: "var(--z-drawer, 30)",
-            }}
           />
 
           <aside

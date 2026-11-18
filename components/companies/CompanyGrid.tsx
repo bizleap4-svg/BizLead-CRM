@@ -71,7 +71,10 @@ export function CompanyGrid({
             <div className="bl-company-metrics-box">
               <div>
                 <span className="bl-company-box-label">Won Revenue</span>
-                <strong className="bl-company-box-val" style={{ color: "var(--color-success)" }}>
+                <strong
+                  className="bl-company-box-val"
+                  style={{ color: summary.wonValue > 0 ? "var(--color-success)" : "var(--text)" }}
+                >
                   {formatINR(summary.wonValue)}
                 </strong>
               </div>

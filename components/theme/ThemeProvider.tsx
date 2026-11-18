@@ -111,27 +111,37 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   const [livePreview, setLivePreview] = useState(true);
 
   useEffect(() => {
-    try {
-      const stored = localStorage.getItem("bizlead-theme");
-      if (!stored) return;
-      const saved = JSON.parse(stored);
-      const valid = [
-        "primary",
-        "accent",
-        "background",
-        "surface",
-        "text",
-      ].every(
-        (key) =>
-          typeof saved[key] === "string" && /^#[0-9a-f]{6}$/i.test(saved[key])
-      );
-      if (valid) {
-        setTheme(saved);
-        setDraft(saved);
+    function loadTheme() {
+      try {
+        const stored = localStorage.getItem("bizlead-theme");
+        if (!stored) return;
+        const saved = JSON.parse(stored);
+        const valid = [
+          "primary",
+          "accent",
+          "background",
+          "surface",
+          "text",
+        ].every(
+          (key) =>
+            typeof saved[key] === "string" && /^#[0-9a-f]{6}$/i.test(saved[key])
+        );
+        if (valid) {
+          setTheme(saved);
+          setDraft(saved);
+        }
+      } catch {
+        // Fall back to the default theme.
       }
-    } catch {
-      // Fall back to the default theme.
     }
+
+    loadTheme();
+    window.addEventListener("storage", loadTheme);
+    window.addEventListener("bizlead-theme-change", loadTheme);
+    return () => {
+      window.removeEventListener("storage", loadTheme);
+      window.removeEventListener("bizlead-theme-change", loadTheme);
+    };
   }, []);
 
   const active = studioOpen && livePreview ? draft : theme;
@@ -158,6 +168,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     setDraft({ ...defaultTheme });
   }
 
+  const isDark = contrastColor(active.background) === "#FFFFFF";
   const styles = {
     "--primary": active.primary,
     "--accent": active.accent,
@@ -166,6 +177,10 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     "--text": active.text,
     "--on-primary": contrastColor(active.primary),
     "--on-accent": contrastColor(active.accent),
+    "--color-success": isDark ? "#34d399" : "#047857",
+    "--color-danger": isDark ? "#f87171" : "#dc2626",
+    "--color-warning": isDark ? "#fbbf24" : "#b45309",
+    "--color-info": isDark ? "#60a5fa" : "#2563eb",
   } as CSSProperties;
 
   return (

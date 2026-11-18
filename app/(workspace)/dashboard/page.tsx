@@ -259,10 +259,10 @@ export default function BizLeadDashboard() {
               return (
                 <line
                   key={i}
-                  x1={90 + Math.cos(angle) * 43}
-                  y1={70 + Math.sin(angle) * 43}
-                  x2={90 + Math.cos(angle) * 54}
-                  y2={70 + Math.sin(angle) * 54}
+                  x1={Number((90 + Math.cos(angle) * 43).toFixed(2))}
+                  y1={Number((70 + Math.sin(angle) * 43).toFixed(2))}
+                  x2={Number((90 + Math.cos(angle) * 54).toFixed(2))}
+                  y2={Number((70 + Math.sin(angle) * 54).toFixed(2))}
                   stroke={
                     i < 13
                       ? "var(--primary)"

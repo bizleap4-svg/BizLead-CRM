@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useRef, useEffect, useState, useCallback } from "react";
-import { useSearchParams } from "next/navigation";
 
 export interface TabItem {
   id: string;
@@ -36,21 +35,30 @@ export const Tabs: React.FC<TabsProps> = ({
   ariaLabel = "Navigation Tabs",
 }) => {
   const scrollRef = useRef<HTMLDivElement>(null);
-  const searchParams = useSearchParams();
   const [showLeftFade, setShowLeftFade] = useState(false);
   const [showRightFade, setShowRightFade] = useState(false);
 
-  // Sync with URL query parameter on mount if provided
+  // Sync with URL query parameter on mount and popstate if provided
   useEffect(() => {
-    if (!queryParamKey || !searchParams) return;
-    const paramVal = searchParams.get(queryParamKey);
-    if (paramVal && items.some((item) => item.id.toLowerCase() === paramVal.toLowerCase())) {
-      const match = items.find((item) => item.id.toLowerCase() === paramVal.toLowerCase());
-      if (match && match.id !== activeTab) {
-        onChange(match.id);
-      }
-    }
-  }, [queryParamKey, searchParams, items]);
+    if (!queryParamKey || typeof window === "undefined") return;
+
+    const syncFromUrl = () => {
+      try {
+        const sp = new URLSearchParams(window.location.search);
+        const paramVal = sp.get(queryParamKey);
+        if (paramVal && items.some((item) => item.id.toLowerCase() === paramVal.toLowerCase())) {
+          const match = items.find((item) => item.id.toLowerCase() === paramVal.toLowerCase());
+          if (match && match.id !== activeTab) {
+            onChange(match.id);
+          }
+        }
+      } catch {}
+    };
+
+    syncFromUrl();
+    window.addEventListener("popstate", syncFromUrl);
+    return () => window.removeEventListener("popstate", syncFromUrl);
+  }, [queryParamKey, items, activeTab, onChange]);
 
   // Update URL when tab changes
   const handleSelect = useCallback(
