@@ -10,7 +10,7 @@
 BizLead Revenue OS is built with Next.js 15 App Router, React 19, TypeScript, and CSS variables. The system features a centralized CRM state layer, persistent theme system, floating dock navigation, modular CRM suites, and an omnichannel communication engine.
 
 ```
-src/
+E:/BizLead/
 ├── app/
 │   ├── layout.tsx                      # Root layout with DM Sans & Manrope fonts
 │   ├── globals.css                     # Design tokens, themes, layouts, animations, Phase 05 styles
@@ -121,9 +121,28 @@ src/
 - [x] **Phase 02 — Lead Intelligence:** Completed
 - [x] **Phase 03 — Pipeline Studio:** Completed
 - [x] **Phase 04 — Contact 360° & Company Intelligence:** Completed
-- [x] **Phase 05 — Unified Inbox & Omnichannel Communication:** Completed & Verified
+- [x] **Phase 05 — Unified Inbox & Omnichannel Communication:** Completed & Verified (Behavioral QA 100% Passed)
 - [ ] **Phase 06 — Focus Center (Tasks, Calendar, Meetings & Smart Follow-ups):** Up next
 - [ ] **Phase 07 — Campaign Intelligence & Analytics:** Pending
 - [ ] **Phase 08 — Automation Studio:** Pending
 - [ ] **Phase 09 — Biz AI:** Pending
 - [ ] **Phase 10 — Administration & Permissions:** Pending
+
+---
+
+## 5. Phase 05 Behavioral QA & Regression Verification Evidence
+
+All 5 core interactive flows and 5 prior modules were exercised end-to-end in real browser runtime (Chrome headless via `puppeteer-core`) on `http://localhost:3000`.
+
+| Test Flow / Module | Verification Action | Result | Screenshot Evidence |
+|---|---|---|---|
+| **Flow 1: Customer Reply** | Selected `CNV-001` (Aarav Sharma), typed response, submitted via Send Reply | **PASSED** — message appears right-aligned with timestamp and delivery mark | `qa_evidence/qa_flow1_customer_reply.png` |
+| **Flow 2: Private Internal Note** | Switched composer to "Internal Note" mode (amber alert theme), typed discount approval note, saved note | **PASSED** — private card rendered with `🔒 Internal Team Note` banner; never sent to customer | `qa_evidence/qa_flow2_internal_note.png` |
+| **Flow 3: Reply Templates** | Opened Templates modal, validated placeholder replacement preview, clicked "Insert into Composer" | **PASSED** — modal rendered categories and live context preview; inserted into composer | `qa_evidence/qa_flow3_template_modal.png`<br>`qa_evidence/qa_flow3_template_inserted.png` |
+| **Flow 4: Inbound Lead Capture** | Selected unlinked conversation `CNV-006` (Neha Kapoor), clicked "Capture as New Lead", submitted modal | **PASSED** — lead created in CRM, status converted, and conversation linked | `qa_evidence/qa_flow4_lead_captured.png` |
+| **Flow 5: Status & Owner Reassign** | Changed status to "Pending" and assigned executive to "Priya Patel" | **PASSED** — header controls, directory chips, and state synced instantaneously | `qa_evidence/qa_flow5_status_owner_updated.png` |
+| **Regression: Dashboard** | Navigated to `/dashboard` | **PASSED** — Bento grid, revenue curves, and priority deals intact | `qa_evidence/qa_regression_dashboard.png` |
+| **Regression: Leads** | Navigated to `/leads` | **PASSED** — Lead table, status filters, and drawers fully operational | `qa_evidence/qa_regression_leads.png` |
+| **Regression: Pipeline** | Navigated to `/pipeline` | **PASSED** — Kanban stages, drag-and-drop handles, deal metrics intact | `qa_evidence/qa_regression_pipeline.png` |
+| **Regression: Contacts** | Navigated to `/contacts` | **PASSED** — Contact 360° master-detail, timeline, deals, notes intact | `qa_evidence/qa_regression_contacts.png` |
+| **Regression: Companies** | Navigated to `/companies` | **PASSED** — Company accounts grid, metrics, and intelligence intact | `qa_evidence/qa_regression_companies.png` |
