@@ -632,3 +632,166 @@ export type ReportDefinition = {
   snapshotData?: any;
 };
 
+// ==========================================
+// Phase 08 — Automation Studio Types
+// ==========================================
+
+export type AutomationTriggerType =
+  | "lead_created"
+  | "lead_converted"
+  | "lead_score_changed"
+  | "deal_created"
+  | "deal_stage_changed"
+  | "deal_won"
+  | "deal_lost"
+  | "conversation_received"
+  | "task_completed"
+  | "followup_overdue"
+  | "meeting_completed"
+  | "campaign_threshold_reached";
+
+export type ConditionOperator =
+  | "equals"
+  | "not_equals"
+  | "contains"
+  | "not_contains"
+  | "greater_than"
+  | "less_than"
+  | "greater_than_or_equal"
+  | "less_than_or_equal"
+  | "in"
+  | "not_in"
+  | "is_empty"
+  | "is_not_empty";
+
+export interface ConditionRule {
+  id: string;
+  field: string;
+  operator: ConditionOperator;
+  value: any;
+}
+
+export interface ConditionGroup {
+  id: string;
+  logicalOperator: "AND" | "OR";
+  rules: ConditionRule[];
+}
+
+export type AutomationActionType =
+  | "assign_lead_owner"
+  | "update_lead_priority"
+  | "add_lead_tag"
+  | "create_task"
+  | "update_deal_stage"
+  | "create_reminder"
+  | "add_internal_note"
+  | "assign_conversation"
+  | "send_email_external"      // Labeled as Phase 10 / Integration Required
+  | "send_whatsapp_external";  // Labeled as Phase 10 / Integration Required
+
+export type WorkflowNodeType = "trigger" | "condition" | "action" | "delay";
+
+export interface WorkflowNode {
+  id: string;
+  type: WorkflowNodeType;
+  title: string;
+  description?: string;
+  position: { x: number; y: number };
+  data: {
+    // For Trigger
+    triggerType?: AutomationTriggerType;
+    triggerConfig?: Record<string, any>;
+    // For Condition
+    conditionGroup?: ConditionGroup;
+    // For Action
+    actionType?: AutomationActionType;
+    actionConfig?: Record<string, any>;
+    // For Delay
+    delayMinutes?: number;
+    delayLabel?: string;
+  };
+}
+
+export interface WorkflowEdge {
+  id: string;
+  source: string;
+  target: string;
+  sourceHandle?: "yes" | "no" | "default";
+  label?: string;
+}
+
+export type WorkflowStatus = "active" | "inactive" | "draft" | "archived";
+
+export interface Workflow {
+  id: string;
+  name: string;
+  description: string;
+  status: WorkflowStatus;
+  version: number;
+  triggerType: AutomationTriggerType;
+  triggerConfig?: Record<string, any>;
+  nodes: WorkflowNode[];
+  edges: WorkflowEdge[];
+  executionCount: number;
+  successCount: number;
+  failureCount: number;
+  lastExecutedAt?: string;
+  createdAt: string;
+  updatedAt: string;
+  isTemplate?: boolean;
+  category?: "sales" | "lead_routing" | "follow_up" | "marketing" | "operations";
+}
+
+export interface AutomationEvent {
+  id: string;
+  eventType: AutomationTriggerType;
+  entityId: string;
+  entityType: "lead" | "deal" | "task" | "meeting" | "conversation" | "campaign";
+  payload: Record<string, any>;
+  timestamp: string;
+}
+
+export interface ActionExecution {
+  nodeId: string;
+  nodeType: WorkflowNodeType;
+  nodeTitle: string;
+  status: "success" | "skipped" | "failed";
+  detail: string;
+  timestamp: string;
+  proposedChange?: {
+    entityType: string;
+    entityId: string;
+    action: string;
+    previousValue?: any;
+    newValue?: any;
+  };
+}
+
+export interface WorkflowExecution {
+  id: string;
+  workflowId: string;
+  workflowName: string;
+  workflowVersion: number;
+  triggerEvent: AutomationEvent;
+  status: "success" | "failure" | "running" | "dry_run";
+  steps: ActionExecution[];
+  startedAt: string;
+  completedAt: string;
+  errorMessage?: string;
+  proposedChanges?: any[];
+}
+
+export interface ScheduledAction {
+  id: string;
+  workflowId: string;
+  executionId: string;
+  nodeId: string;
+  entityType: string;
+  entityId: string;
+  actionType: AutomationActionType;
+  actionConfig: Record<string, any>;
+  scheduledFor: string; // ISO date string
+  status: "pending" | "executed" | "cancelled";
+  createdAt: string;
+}
+

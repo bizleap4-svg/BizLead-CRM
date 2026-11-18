@@ -35,9 +35,16 @@ import {
   CampaignTouchpoint,
   MarketingImport,
   ReportDefinition,
+  Workflow,
+  WorkflowExecution,
+  ActionExecution,
+  AutomationEvent,
+  WorkflowStatus,
 } from "./types";
 import * as repo from "./repository";
 import * as mktRepo from "../marketing/MarketingRepository";
+import { AutomationRepository } from "../automations/AutomationRepository";
+import { WorkflowEngine } from "../automations/WorkflowEngine";
 
 type CRMContextType = {
   leads: Lead[];
@@ -66,6 +73,17 @@ type CRMContextType = {
   campaignDrawerCampaignId: string | null;
   openCampaignDrawer: (campaignId?: string) => void;
   closeCampaignDrawer: () => void;
+
+  // Phase 08 — Automation Studio
+  workflows: Workflow[];
+  executions: WorkflowExecution[];
+  createWorkflow: (data: Omit<Workflow, "id" | "createdAt" | "updatedAt">) => Promise<Workflow>;
+  updateWorkflow: (id: string, updates: Partial<Workflow>) => Promise<Workflow>;
+  deleteWorkflow: (id: string) => Promise<void>;
+  duplicateWorkflow: (id: string) => Promise<Workflow>;
+  toggleWorkflowStatus: (id: string) => Promise<Workflow>;
+  emergencyPauseAllWorkflows: () => Promise<void>;
+  dispatchAutomationEvent: (event: Omit<AutomationEvent, "id" | "timestamp">) => Promise<WorkflowExecution[]>;
 
   // Phase 06 — Productivity, Tasks & Calendar
   tasks: CRMTask[];
@@ -265,6 +283,10 @@ export function CRMProvider({ children }: { children: ReactNode }) {
   const [isCampaignDrawerOpen, setIsCampaignDrawerOpen] = useState(false);
   const [campaignDrawerCampaignId, setCampaignDrawerCampaignId] = useState<string | null>(null);
 
+  // Phase 08 — Automation State
+  const [workflows, setWorkflows] = useState<Workflow[]>([]);
+  const [executions, setExecutions] = useState<WorkflowExecution[]>([]);
+
   // Drawer Management
   const [isTaskDrawerOpen, setIsTaskDrawerOpen] = useState(false);
   const [taskDrawerTaskId, setTaskDrawerTaskId] = useState<string | null>(null);
@@ -334,6 +356,12 @@ export function CRMProvider({ children }: { children: ReactNode }) {
       setTouchpoints(touchpointsRes);
       setReports(reportsRes);
 
+      // Phase 08 — Load Workflows & Executions
+      const storedWorkflows = AutomationRepository.getWorkflows();
+      const storedExecutions = AutomationRepository.getExecutions();
+      setWorkflows(storedWorkflows);
+      setExecutions(storedExecutions);
+
       setActiveConversationId((prev) => {
         if (prev && convsRes.some((c) => c.id === prev)) return prev;
         return convsRes[0]?.id || null;
@@ -351,6 +379,14 @@ export function CRMProvider({ children }: { children: ReactNode }) {
   const createLead = async (data: Omit<Lead, "id" | "createdAt">) => {
     const created = await repo.createLead(data);
     await loadData();
+    setTimeout(() => {
+      dispatchAutomationEvent({
+        eventType: "lead_created",
+        entityId: created.id,
+        entityType: "lead",
+        payload: created,
+      });
+    }, 0);
     return created;
   };
 
@@ -369,6 +405,14 @@ export function CRMProvider({ children }: { children: ReactNode }) {
   const convertLead = async (params: repo.ConvertLeadParams) => {
     const result = await repo.convertLead(params);
     await loadData();
+    setTimeout(() => {
+      dispatchAutomationEvent({
+        eventType: "lead_converted",
+        entityId: result.lead.id,
+        entityType: "lead",
+        payload: result,
+      });
+    }, 0);
     return result;
   };
 
@@ -418,12 +462,45 @@ export function CRMProvider({ children }: { children: ReactNode }) {
   ) => {
     const created = await repo.createDeal(data);
     await loadData();
+    setTimeout(() => {
+      dispatchAutomationEvent({
+        eventType: "deal_created",
+        entityId: created.id,
+        entityType: "deal",
+        payload: created,
+      });
+    }, 0);
     return created;
   };
 
   const updateDeal = async (id: string, updates: Partial<Deal>) => {
     const updated = await repo.updateDeal(id, updates);
     await loadData();
+    if (updates.stage) {
+      setTimeout(() => {
+        dispatchAutomationEvent({
+          eventType: "deal_stage_changed",
+          entityId: updated.id,
+          entityType: "deal",
+          payload: updated,
+        });
+        if (updates.stage === "won") {
+          dispatchAutomationEvent({
+            eventType: "deal_won",
+            entityId: updated.id,
+            entityType: "deal",
+            payload: updated,
+          });
+        } else if (updates.stage === "lost") {
+          dispatchAutomationEvent({
+            eventType: "deal_lost",
+            entityId: updated.id,
+            entityType: "deal",
+            payload: updated,
+          });
+        }
+      }, 0);
+    }
     return updated;
   };
 
@@ -814,6 +891,240 @@ export function CRMProvider({ children }: { children: ReactNode }) {
     return res;
   };
 
+  // -------------------------------------------------------------------------
+  // Phase 08 — Automation Studio Methods
+  // -------------------------------------------------------------------------
+
+  const createWorkflow = async (
+    data: Omit<Workflow, "id" | "createdAt" | "updatedAt">
+  ): Promise<Workflow> => {
+    const newWorkflow: Workflow = {
+      ...data,
+      id: `wf-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+    const next = [newWorkflow, ...workflows];
+    setWorkflows(next);
+    AutomationRepository.saveWorkflows(next);
+    return newWorkflow;
+  };
+
+  const updateWorkflow = async (
+    id: string,
+    updates: Partial<Workflow>
+  ): Promise<Workflow> => {
+    let updated: Workflow | null = null;
+    const next = workflows.map((w) => {
+      if (w.id === id) {
+        updated = {
+          ...w,
+          ...updates,
+          version: updates.nodes || updates.edges ? w.version + 1 : w.version,
+          updatedAt: new Date().toISOString(),
+        };
+        return updated;
+      }
+      return w;
+    });
+
+    if (!updated) throw new Error(`Workflow with id '${id}' not found`);
+    setWorkflows(next);
+    AutomationRepository.saveWorkflows(next);
+    return updated;
+  };
+
+  const deleteWorkflow = async (id: string): Promise<void> => {
+    const next = workflows.filter((w) => w.id !== id);
+    setWorkflows(next);
+    AutomationRepository.saveWorkflows(next);
+  };
+
+  const duplicateWorkflow = async (id: string): Promise<Workflow> => {
+    const source = workflows.find((w) => w.id === id);
+    if (!source) throw new Error(`Workflow with id '${id}' not found`);
+
+    const cloned: Workflow = {
+      ...source,
+      id: `wf-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
+      name: `${source.name} (Copy)`,
+      status: "draft",
+      isTemplate: false,
+      executionCount: 0,
+      successCount: 0,
+      failureCount: 0,
+      lastExecutedAt: undefined,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+
+    const next = [cloned, ...workflows];
+    setWorkflows(next);
+    AutomationRepository.saveWorkflows(next);
+    return cloned;
+  };
+
+  const toggleWorkflowStatus = async (id: string): Promise<Workflow> => {
+    const source = workflows.find((w) => w.id === id);
+    if (!source) throw new Error(`Workflow with id '${id}' not found`);
+
+    const nextStatus: WorkflowStatus = source.status === "active" ? "inactive" : "active";
+    return updateWorkflow(id, { status: nextStatus });
+  };
+
+  const emergencyPauseAllWorkflows = async (): Promise<void> => {
+    const next = workflows.map((w) => ({
+      ...w,
+      status: (w.status === "active" ? "inactive" : w.status) as WorkflowStatus,
+      updatedAt: new Date().toISOString(),
+    }));
+    setWorkflows(next);
+    AutomationRepository.saveWorkflows(next);
+  };
+
+  const dispatchAutomationEvent = async (
+    eventInput: Omit<AutomationEvent, "id" | "timestamp">
+  ): Promise<WorkflowExecution[]> => {
+    const event: AutomationEvent = {
+      ...eventInput,
+      id: `evt-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
+      timestamp: new Date().toISOString(),
+    };
+
+    const activeWfs = workflows.filter(
+      (w) => w.status === "active" && w.triggerType === event.eventType
+    );
+
+    if (activeWfs.length === 0) return [];
+
+    const newExecutions: WorkflowExecution[] = [];
+
+    for (const wf of activeWfs) {
+      const sim = WorkflowEngine.dryRun(wf, event);
+      if (!sim.matchedTrigger) continue;
+
+      const startedAt = new Date().toISOString();
+      const actionSteps: ActionExecution[] = [];
+
+      for (const act of sim.proposedActions) {
+        try {
+          if (act.actionType === "assign_lead_owner" && act.parameters.owner) {
+            await repo.updateLead(event.entityId, { owner: act.parameters.owner });
+          } else if (act.actionType === "update_lead_priority" && act.parameters.priority) {
+            await repo.updateLead(event.entityId, { priority: act.parameters.priority });
+          } else if (act.actionType === "add_lead_tag" && act.parameters.tag) {
+            const currentLead = leads.find((l) => l.id === event.entityId);
+            const notes = currentLead?.notes || "";
+            await repo.updateLead(event.entityId, {
+              notes: notes.includes(`#${act.parameters.tag}`)
+                ? notes
+                : `${notes} #${act.parameters.tag}`.trim(),
+            });
+          } else if (act.actionType === "create_task") {
+            const dueDays = act.parameters.dueDays || 1;
+            const dueDate = new Date(Date.now() + dueDays * 86400000).toISOString().split("T")[0];
+            await repo.createTask({
+              title: act.parameters.title || "Automated Task",
+              priority: act.parameters.priority || "high",
+              dueDate,
+              taskType: act.parameters.taskType || "follow_up",
+              assignedTo: "Rahul Sharma",
+              entityType: event.entityType as any,
+              entityId: event.entityId,
+              entityName: event.payload.name || event.payload.company || "Automation Record",
+            });
+          } else if (act.actionType === "update_deal_stage" && act.parameters.stage) {
+            await repo.updateDeal(event.entityId, { stage: act.parameters.stage });
+          } else if (act.actionType === "create_reminder") {
+            await repo.createReminder({
+              title: act.parameters.message || "Automation Alert",
+              message: act.parameters.message || "Automation Alert",
+              dueAt: new Date().toISOString(),
+              priority: (act.parameters.priority as any) || "high",
+              entityType: "follow_up",
+              entityId: event.entityId,
+            });
+          } else if (act.actionType === "add_internal_note" && act.parameters.note) {
+            const noteEntityType = ["lead", "contact", "company", "deal"].includes(event.entityType)
+              ? (event.entityType as "lead" | "contact" | "company" | "deal")
+              : "lead";
+            await repo.createNote({
+              entityType: noteEntityType,
+              entityId: event.entityId,
+              content: act.parameters.note,
+              author: "Automation Engine",
+            });
+          }
+
+          actionSteps.push({
+            nodeId: act.nodeId,
+            nodeType: "action",
+            nodeTitle: act.nodeTitle,
+            status: "success",
+            detail: act.description,
+            timestamp: new Date().toISOString(),
+          });
+        } catch (err: any) {
+          actionSteps.push({
+            nodeId: act.nodeId,
+            nodeType: "action",
+            nodeTitle: act.nodeTitle,
+            status: "failed",
+            detail: `Failed: ${err.message || "Action execution error"}`,
+            timestamp: new Date().toISOString(),
+          });
+        }
+      }
+
+      const executionRecord: WorkflowExecution = {
+        id: `exec-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
+        workflowId: wf.id,
+        workflowName: wf.name,
+        workflowVersion: wf.version,
+        triggerEvent: event,
+        status: actionSteps.some((s) => s.status === "failed") ? "failure" : "success",
+        steps: actionSteps,
+        startedAt,
+        completedAt: new Date().toISOString(),
+        proposedChanges: sim.proposedActions,
+      };
+
+      newExecutions.push(executionRecord);
+
+      // Increment execution counters
+      const updatedWfs = workflows.map((w) =>
+        w.id === wf.id
+          ? {
+              ...w,
+              executionCount: (w.executionCount || 0) + 1,
+              successCount:
+                executionRecord.status === "success"
+                  ? (w.successCount || 0) + 1
+                  : w.successCount || 0,
+              failureCount:
+                executionRecord.status === "failure"
+                  ? (w.failureCount || 0) + 1
+                  : w.failureCount || 0,
+              lastExecutedAt: executionRecord.completedAt,
+            }
+          : w
+      );
+      setWorkflows(updatedWfs);
+      AutomationRepository.saveWorkflows(updatedWfs);
+    }
+
+    if (newExecutions.length > 0) {
+      setExecutions((prev) => {
+        const next = [...newExecutions, ...prev].slice(0, 100);
+        AutomationRepository.saveExecutions(next);
+        return next;
+      });
+      await loadData();
+    }
+
+    return newExecutions;
+  };
+
   const selectedDeal = leads.find((l) => l.id === selectedDealId) || null;
 
   return (
@@ -901,6 +1212,17 @@ export function CRMProvider({ children }: { children: ReactNode }) {
         campaignDrawerCampaignId,
         openCampaignDrawer,
         closeCampaignDrawer,
+
+        // Phase 08 — Automation Studio
+        workflows,
+        executions,
+        createWorkflow,
+        updateWorkflow,
+        deleteWorkflow,
+        duplicateWorkflow,
+        toggleWorkflowStatus,
+        emergencyPauseAllWorkflows,
+        dispatchAutomationEvent,
 
         openDealDrawer,
         closeDealDrawer,

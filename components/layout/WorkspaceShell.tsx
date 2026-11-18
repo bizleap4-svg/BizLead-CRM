@@ -50,7 +50,7 @@ const navigation = [
   { name: "Campaigns", route: "/campaigns", icon: Target, ready: true },
   { name: "Analytics", route: "/analytics", icon: ChartNoAxesCombined, ready: true },
   { name: "Reports", route: "/reports", icon: FileText, ready: true },
-  { name: "Automations", route: "/automations", icon: Workflow, ready: false },
+  { name: "Automations", route: "/automations", icon: Workflow, ready: true },
 ];
 
 export default function WorkspaceShell({

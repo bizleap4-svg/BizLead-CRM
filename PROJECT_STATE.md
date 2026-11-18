@@ -1,14 +1,14 @@
 # BizLead Revenue OS — Project State Documentation
-**Current Phase:** Phase 07 Complete · Ready for Phase 08  
+**Current Phase:** Phase 08 Complete · Ready for Phase 09  
 **Workspace:** `E:\BizLead`  
 **Last Audited:** November 18, 2026  
-**Roadmap Progress:** 70% (7 of 10 Phases Complete)
+**Roadmap Progress:** 80% (8 of 10 Phases Complete)
 
 ---
 
 ## 1. System Architecture Overview
 
-BizLead Revenue OS is built with Next.js 15 App Router, React 19, TypeScript, and CSS variables. The system features a centralized CRM state layer, persistent theme system, floating dock navigation, modular CRM suites, an omnichannel communication engine, a sales productivity command center, and a complete marketing intelligence ecosystem (Campaign Manager, Growth Intelligence, closed-loop attribution, and Report Studio).
+BizLead Revenue OS is built with Next.js 15 App Router, React 19, TypeScript, and CSS variables. The system features a centralized CRM state layer, persistent theme system, floating dock navigation, modular CRM suites, an omnichannel communication engine, a sales productivity command center, a complete marketing intelligence ecosystem, and an event-driven visual Automation Studio with deterministic execution.
 
 ```
 E:/BizLead/
@@ -28,7 +28,8 @@ E:/BizLead/
 │       ├── meetings/page.tsx           # Phase 06: Meeting Workspace (Hero upcoming card, prep brief, outcome modal)
 │       ├── campaigns/page.tsx          # Phase 07: Campaign Manager ("Every campaign counts." grid & table)
 │       ├── analytics/page.tsx          # Phase 07: Growth Intelligence ("Growth, decoded." executive bento)
-│       └── reports/page.tsx            # Phase 07: Report Studio ("Performance, made clear." A4 PDF print-ready)
+│       ├── reports/page.tsx            # Phase 07: Report Studio ("Performance, made clear." A4 PDF print-ready)
+│       └── automations/page.tsx        # Phase 08: Automation Studio ("Workflows that work for you." visual builder)
 ├── components/
 │   ├── brand/
 │   │   ├── BizLeadIcon.tsx             # Vector logo icon with theme-reactive accent
@@ -38,33 +39,22 @@ E:/BizLead/
 │   ├── layout/
 │   │   └── WorkspaceShell.tsx          # Floating dock, header, theme studio, CampaignDrawer, notifications bell
 │   ├── crm/
-│   │   ├── types.ts                    # Extended MarketingCampaign, CampaignDailyMetric, Touchpoint, Report, etc.
-│   │   ├── repository.ts               # Storage facade with CRM + Marketing CRUD and deterministic seeds
+│   │   ├── types.ts                    # Extended AutomationTriggerType, Workflow, WorkflowNode, WorkflowEdge, etc.
+│   │   ├── repository.ts               # Storage facade with CRM + Marketing + Automation CRUD and deterministic seeds
 │   │   ├── selectors.ts                # Selectors: selectCampaignPerformanceList, selectGrowthExecutiveMetrics, etc.
-│   │   └── CRMProvider.tsx             # Global CRM context provider (useCRM hook with full marketing suite)
-│   ├── marketing/
-│   │   ├── MarketingRepository.ts      # Storage keys, seed campaigns, 30-day metrics, creatives, and touchpoints
-│   │   ├── CampaignMetrics.tsx         # Executive KPI cards (Attributed Won Value, Spend, CRM Leads, Value-to-Spend)
-│   │   ├── CampaignGrid.tsx            # Visual cards with spend vs budget progress bar, CTR, CPL, Won deals
-│   │   ├── CampaignTable.tsx           # Sortable table (Spend, Clicks, CTR, CRM Leads, CPL, CPQL, Won Value, ROAS)
-│   │   ├── CampaignDrawer.tsx          # Flyout drawer for creating & editing campaigns with UTM parameters & tags
-│   │   ├── CreativeLibrary.tsx         # Ad creatives grid (image, video, copy) with thumbnail, CTR, CTA preview
-│   │   ├── BudgetTracker.tsx           # Monthly budget pacing monitor with utilization %, burn rate, and alerts
-│   │   ├── UTMBuilder.tsx              # Standard UTM campaign link builder with presets & parameter preservation
-│   │   ├── CampaignImportWizard.tsx    # CSV upload wizard with formula injection protection and date format parser
-│   │   ├── AttributionEngine.ts        # First-Touch and Last-Touch deterministic closed-loop attribution engine
-│   │   └── AdvertisingIntegrationCenter.tsx # Meta, Google Ads, LinkedIn APIs in demo mode with compliance disclosure
-│   ├── analytics/
-│   │   ├── metricCalculators.ts        # Performance formulas (CTR, CPC, CPM, CPL, CPQL, ROAS) with safe 0-denominator
-│   │   ├── InsightEngine.ts            # 5 deterministic rule-based marketing insights (Spend without leads, scale, etc.)
-│   │   ├── GrowthOverview.tsx          # Main executive dashboard ("Growth, decoded.") with period selector & tabs
-│   │   ├── PerformanceTrend.tsx        # Interactive SVG daily spend, impressions, and clicks trajectory chart
-│   │   ├── ConversionFunnel.tsx        # Full-funnel visualization (Impressions -> Clicks -> Leads -> QL -> Won)
-│   │   ├── LeadQualityPanel.tsx        # Qualification rate breakdown and disposition matrix by source
-│   │   └── CampaignInsightsBanner.tsx  # Insight cards with 1-click follow-up task generation in Focus Center
-│   ├── reports/
-│   │   ├── ReportBuilder.tsx           # Report Studio workspace with pre-built templates and "Hide Budget" toggle
-│   │   └── ReportPreview.tsx           # Print-ready A4 executive document layout (@media print CSS support)
+│   │   └── CRMProvider.tsx             # Global CRM context provider (useCRM hook with event dispatcher & engine)
+│   ├── automations/
+│   │   ├── WorkflowEngine.ts           # Condition evaluator, graph cycle validator, and dry-run engine
+│   │   ├── AutomationRepository.ts     # Persistence facade, 7 prebuilt inactive templates, and audit logs
+│   │   ├── AutomationMetrics.tsx       # Executive KPI metrics (Active Workflows, Executions, Success %, Completed Actions)
+│   │   ├── WorkflowBuilder.tsx         # Interactive SVG canvas with zoom/pan, node dragging, Bezier curves, undo/redo
+│   │   ├── WorkflowList.tsx            # Grid/table views, search, category/status filters, duplicate, delete
+│   │   ├── DryRunModal.tsx             # Zero-mutation simulation viewer with trigger evaluation and branch decisions
+│   │   ├── ExecutionHistoryModal.tsx   # Execution audit trail with step status, timestamps, and error logs
+│   │   └── TemplateGalleryModal.tsx    # 7 prebuilt industry blueprints with 1-click clone into draft
+│   ├── marketing/                      # Phase 07: Campaign Manager, Growth Intelligence, Attribution
+│   ├── analytics/                      # Phase 07: Metric calculators, funnel, trend chart, insight engine
+│   ├── reports/                        # Phase 07: Report Studio builder and print preview
 │   ├── productivity/                   # Phase 06: Focus Center, Daily Momentum, Reminders, Sync modals
 │   ├── calendar/                       # Phase 06: Calendar Studio components
 │   ├── meetings/                       # Phase 06: Meeting Workspace components
@@ -74,36 +64,30 @@ E:/BizLead/
 │   ├── companies/                      # Phase 04: Company Intelligence components
 │   └── leads/                          # Phase 02: Lead Intelligence components
 └── qa_evidence/
-    └── phase_07/                       # 15 High-resolution behavioral QA screenshots committed in repo
+    ├── phase_06/                       # Phase 06 verified screenshots
+    ├── phase_07/                       # Phase 07 verified screenshots
+    └── phase_08/                       # 10 High-resolution behavioral QA screenshots committed in repo
 ```
 
 ---
 
-## 2. Phase 07 Implementation & Verification Matrix
+## 2. Phase 08 Implementation & Verification Matrix
 
 | Capability / Module | Status | Verification & Functional Highlights |
 |---|---|---|
-| **Campaign Manager (`/campaigns`)** | **Completed** | Full campaign management workspace with headline `"Every campaign counts."`, 4 executive KPI cards, search, platform filter, status filter, and live drawer. |
-| **Grid & Table Views** | **Completed** | Seamless view toggling between visual campaign cards (with budget progress bars and utilization %) and a sortable data table (Spend, Clicks, CTR, CRM Leads, CPL, CPQL, Won Value, ROAS). |
-| **Campaign Lifecycle (Drawer)** | **Completed** | `CampaignDrawer.tsx` supports launching new campaigns and editing existing ones: platform, account, objective, budget type, planned budget, dates, target audience/location, UTM parameters, tags, and strategic notes. |
-| **UTM Campaign Link Builder** | **Completed** | `UTMBuilder.tsx` generates standard tracking URLs with presets (Meta, Google Search, LinkedIn InMail, Instagram Bio, WhatsApp Broadcast), query parameter preservation, and copy toast. |
-| **CSV Import Wizard** | **Completed** | `CampaignImportWizard.tsx` with formula injection escaping (`'`, `+`, `-`, `@`), column mapping, date parser, and duplicate date replacement preventing double-counting. |
-| **Advertising Integration Center** | **Completed** | `AdvertisingIntegrationCenter.tsx` features transparent compliance labeling: Meta Marketing API, Google Ads, and LinkedIn are explicitly badged as "Demo Mode Active" for the Phase 10 Cloud Milestone. Zero fake OAuth tokens or credentials stored in browser storage. |
-| **Growth Intelligence (`/analytics`)** | **Completed** | Executive bento dashboard with headline `"Growth, decoded."` and subtitle `"From the first impression to the final conversion."` supporting 7D, 30D, and 90D periods. |
-| **Full-Funnel Conversion Journey** | **Completed** | `ConversionFunnel.tsx` visualizes Impressions -> Clicks -> Captured Leads -> Qualified Leads -> Won Customers with stage-to-stage drop-off % and conversion from top. |
-| **Performance Trend Chart** | **Completed** | `PerformanceTrend.tsx` renders responsive SVG daily trajectory for Spend, Clicks, and Impressions with interactive hover inspection tooltips. |
-| **Channel Attribution Matrix** | **Completed** | Side-by-side comparison across Meta Ads, Google Ads, LinkedIn, and Organic/Direct with spend, leads, qualified leads, attributed won value, and ROAS. |
-| **Lead Quality Intelligence** | **Completed** | `LeadQualityPanel.tsx` breaks down sales qualification rates by marketing acquisition source to isolate high-intent channels from vanity volume. |
-| **Creative Asset Library** | **Completed** | `CreativeLibrary.tsx` displays cross-channel ad creatives (image, video, carousel, text) with format badge, headline, copy preview, CTA button, impressions, clicks, CTR, and new creative creation modal. |
-| **Deterministic Campaign Insights** | **Completed** | `InsightEngine.ts` executes 5 deterministic marketing rules (Zero Qualified Leads on High Spend, Low Qualification Rate, Budget Exhaustion, Scale Opportunities, Unattributed Inbound Leads). `CampaignInsightsBanner.tsx` provides 1-click "Create Task" which logs directly into the Focus Center. |
-| **Report Studio (`/reports`)** | **Completed** | Headline `"Performance, made clear."`, pre-built report templates (Executive Summary, Monthly Marketing ROI, Lead Quality Audit), campaign multi-selection, and CSV export. |
-| **"Hide Budget" Agency Mode** | **Completed** | Toggle completely suppresses spend, budget, CPL, CPQL, and cost-per-customer figures from reports and analytics, replacing them with client-safe impression, click, and qualification rates to protect agency margins. |
-| **Print-Ready A4 PDF Layout** | **Completed** | `ReportPreview.tsx` paired with `@media print` CSS rules in `globals.css` triggers clean `window.print()` without sidebar, header, or buttons. |
-| **Deterministic Attribution Engine** | **Completed** | `AttributionEngine.ts` implements First-Touch and Last-Touch models with deal value capping so that no single deal is attributed for more than 100% of its won revenue. |
-| **Safe Mathematics & Zero Denominators** | **Completed** | `metricCalculators.ts` unit tested (14/14 tests passed); zero denominators format as `"N/A"` rather than `Infinity` or `NaN`. Ratios across aggregated entities sum numerators and denominators first rather than averaging individual ratios. |
-| **Dock Navigation & Shell Sync** | **Completed** | Dock updated: `Campaigns` (`/campaigns`, `ready: true`), `Analytics` (`/analytics`, `ready: true`), and `Reports` (`/reports`, `ready: true`). |
-| **Production Build Validation** | **Completed** | `npm run build` succeeds with zero errors; all 16 static pages generated cleanly. |
-| **Behavioral QA Suite** | **Completed** | `run_phase07_qa.js` executed in an isolated incognito browser session passing all 14 end-to-end flows and 9 core regression routes with 15 screenshots saved directly to `qa_evidence/phase_07/`. |
+| **Automation Studio (`/automations`)** | **Completed** | Full automation orchestration workspace with headline `"Workflows that work for you."`, subtitle `"Build once. Automate intelligently."`, and executive KPI metrics. |
+| **Executive Automation KPIs** | **Completed** | Real-time metric cards for Active Workflows, Total Executions, Success Rate (%), and Completed Actions with Emergency "Pause All Workflows" control. |
+| **Visual Workflow Builder Canvas** | **Completed** | Bespoke React 19-compatible SVG canvas with pan/zoom viewport controls, node dragging, Bezier connection curves with conditional branch styling, and accessible sequence list toggle. |
+| **Structured Condition Evaluator** | **Completed** | Safe evaluation of rules across fields, operators (`equals`, `not_equals`, `contains`, `greater_than`, `less_than`, `in`), and nested AND/OR groups without `eval` or unsafe execution. (7/7 unit tests passed). |
+| **Graph Topology & Cycle Detection** | **Completed** | DFS cycle detection identifying recursive loops and missing triggers before execution. (Topology audit passed). |
+| **Dry-Run Mode Simulation** | **Completed** | Zero-mutation test run simulating inbound CRM payloads against workflow triggers and branches, logging proposed actions without altering CRM contacts, deals, tasks, or pipeline states. |
+| **Prebuilt Workflow Library (7 Templates)** | **Completed** | 7 prebuilt industry automation blueprints (Enterprise Lead Routing, Instant Inbound Engagement, Stalled Proposal Cadence, Overdue Follow-up Escalation, Deal Won Kickoff, Inbound Conversation Alert, Campaign Quality Audit). Inactive by default until explicitly activated. |
+| **Functional CRM Actions** | **Completed** | Real execution of local CRM mutations: Assign Lead Owner, Update Priority, Add Tag, Create Task in Focus Center, Update Deal Stage, Create In-App Reminder, and Add Internal Note. External delivery (Email/WhatsApp/SMS) labeled as unavailable/Phase 10 without fake delivery simulation. |
+| **Execution History Audit Logs** | **Completed** | Detailed execution log viewer tracking workflow triggers, path traversal, step timestamps, and action execution outcomes. |
+| **Cross-Module Event Dispatching** | **Completed** | Ingesting a lead or converting/updating records in `CRMProvider` dispatches events that trigger matching active workflows in real time. |
+| **Dock Navigation & Shell Sync** | **Completed** | Dock updated: `Automations` (`/automations`, `ready: true`) with Lucide Workflow icon. |
+| **Production Build Validation** | **Completed** | `npm run build` succeeds with zero errors; all 17 static pages generated cleanly. |
+| **Behavioral QA Suite** | **Completed** | `run_phase08_qa.js` executed in an isolated browser session passing all 10 end-to-end flows and workspace regression with 10 screenshots saved directly to `qa_evidence/phase_08/`. |
 
 ---
 
@@ -124,6 +108,6 @@ E:/BizLead/
 5. **Phase 05 — Unified Inbox:** Completed  
 6. **Phase 06 — Focus Center — Tasks, Calendar, Meetings & Smart Follow-ups:** Completed  
 7. **Phase 07 — Campaign Intelligence & Analytics:** Completed  
-8. **Phase 08 — Automation Studio:** Up next  
-9. **Phase 09 — Biz AI:** Pending  
-10. **Phase 10 — Administration & Permissions:** Pending  
+8. **Phase 08 — Automation Studio:** Completed  
+9. **Phase 09 — Biz AI:** Up next  
+10. **Phase 10 — Administration & Permissions:** Pending    

@@ -3052,6 +3052,22 @@ export async function listReminders(): Promise<CRMReminder[]> {
   return [...memoryReminders].sort((a, b) => b.dueAt.localeCompare(a.dueAt));
 }
 
+export async function createReminder(
+  data: Omit<CRMReminder, "id" | "createdAt" | "isRead" | "isDismissed">
+): Promise<CRMReminder> {
+  ensureInitialized();
+  const newReminder: CRMReminder = {
+    ...data,
+    id: `rem-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
+    isRead: false,
+    isDismissed: false,
+    createdAt: new Date().toISOString(),
+  };
+  memoryReminders = [newReminder, ...memoryReminders];
+  persistStorage(STORAGE_KEY_REMINDERS, memoryReminders);
+  return newReminder;
+}
+
 export async function markReminderRead(id: string): Promise<void> {
   ensureInitialized();
   memoryReminders = memoryReminders.map((r) =>
