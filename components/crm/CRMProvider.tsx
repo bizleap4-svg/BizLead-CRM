@@ -17,6 +17,10 @@ import {
   CRMNote,
   CRMFile,
   CRMTask,
+  CRMMeeting,
+  MeetingOutcome,
+  CRMReminder,
+  SmartRecommendation,
   DEFAULT_PIPELINE_STAGES,
   Conversation,
   Message,
@@ -36,6 +40,55 @@ type CRMContextType = {
   stages: PipelineStage[];
   loading: boolean;
   selectedDeal: Lead | null;
+
+  // Phase 06 — Productivity, Tasks & Calendar
+  tasks: CRMTask[];
+  meetings: CRMMeeting[];
+  reminders: CRMReminder[];
+  recommendations: SmartRecommendation[];
+  unreadRemindersCount: number;
+
+  createTask: (
+    task: Partial<CRMTask> & { title: string }
+  ) => Promise<CRMTask>;
+  updateTask: (id: string, updates: Partial<CRMTask>) => Promise<CRMTask>;
+  toggleTask: (id: string) => Promise<CRMTask>;
+  rescheduleTask: (id: string, newDueDate: string, newDueTime?: string) => Promise<CRMTask>;
+  deleteTask: (id: string) => Promise<void>;
+  getTasksFor: (
+    entityType?: string,
+    entityId?: string
+  ) => Promise<CRMTask[]>;
+  generateRecurringOccurrences: (taskId: string, count?: number) => Promise<CRMTask[]>;
+
+  createMeeting: (
+    data: Partial<CRMMeeting> & { title: string; date: string; startTime: string; endTime: string }
+  ) => Promise<CRMMeeting>;
+  updateMeeting: (id: string, updates: Partial<CRMMeeting>) => Promise<CRMMeeting>;
+  completeMeeting: (id: string, outcome: MeetingOutcome, nextSteps?: string[]) => Promise<CRMMeeting>;
+  cancelMeeting: (id: string, reason?: string) => Promise<CRMMeeting>;
+  deleteMeeting: (id: string) => Promise<void>;
+
+  markReminderRead: (id: string) => Promise<void>;
+  markAllRemindersRead: () => Promise<void>;
+  dismissReminder: (id: string) => Promise<void>;
+  snoozeReminder: (id: string, minutes?: number) => Promise<void>;
+
+  dismissRecommendation: (id: string) => Promise<void>;
+  snoozeRecommendation: (id: string, days?: number) => Promise<void>;
+
+  // Contextual Drawers
+  isTaskDrawerOpen: boolean;
+  taskDrawerTaskId: string | null;
+  taskDrawerPrefill: Partial<CRMTask> | null;
+  openTaskDrawer: (taskId?: string, prefill?: Partial<CRMTask>) => void;
+  closeTaskDrawer: () => void;
+
+  isMeetingDrawerOpen: boolean;
+  meetingDrawerMeetingId: string | null;
+  meetingDrawerPrefill: Partial<CRMMeeting> | null;
+  openMeetingDrawer: (meetingId?: string, prefill?: Partial<CRMMeeting>) => void;
+  closeMeetingDrawer: () => void;
 
   // Leads
   createLead: (data: Omit<Lead, "id" | "createdAt">) => Promise<Lead>;
@@ -97,16 +150,6 @@ type CRMContextType = {
     entityType: "contact" | "company" | "lead" | "deal",
     entityId: string
   ) => Promise<CRMFile[]>;
-
-  createTask: (
-    task: Omit<CRMTask, "id" | "createdAt">
-  ) => Promise<CRMTask>;
-  toggleTask: (id: string) => Promise<CRMTask>;
-  deleteTask: (id: string) => Promise<void>;
-  getTasksFor: (
-    entityType: "contact" | "company" | "lead" | "deal",
-    entityId: string
-  ) => Promise<CRMTask[]>;
 
   // Drawer & Utility
   openDealDrawer: (id: string) => void;
@@ -180,6 +223,22 @@ export function CRMProvider({ children }: { children: ReactNode }) {
   const [activeConversationId, setActiveConversationId] = useState<string | null>(null);
   const [templates, setTemplates] = useState<MessageTemplate[]>([]);
   const [channelConnections, setChannelConnections] = useState<ChannelConnection[]>([]);
+  
+  // Phase 06 — Productivity State
+  const [tasks, setTasks] = useState<CRMTask[]>([]);
+  const [meetings, setMeetings] = useState<CRMMeeting[]>([]);
+  const [reminders, setReminders] = useState<CRMReminder[]>([]);
+  const [recommendations, setRecommendations] = useState<SmartRecommendation[]>([]);
+
+  // Drawer Management
+  const [isTaskDrawerOpen, setIsTaskDrawerOpen] = useState(false);
+  const [taskDrawerTaskId, setTaskDrawerTaskId] = useState<string | null>(null);
+  const [taskDrawerPrefill, setTaskDrawerPrefill] = useState<Partial<CRMTask> | null>(null);
+
+  const [isMeetingDrawerOpen, setIsMeetingDrawerOpen] = useState(false);
+  const [meetingDrawerMeetingId, setMeetingDrawerMeetingId] = useState<string | null>(null);
+  const [meetingDrawerPrefill, setMeetingDrawerPrefill] = useState<Partial<CRMMeeting> | null>(null);
+
   const [loading, setLoading] = useState(true);
   const [selectedDealId, setSelectedDealId] = useState<string | null>(null);
 
@@ -194,6 +253,10 @@ export function CRMProvider({ children }: { children: ReactNode }) {
         convsRes,
         templatesRes,
         channelsRes,
+        tasksRes,
+        meetingsRes,
+        remindersRes,
+        recsRes,
       ] = await Promise.all([
         repo.listLeads(),
         repo.listContacts(),
@@ -203,6 +266,10 @@ export function CRMProvider({ children }: { children: ReactNode }) {
         repo.listConversations(),
         repo.listTemplates(),
         repo.listChannelConnections(),
+        repo.listTasks(),
+        repo.listMeetings(),
+        repo.listReminders(),
+        repo.getSmartFollowUpRecommendations(),
       ]);
       setLeads(leadsRes);
       setContacts(contactsRes);
@@ -212,6 +279,10 @@ export function CRMProvider({ children }: { children: ReactNode }) {
       setConversations(convsRes);
       setTemplates(templatesRes);
       setChannelConnections(channelsRes);
+      setTasks(tasksRes);
+      setMeetings(meetingsRes);
+      setReminders(remindersRes);
+      setRecommendations(recsRes);
 
       setActiveConversationId((prev) => {
         if (prev && convsRes.some((c) => c.id === prev)) return prev;
@@ -362,27 +433,141 @@ export function CRMProvider({ children }: { children: ReactNode }) {
     return repo.listFiles(entityType, entityId);
   };
 
-  // Tasks
-  const createTask = async (task: Omit<CRMTask, "id" | "createdAt">) => {
+  // Phase 06 — Tasks & Productivity Methods
+  const createTask = async (task: Partial<CRMTask> & { title: string }) => {
     const created = await repo.createTask(task);
+    await loadData();
     return created;
+  };
+
+  const updateTask = async (id: string, updates: Partial<CRMTask>) => {
+    const updated = await repo.updateTask(id, updates);
+    await loadData();
+    return updated;
   };
 
   const toggleTask = async (id: string) => {
     const toggled = await repo.toggleTask(id);
+    await loadData();
     return toggled;
+  };
+
+  const rescheduleTask = async (id: string, newDueDate: string, newDueTime?: string) => {
+    const updated = await repo.rescheduleTask(id, newDueDate, newDueTime);
+    await loadData();
+    return updated;
   };
 
   const deleteTask = async (id: string) => {
     await repo.deleteTask(id);
+    await loadData();
   };
 
   const getTasksFor = async (
-    entityType: "contact" | "company" | "lead" | "deal",
-    entityId: string
+    entityType?: string,
+    entityId?: string
   ) => {
-    return repo.listTasks(entityType, entityId);
+    return repo.getTasksFor(entityType, entityId);
   };
+
+  const generateRecurringOccurrences = async (taskId: string, count?: number) => {
+    const res = await repo.generateRecurringOccurrences(taskId, count);
+    await loadData();
+    return res;
+  };
+
+  // Meetings
+  const createMeeting = async (
+    data: Partial<CRMMeeting> & { title: string; date: string; startTime: string; endTime: string }
+  ) => {
+    const created = await repo.createMeeting(data);
+    await loadData();
+    return created;
+  };
+
+  const updateMeeting = async (id: string, updates: Partial<CRMMeeting>) => {
+    const updated = await repo.updateMeeting(id, updates);
+    await loadData();
+    return updated;
+  };
+
+  const completeMeeting = async (id: string, outcome: MeetingOutcome, nextSteps?: string[]) => {
+    const updated = await repo.completeMeeting(id, outcome, nextSteps);
+    await loadData();
+    return updated;
+  };
+
+  const cancelMeeting = async (id: string, reason?: string) => {
+    const updated = await repo.cancelMeeting(id, reason);
+    await loadData();
+    return updated;
+  };
+
+  const deleteMeeting = async (id: string) => {
+    await repo.deleteMeeting(id);
+    await loadData();
+  };
+
+  // Reminders & Local Notifications
+  const markReminderRead = async (id: string) => {
+    await repo.markReminderRead(id);
+    await loadData();
+  };
+
+  const markAllRemindersRead = async () => {
+    await repo.markAllRemindersRead();
+    await loadData();
+  };
+
+  const dismissReminder = async (id: string) => {
+    await repo.dismissReminder(id);
+    await loadData();
+  };
+
+  const snoozeReminder = async (id: string, minutes?: number) => {
+    await repo.snoozeReminder(id, minutes);
+    await loadData();
+  };
+
+  // Smart Follow-up Engine
+  const dismissRecommendation = async (id: string) => {
+    await repo.dismissRecommendation(id);
+    await loadData();
+  };
+
+  const snoozeRecommendation = async (id: string, days?: number) => {
+    await repo.snoozeRecommendation(id, days);
+    await loadData();
+  };
+
+  // Contextual Drawers
+  const openTaskDrawer = (taskId?: string, prefill?: Partial<CRMTask>) => {
+    setTaskDrawerTaskId(taskId || null);
+    setTaskDrawerPrefill(prefill || null);
+    setIsTaskDrawerOpen(true);
+  };
+
+  const closeTaskDrawer = () => {
+    setIsTaskDrawerOpen(false);
+    setTaskDrawerTaskId(null);
+    setTaskDrawerPrefill(null);
+  };
+
+  const openMeetingDrawer = (meetingId?: string, prefill?: Partial<CRMMeeting>) => {
+    setMeetingDrawerMeetingId(meetingId || null);
+    setMeetingDrawerPrefill(prefill || null);
+    setIsMeetingDrawerOpen(true);
+  };
+
+  const closeMeetingDrawer = () => {
+    setIsMeetingDrawerOpen(false);
+    setMeetingDrawerMeetingId(null);
+    setMeetingDrawerPrefill(null);
+  };
+
+  const unreadRemindersCount = reminders.filter(
+    (r) => !r.isRead && !r.isDismissed
+  ).length;
 
   // Drawer & Reset
   const openDealDrawer = (id: string) => {
@@ -545,10 +730,42 @@ export function CRMProvider({ children }: { children: ReactNode }) {
         addFile,
         deleteFile,
         getFilesFor,
+
+        // Phase 06 — Productivity, Tasks, Calendar, Meetings, Reminders
+        tasks,
+        meetings,
+        reminders,
+        recommendations,
+        unreadRemindersCount,
         createTask,
+        updateTask,
         toggleTask,
+        rescheduleTask,
         deleteTask,
         getTasksFor,
+        generateRecurringOccurrences,
+        createMeeting,
+        updateMeeting,
+        completeMeeting,
+        cancelMeeting,
+        deleteMeeting,
+        markReminderRead,
+        markAllRemindersRead,
+        dismissReminder,
+        snoozeReminder,
+        dismissRecommendation,
+        snoozeRecommendation,
+        isTaskDrawerOpen,
+        taskDrawerTaskId,
+        taskDrawerPrefill,
+        openTaskDrawer,
+        closeTaskDrawer,
+        isMeetingDrawerOpen,
+        meetingDrawerMeetingId,
+        meetingDrawerPrefill,
+        openMeetingDrawer,
+        closeMeetingDrawer,
+
         openDealDrawer,
         closeDealDrawer,
         refreshAll: loadData,

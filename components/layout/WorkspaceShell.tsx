@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import type { ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import {
   LayoutDashboard,
   UsersRound,
@@ -10,7 +10,9 @@ import {
   ContactRound,
   Building2,
   Inbox,
+  CheckSquare,
   CalendarDays,
+  Video,
   ChartNoAxesCombined,
   Workflow,
   Palette,
@@ -29,6 +31,8 @@ import {
 } from "../theme/ThemeProvider";
 import { BizLeadIcon } from "../brand/BizLeadIcon";
 import { BizLeadLogo } from "../brand/BizLeadLogo";
+import { useCRM } from "../crm/CRMProvider";
+import { ReminderCenter } from "../productivity/ReminderCenter";
 
 const navigation = [
   { name: "Overview", route: "/dashboard", icon: LayoutDashboard, ready: true },
@@ -37,7 +41,9 @@ const navigation = [
   { name: "Contacts", route: "/contacts", icon: ContactRound, ready: true },
   { name: "Companies", route: "/companies", icon: Building2, ready: true },
   { name: "Inbox", route: "/inbox", icon: Inbox, ready: true },
-  { name: "Tasks", route: "/tasks", icon: CalendarDays, ready: false },
+  { name: "Tasks", route: "/tasks", icon: CheckSquare, ready: true },
+  { name: "Calendar", route: "/calendar", icon: CalendarDays, ready: true },
+  { name: "Meetings", route: "/meetings", icon: Video, ready: true },
   { name: "Analytics", route: "/analytics", icon: ChartNoAxesCombined, ready: false },
   { name: "Automations", route: "/automations", icon: Workflow, ready: false },
 ];
@@ -49,6 +55,8 @@ export default function WorkspaceShell({
 }) {
   const pathname = usePathname();
   const { openStudio, studioOpen } = useTheme();
+  const { unreadRemindersCount } = useCRM();
+  const [reminderOpen, setReminderOpen] = useState(false);
 
   const current = navigation.find(
     (item) => pathname === item.route || pathname.startsWith(item.route + "/")
@@ -152,13 +160,27 @@ export default function WorkspaceShell({
               <Sparkles size={16} /> Biz AI
             </button>
 
-            <button
-              className="bl-icon"
-              disabled
-              aria-label="Notifications"
-            >
-              <Bell size={19} />
-            </button>
+            <div style={{ position: "relative" }}>
+              <button
+                type="button"
+                className="bl-icon"
+                onClick={() => setReminderOpen(!reminderOpen)}
+                aria-label="Notifications"
+                title="Reminders & Notifications"
+                style={{ position: "relative" }}
+              >
+                <Bell size={19} />
+                {unreadRemindersCount > 0 && (
+                  <span className="bl-dock-unread-badge">
+                    {unreadRemindersCount}
+                  </span>
+                )}
+              </button>
+              <ReminderCenter
+                isOpen={reminderOpen}
+                onClose={() => setReminderOpen(false)}
+              />
+            </div>
           </div>
         </header>
 

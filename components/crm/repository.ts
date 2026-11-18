@@ -7,6 +7,19 @@ import {
   CRMNote,
   CRMFile,
   CRMTask,
+  TaskType,
+  TaskPriority,
+  TaskStatus,
+  TaskChecklistItem,
+  TaskComment,
+  RecurrenceRule,
+  CRMMeeting,
+  MeetingType,
+  MeetingStatus,
+  MeetingParticipant,
+  MeetingOutcome,
+  CRMReminder,
+  SmartRecommendation,
   PipelineStage,
   DEFAULT_PIPELINE_STAGES,
   Conversation,
@@ -30,6 +43,9 @@ const STORAGE_KEY_ACTIVITIES = "bizlead_crm_activities_v1";
 const STORAGE_KEY_NOTES = "bizlead_crm_notes_v1";
 const STORAGE_KEY_FILES = "bizlead_crm_files_v1";
 const STORAGE_KEY_TASKS = "bizlead_crm_tasks_v1";
+const STORAGE_KEY_MEETINGS = "bizlead_crm_meetings_v1";
+const STORAGE_KEY_REMINDERS = "bizlead_crm_reminders_v1";
+const STORAGE_KEY_DISMISSED_RECS = "bizlead_crm_dismissed_recs_v1";
 const STORAGE_KEY_CONVERSATIONS = "bizlead_crm_conversations_v1";
 const STORAGE_KEY_MESSAGES = "bizlead_crm_messages_v1";
 const STORAGE_KEY_TEMPLATES = "bizlead_crm_templates_v1";
@@ -875,36 +891,285 @@ export const INITIAL_DEMO_FILES: CRMFile[] = [
 export const INITIAL_DEMO_TASKS: CRMTask[] = [
   {
     id: "task-001",
+    title: "Follow up with Layers Studio regarding annual contract",
+    description: "Discuss enterprise volume tier and 12% discount approved by finance.",
+    taskType: "call",
+    priority: "high",
+    status: "todo",
+    assignedTo: "Sales Executive A",
+    dueDate: "2026-11-18",
+    dueTime: "10:00",
+    estimatedDuration: 30,
     entityType: "contact",
     entityId: "CON-001",
-    title: "Send final agreement & wire transfer instructions",
-    dueDate: "2026-11-20",
-    priority: "high",
-    status: "pending",
-    assignedTo: "Sales Executive A",
-    createdAt: "2026-11-15",
+    entityName: "Aarav Sharma · Layers Studio",
+    checklist: [
+      { id: "chk-1", title: "Review discount terms", completed: true },
+      { id: "chk-2", title: "Confirm SLA requirements", completed: false },
+      { id: "chk-3", title: "Send signature link via DocuSign", completed: false },
+    ],
+    tags: ["High Value", "Contract"],
+    createdAt: "2026-11-15T09:00:00Z",
   },
   {
     id: "task-002",
-    entityType: "contact",
-    entityId: "CON-002",
-    title: "Schedule technical architecture walkthrough with Priya",
-    dueDate: "2026-11-21",
-    priority: "medium",
-    status: "pending",
+    title: "Send customized proposal to Orbit Technologies",
+    description: "Prepare tailored enterprise proposal with multi-region deployment details.",
+    taskType: "proposal",
+    priority: "high",
+    status: "todo",
     assignedTo: "Sales Executive B",
-    createdAt: "2026-11-15",
+    dueDate: "2026-11-18",
+    dueTime: "11:30",
+    estimatedDuration: 45,
+    entityType: "company",
+    entityId: "COM-002",
+    entityName: "Orbit Technologies",
+    checklist: [
+      { id: "chk-4", title: "Verify infrastructure specs", completed: true },
+      { id: "chk-5", title: "Attach pricing sheet", completed: false },
+    ],
+    tags: ["Proposal", "Enterprise"],
+    createdAt: "2026-11-16T11:00:00Z",
   },
   {
     id: "task-003",
-    entityType: "company",
-    entityId: "COM-006",
-    title: "Verify account manager handover for Apex Logistics",
+    title: "Prepare discovery meeting deck for Apex Logistics",
+    description: "Review warehouse automation workflows and integration touchpoints.",
+    taskType: "meeting_prep",
+    priority: "medium",
+    status: "todo",
+    assignedTo: "Sales Executive A",
     dueDate: "2026-11-18",
+    dueTime: "12:30",
+    estimatedDuration: 30,
+    entityType: "lead",
+    entityId: "BL-002",
+    entityName: "Rohan Varma · Apex Logistics",
+    checklist: [
+      { id: "chk-6", title: "Review competitor pricing comparison", completed: false },
+      { id: "chk-7", title: "Export slide deck to PDF", completed: false },
+    ],
+    tags: ["Deck", "Discovery"],
+    createdAt: "2026-11-17T14:00:00Z",
+  },
+  {
+    id: "task-004",
+    title: "Review Instagram inbound inquiries from designers",
+    description: "Qualify inbound design studio leads received through social messaging.",
+    taskType: "whatsapp",
+    priority: "medium",
+    status: "todo",
+    assignedTo: "Sales Executive A",
+    dueDate: "2026-11-18",
+    dueTime: "14:00",
+    estimatedDuration: 20,
+    entityType: "conversation",
+    entityId: "CNV-006",
+    entityName: "Neha Kapoor (@neha_designs)",
+    tags: ["Social", "Inbound"],
+    createdAt: "2026-11-18T08:00:00Z",
+  },
+  {
+    id: "task-005",
+    title: "Update weekly sales forecast & pipeline milestones",
+    description: "Align with revenue leadership on Q4 quota achievements and deal stages.",
+    taskType: "internal",
+    priority: "low",
+    status: "todo",
+    assignedTo: "Sales Executive C",
+    dueDate: "2026-11-18",
+    dueTime: "16:00",
+    estimatedDuration: 30,
+    tags: ["Forecast", "Internal"],
+    createdAt: "2026-11-17T16:00:00Z",
+  },
+  {
+    id: "task-006",
+    title: "Payment reminder: CloudScale Enterprise invoice overdue",
+    description: "Overdue invoice for ₹1,80,000. Send reminder notice to finance department.",
+    taskType: "payment_reminder",
+    priority: "urgent",
+    status: "todo",
+    assignedTo: "Sales Executive A",
+    dueDate: "2026-11-16", // OVERDUE!
+    dueTime: "17:00",
+    estimatedDuration: 15,
+    entityType: "lead",
+    entityId: "BL-003",
+    entityName: "Kavita Rao · CloudScale",
+    tags: ["Invoice", "Overdue", "Finance"],
+    createdAt: "2026-11-10T10:00:00Z",
+  },
+  {
+    id: "task-007",
+    title: "Verify account manager handover for Apex Logistics",
+    description: "Confirmed operational transition from SDR to Senior Account Executive.",
+    taskType: "onboarding",
     priority: "high",
     status: "completed",
     assignedTo: "Sales Executive A",
-    createdAt: "2026-11-14",
+    dueDate: "2026-11-18",
+    dueTime: "09:30",
+    completedAt: "2026-11-18T09:30:00Z",
+    entityType: "company",
+    entityId: "COM-006",
+    entityName: "Apex Logistics",
+    tags: ["Onboarding", "Done"],
+    createdAt: "2026-11-14T09:00:00Z",
+  },
+  {
+    id: "task-008",
+    title: "Technical architecture walkthrough with Vikram",
+    description: "Discuss API throughput limits, OAuth2 token rotation, and webhook retries.",
+    taskType: "call",
+    priority: "medium",
+    status: "todo",
+    assignedTo: "Sales Executive B",
+    dueDate: "2026-11-21",
+    dueTime: "15:00",
+    entityType: "contact",
+    entityId: "CON-002",
+    entityName: "Vikram Malhotra · Orbit Technologies",
+    tags: ["Technical", "Architecture"],
+    createdAt: "2026-11-15T12:00:00Z",
+  },
+];
+
+export const INITIAL_DEMO_MEETINGS: CRMMeeting[] = [
+  {
+    id: "meet-001",
+    title: "Strategy & Technical Demo Session",
+    meetingType: "demo",
+    status: "scheduled",
+    date: "2026-11-18",
+    startTime: "11:00",
+    endTime: "11:45",
+    timezone: "Asia/Kolkata",
+    host: "Sales Executive A",
+    participants: [
+      { name: "Aarav Sharma", email: "aarav@layersstudio.com", role: "Design Director", avatar: "AS" },
+      { name: "Sales Executive A", email: "praveen@bizlead.io", role: "Account Executive", avatar: "SE" },
+    ],
+    meetingUrl: "https://meet.google.com/xyz-layers-demo",
+    location: "Google Meet",
+    agenda: "1. Review high-traffic CRM demands\n2. Demonstrate WhatsApp omnichannel workflows\n3. Walk through custom pipeline conversion rules",
+    prepNotes: "Aarav is keen on automated stage movement and WhatsApp integration. Emphasize multi-user team inbox.",
+    contactId: "CON-001",
+    companyId: "COM-001",
+    dealId: "BL-001",
+    relatedEntityName: "Aarav Sharma · Layers Studio",
+    createdAt: "2026-11-16T10:00:00Z",
+    updatedAt: "2026-11-16T10:00:00Z",
+  },
+  {
+    id: "meet-002",
+    title: "Commercial & SLA Negotiation",
+    meetingType: "negotiation",
+    status: "scheduled",
+    date: "2026-11-19",
+    startTime: "14:30",
+    endTime: "15:15",
+    timezone: "Asia/Kolkata",
+    host: "Sales Executive B",
+    participants: [
+      { name: "Vikram Malhotra", email: "vikram@orbittech.in", role: "VP Engineering", avatar: "VM" },
+      { name: "Sales Executive B", email: "execb@bizlead.io", role: "Senior AE", avatar: "SB" },
+    ],
+    meetingUrl: "https://zoom.us/j/9876543210",
+    location: "Zoom Video Conference",
+    agenda: "Finalize master service agreement, 99.9% uptime SLA, and payment milestones.",
+    prepNotes: "Finance approved up to 12% discount on 2-year prepayment. Target deal value: ₹3,20,000.",
+    contactId: "CON-002",
+    companyId: "COM-002",
+    dealId: "BL-002",
+    relatedEntityName: "Vikram Malhotra · Orbit Technologies",
+    createdAt: "2026-11-17T11:00:00Z",
+    updatedAt: "2026-11-17T11:00:00Z",
+  },
+  {
+    id: "meet-003",
+    title: "Weekly Revenue Leadership Alignment",
+    meetingType: "internal",
+    status: "scheduled",
+    date: "2026-11-20",
+    startTime: "16:00",
+    endTime: "17:00",
+    timezone: "Asia/Kolkata",
+    host: "Sales Executive A",
+    participants: [
+      { name: "Sales Executive A", email: "praveen@bizlead.io", role: "AE", avatar: "SE" },
+      { name: "Sales Executive B", email: "execb@bizlead.io", role: "AE", avatar: "SB" },
+      { name: "Sales Executive C", email: "execc@bizlead.io", role: "SDR Lead", avatar: "SC" },
+    ],
+    location: "Main Boardroom / BizLead HQ",
+    agenda: "1. Pipeline velocity review\n2. Conversion bottleneck analysis\n3. Next month target allocation",
+    createdAt: "2026-11-15T09:00:00Z",
+    updatedAt: "2026-11-15T09:00:00Z",
+  },
+  {
+    id: "meet-004",
+    title: "Product Discovery Call with Neha",
+    meetingType: "discovery",
+    status: "completed",
+    date: "2026-11-17",
+    startTime: "15:00",
+    endTime: "15:30",
+    timezone: "Asia/Kolkata",
+    host: "Sales Executive A",
+    participants: [
+      { name: "Neha Kapoor", email: "neha@kapoordesigns.in", role: "Owner", avatar: "NK" },
+    ],
+    agenda: "Discuss switching from HubSpot to BizLead Revenue OS.",
+    outcome: {
+      summary: "Neha is frustrated with HubSpot's per-contact pricing and complex interface. Wants simple WhatsApp + Pipeline tracking.",
+      nextSteps: ["Send comparison deck", "Schedule full team onboarding"],
+      sentiment: "positive",
+      updatedDealStage: "qualified",
+    },
+    contactId: "CON-005",
+    relatedEntityName: "Neha Kapoor · Kapoor Luxury Interiors",
+    createdAt: "2026-11-16T14:00:00Z",
+    updatedAt: "2026-11-17T16:00:00Z",
+  },
+];
+
+export const INITIAL_DEMO_REMINDERS: CRMReminder[] = [
+  {
+    id: "rem-001",
+    title: "Meeting starting in 30 minutes",
+    message: "Strategy Demo Session with Layers Studio (Aarav Sharma) at 11:00 AM.",
+    entityType: "meeting",
+    entityId: "meet-001",
+    dueAt: "2026-11-18T10:30:00Z",
+    isRead: false,
+    isDismissed: false,
+    priority: "high",
+    createdAt: "2026-11-18T10:00:00Z",
+  },
+  {
+    id: "rem-002",
+    title: "Overdue Task Action Required",
+    message: "Payment reminder for CloudScale Enterprise invoice was due Nov 16.",
+    entityType: "task",
+    entityId: "task-006",
+    dueAt: "2026-11-16T17:00:00Z",
+    isRead: false,
+    isDismissed: false,
+    priority: "urgent",
+    createdAt: "2026-11-16T17:00:00Z",
+  },
+  {
+    id: "rem-003",
+    title: "Smart Follow-up: New Inbound Lead",
+    message: "Neha Kapoor reached out on Instagram and has not had a follow-up scheduled.",
+    entityType: "follow_up",
+    entityId: "BL-004",
+    dueAt: "2026-11-18T09:00:00Z",
+    isRead: false,
+    isDismissed: false,
+    priority: "high",
+    createdAt: "2026-11-18T08:00:00Z",
   },
 ];
 
@@ -1377,6 +1642,9 @@ let memoryActivities: CRMActivity[] = [...INITIAL_DEMO_ACTIVITIES];
 let memoryNotes: CRMNote[] = [...INITIAL_DEMO_NOTES];
 let memoryFiles: CRMFile[] = [...INITIAL_DEMO_FILES];
 let memoryTasks: CRMTask[] = [...INITIAL_DEMO_TASKS];
+let memoryMeetings: CRMMeeting[] = [...INITIAL_DEMO_MEETINGS];
+let memoryReminders: CRMReminder[] = [...INITIAL_DEMO_REMINDERS];
+let memoryDismissedRecs: string[] = [];
 let memoryConversations: Conversation[] = [...INITIAL_DEMO_CONVERSATIONS];
 let memoryMessages: Message[] = [...INITIAL_DEMO_MESSAGES];
 let memoryTemplates: MessageTemplate[] = [...INITIAL_DEMO_TEMPLATES];
@@ -1432,6 +1700,18 @@ function ensureInitialized() {
     memoryNotes = loadStorage<CRMNote[]>(STORAGE_KEY_NOTES, INITIAL_DEMO_NOTES);
     memoryFiles = loadStorage<CRMFile[]>(STORAGE_KEY_FILES, INITIAL_DEMO_FILES);
     memoryTasks = loadStorage<CRMTask[]>(STORAGE_KEY_TASKS, INITIAL_DEMO_TASKS);
+    memoryMeetings = loadStorage<CRMMeeting[]>(
+      STORAGE_KEY_MEETINGS,
+      INITIAL_DEMO_MEETINGS
+    );
+    memoryReminders = loadStorage<CRMReminder[]>(
+      STORAGE_KEY_REMINDERS,
+      INITIAL_DEMO_REMINDERS
+    );
+    memoryDismissedRecs = loadStorage<string[]>(
+      STORAGE_KEY_DISMISSED_RECS,
+      []
+    );
     memoryConversations = loadStorage<Conversation[]>(
       STORAGE_KEY_CONVERSATIONS,
       INITIAL_DEMO_CONVERSATIONS
@@ -2235,7 +2515,7 @@ export async function deleteFile(id: string): Promise<void> {
   persistStorage(STORAGE_KEY_FILES, memoryFiles);
 }
 
-export async function listTasks(
+export async function getTasksFor(
   entityType?: string,
   entityId?: string
 ): Promise<CRMTask[]> {
@@ -2246,18 +2526,170 @@ export async function listTasks(
   );
 }
 
+export async function listTasks(filter?: {
+  status?: string;
+  priority?: string;
+  taskType?: string;
+  assignedTo?: string;
+  search?: string;
+  entityType?: string;
+  entityId?: string;
+  overdueOnly?: boolean;
+  todayOnly?: boolean;
+  upcomingOnly?: boolean;
+}): Promise<CRMTask[]> {
+  ensureInitialized();
+  const today = new Date().toISOString().split("T")[0];
+  let list = [...memoryTasks];
+
+  if (filter?.status && filter.status !== "all") {
+    if (filter.status === "completed") {
+      list = list.filter((t) => t.status === "completed");
+    } else if (filter.status === "pending" || filter.status === "todo") {
+      list = list.filter((t) => t.status === "todo" || t.status === "pending" || t.status === "in_progress" || t.status === "waiting");
+    } else {
+      list = list.filter((t) => t.status === filter.status);
+    }
+  }
+
+  if (filter?.priority && filter.priority !== "all") {
+    list = list.filter((t) => t.priority === filter.priority);
+  }
+
+  if (filter?.taskType && filter.taskType !== "all") {
+    list = list.filter((t) => (t.taskType || "follow_up") === filter.taskType);
+  }
+
+  if (filter?.assignedTo && filter.assignedTo !== "all") {
+    list = list.filter((t) => t.assignedTo === filter.assignedTo);
+  }
+
+  if (filter?.entityType && filter.entityType !== "all") {
+    list = list.filter((t) => t.entityType === filter.entityType);
+  }
+
+  if (filter?.entityId) {
+    list = list.filter((t) => t.entityId === filter.entityId);
+  }
+
+  if (filter?.overdueOnly) {
+    list = list.filter(
+      (t) => t.status !== "completed" && t.status !== "cancelled" && t.dueDate < today
+    );
+  }
+
+  if (filter?.todayOnly) {
+    list = list.filter((t) => t.dueDate === today);
+  }
+
+  if (filter?.upcomingOnly) {
+    list = list.filter((t) => t.dueDate > today);
+  }
+
+  if (filter?.search && filter.search.trim()) {
+    const q = filter.search.toLowerCase().trim();
+    list = list.filter(
+      (t) =>
+        t.title.toLowerCase().includes(q) ||
+        (t.description && t.description.toLowerCase().includes(q)) ||
+        (t.entityName && t.entityName.toLowerCase().includes(q)) ||
+        (t.tags && t.tags.some((tag) => tag.toLowerCase().includes(q)))
+    );
+  }
+
+  // Sort by dueDate asc, priority desc
+  return list.sort((a, b) => {
+    if (a.status === "completed" && b.status !== "completed") return 1;
+    if (a.status !== "completed" && b.status === "completed") return -1;
+    if (a.dueDate !== b.dueDate) return a.dueDate.localeCompare(b.dueDate);
+    const pWeights: Record<string, number> = { urgent: 4, high: 3, medium: 2, low: 1 };
+    return (pWeights[b.priority] || 1) - (pWeights[a.priority] || 1);
+  });
+}
+
+export async function getTask(id: string): Promise<CRMTask | undefined> {
+  ensureInitialized();
+  return memoryTasks.find((t) => t.id === id);
+}
+
 export async function createTask(
-  task: Omit<CRMTask, "id" | "createdAt">
+  task: Partial<CRMTask> & { title: string }
 ): Promise<CRMTask> {
   ensureInitialized();
+  const today = new Date().toISOString().split("T")[0];
   const newTask: CRMTask = {
-    ...task,
-    id: `task-${Date.now()}`,
-    createdAt: new Date().toISOString().split("T")[0],
+    id: task.id || `task-${Date.now()}`,
+    title: task.title.trim(),
+    description: task.description || "",
+    taskType: task.taskType || "follow_up",
+    priority: task.priority || "medium",
+    status: task.status || "todo",
+    assignedTo: task.assignedTo || "Sales Executive A",
+    createdBy: task.createdBy || "Sales Executive A",
+    dueDate: task.dueDate || today,
+    dueTime: task.dueTime || "12:00",
+    startDate: task.startDate,
+    startTime: task.startTime,
+    estimatedDuration: task.estimatedDuration || 30,
+    entityType: task.entityType,
+    entityId: task.entityId,
+    entityName: task.entityName,
+    checklist: task.checklist || [],
+    comments: task.comments || [],
+    recurrenceRule: task.recurrenceRule,
+    reminderMinutesBefore: task.reminderMinutesBefore,
+    tags: task.tags || [],
+    createdAt: task.createdAt || new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
   };
+
   memoryTasks = [newTask, ...memoryTasks];
   persistStorage(STORAGE_KEY_TASKS, memoryTasks);
+
+  // If task has entity association, log activity
+  if (newTask.entityType && newTask.entityId) {
+    try {
+      await logActivity({
+        entityType: newTask.entityType === "deal" ? "lead" : newTask.entityType === "conversation" ? "contact" : (newTask.entityType as any),
+        entityId: newTask.entityId,
+        type: "task_created",
+        title: `Task Created: ${newTask.title}`,
+        description: `Scheduled for ${newTask.dueDate} · Priority: ${newTask.priority.toUpperCase()}`,
+        author: newTask.assignedTo,
+      });
+    } catch {
+      // Graceful fallback for non-lead entities
+    }
+  }
+
   return newTask;
+}
+
+export async function updateTask(
+  id: string,
+  updates: Partial<CRMTask>
+): Promise<CRMTask> {
+  ensureInitialized();
+  const tIdx = memoryTasks.findIndex((t) => t.id === id);
+  if (tIdx === -1) throw new Error(`Task ${id} not found.`);
+
+  const existing = memoryTasks[tIdx];
+  const updated: CRMTask = {
+    ...existing,
+    ...updates,
+    id: existing.id,
+    updatedAt: new Date().toISOString(),
+  };
+
+  if (updates.status === "completed" && existing.status !== "completed") {
+    updated.completedAt = new Date().toISOString();
+  } else if (updates.status && updates.status !== "completed") {
+    updated.completedAt = undefined;
+  }
+
+  memoryTasks[tIdx] = updated;
+  persistStorage(STORAGE_KEY_TASKS, memoryTasks);
+  return updated;
 }
 
 export async function toggleTask(id: string): Promise<CRMTask> {
@@ -2265,10 +2697,55 @@ export async function toggleTask(id: string): Promise<CRMTask> {
   const tIdx = memoryTasks.findIndex((t) => t.id === id);
   if (tIdx === -1) throw new Error(`Task ${id} not found.`);
 
+  const current = memoryTasks[tIdx];
+  const willComplete = current.status !== "completed";
+
+  const updated: CRMTask = {
+    ...current,
+    status: willComplete ? "completed" : "todo",
+    completedAt: willComplete ? new Date().toISOString() : undefined,
+    updatedAt: new Date().toISOString(),
+  };
+
+  memoryTasks[tIdx] = updated;
+  persistStorage(STORAGE_KEY_TASKS, memoryTasks);
+
+  if (willComplete && current.entityType && current.entityId) {
+    try {
+      await logActivity({
+        entityType: current.entityType === "deal" ? "lead" : current.entityType === "conversation" ? "contact" : (current.entityType as any),
+        entityId: current.entityId,
+        type: "task_completed",
+        title: `Task Completed: ${current.title}`,
+        description: `Completed by ${current.assignedTo} on ${new Date().toISOString().split("T")[0]}`,
+        author: current.assignedTo,
+      });
+    } catch {
+      // Graceful activity fallback
+    }
+  }
+
+  return updated;
+}
+
+export async function rescheduleTask(
+  id: string,
+  newDueDate: string,
+  newDueTime?: string
+): Promise<CRMTask> {
+  ensureInitialized();
+  const tIdx = memoryTasks.findIndex((t) => t.id === id);
+  if (tIdx === -1) throw new Error(`Task ${id} not found.`);
+
   const updated: CRMTask = {
     ...memoryTasks[tIdx],
-    status: memoryTasks[tIdx].status === "completed" ? "pending" : "completed",
+    dueDate: newDueDate,
+    dueTime: newDueTime || memoryTasks[tIdx].dueTime,
+    status: memoryTasks[tIdx].status === "completed" ? "todo" : memoryTasks[tIdx].status,
+    completedAt: undefined,
+    updatedAt: new Date().toISOString(),
   };
+
   memoryTasks[tIdx] = updated;
   persistStorage(STORAGE_KEY_TASKS, memoryTasks);
   return updated;
@@ -2278,6 +2755,541 @@ export async function deleteTask(id: string): Promise<void> {
   ensureInitialized();
   memoryTasks = memoryTasks.filter((t) => t.id !== id);
   persistStorage(STORAGE_KEY_TASKS, memoryTasks);
+}
+
+export async function generateRecurringOccurrences(
+  taskId: string,
+  maxCount: number = 6
+): Promise<CRMTask[]> {
+  ensureInitialized();
+  const parent = memoryTasks.find((t) => t.id === taskId);
+  if (!parent || !parent.recurrenceRule) return [];
+
+  const rule = parent.recurrenceRule;
+  const newOccurrences: CRMTask[] = [];
+  let baseDate = new Date(parent.dueDate);
+
+  for (let i = 1; i <= Math.min(maxCount, rule.maxOccurrences || 6); i++) {
+    const nextDate = new Date(baseDate);
+    if (rule.frequency === "daily") {
+      nextDate.setDate(nextDate.getDate() + (rule.interval || 1) * i);
+    } else if (rule.frequency === "weekly") {
+      nextDate.setDate(nextDate.getDate() + 7 * (rule.interval || 1) * i);
+    } else if (rule.frequency === "monthly") {
+      nextDate.setMonth(nextDate.getMonth() + (rule.interval || 1) * i);
+    } else {
+      nextDate.setDate(nextDate.getDate() + (rule.interval || 1) * i);
+    }
+
+    const nextDateStr = nextDate.toISOString().split("T")[0];
+    if (rule.endDate && nextDateStr > rule.endDate) break;
+
+    const occurrenceId = `${parent.id}-rec-${i}`;
+    if (memoryTasks.some((t) => t.id === occurrenceId)) continue;
+
+    const child: CRMTask = {
+      ...parent,
+      id: occurrenceId,
+      dueDate: nextDateStr,
+      status: "todo",
+      completedAt: undefined,
+      recurrenceParentId: parent.id,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+    newOccurrences.push(child);
+  }
+
+  if (newOccurrences.length > 0) {
+    memoryTasks = [...memoryTasks, ...newOccurrences];
+    persistStorage(STORAGE_KEY_TASKS, memoryTasks);
+  }
+
+  return newOccurrences;
+}
+
+// ==========================================
+// 13B. Meetings Workspace Methods
+// ==========================================
+
+export async function listMeetings(filter?: {
+  status?: string;
+  host?: string;
+  contactId?: string;
+  companyId?: string;
+  dealId?: string;
+  date?: string;
+  search?: string;
+}): Promise<CRMMeeting[]> {
+  ensureInitialized();
+  let list = [...memoryMeetings];
+
+  if (filter?.status && filter.status !== "all") {
+    list = list.filter((m) => m.status === filter.status);
+  }
+
+  if (filter?.host && filter.host !== "all") {
+    list = list.filter((m) => m.host === filter.host);
+  }
+
+  if (filter?.contactId) {
+    list = list.filter((m) => m.contactId === filter.contactId);
+  }
+
+  if (filter?.companyId) {
+    list = list.filter((m) => m.companyId === filter.companyId);
+  }
+
+  if (filter?.dealId) {
+    list = list.filter((m) => m.dealId === filter.dealId);
+  }
+
+  if (filter?.date) {
+    list = list.filter((m) => m.date === filter.date);
+  }
+
+  if (filter?.search && filter.search.trim()) {
+    const q = filter.search.toLowerCase().trim();
+    list = list.filter(
+      (m) =>
+        m.title.toLowerCase().includes(q) ||
+        (m.agenda && m.agenda.toLowerCase().includes(q)) ||
+        (m.relatedEntityName && m.relatedEntityName.toLowerCase().includes(q)) ||
+        m.participants.some((p) => p.name.toLowerCase().includes(q) || p.email.toLowerCase().includes(q))
+    );
+  }
+
+  return list.sort((a, b) => {
+    if (a.date !== b.date) return a.date.localeCompare(b.date);
+    return a.startTime.localeCompare(b.startTime);
+  });
+}
+
+export async function getMeeting(id: string): Promise<CRMMeeting | undefined> {
+  ensureInitialized();
+  return memoryMeetings.find((m) => m.id === id);
+}
+
+export async function createMeeting(
+  data: Partial<CRMMeeting> & { title: string; date: string; startTime: string; endTime: string }
+): Promise<CRMMeeting> {
+  ensureInitialized();
+  const newMeeting: CRMMeeting = {
+    id: data.id || `meet-${Date.now()}`,
+    title: data.title.trim(),
+    meetingType: data.meetingType || "discovery",
+    status: data.status || "scheduled",
+    date: data.date,
+    startTime: data.startTime,
+    endTime: data.endTime,
+    timezone: data.timezone || "Asia/Kolkata",
+    host: data.host || "Sales Executive A",
+    participants: data.participants || [
+      { name: "Sales Executive A", email: "praveen@bizlead.io", role: "Host", avatar: "SE" },
+    ],
+    location: data.location || "Google Meet",
+    meetingUrl: data.meetingUrl,
+    agenda: data.agenda || "Agenda topics to be discussed.",
+    prepNotes: data.prepNotes,
+    contactId: data.contactId,
+    companyId: data.companyId,
+    dealId: data.dealId,
+    leadId: data.leadId,
+    conversationId: data.conversationId,
+    relatedEntityName: data.relatedEntityName,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  };
+
+  memoryMeetings = [newMeeting, ...memoryMeetings];
+  persistStorage(STORAGE_KEY_MEETINGS, memoryMeetings);
+
+  // Log activity
+  if (newMeeting.contactId) {
+    try {
+      await logActivity({
+        entityType: "contact",
+        entityId: newMeeting.contactId,
+        type: "meeting_scheduled",
+        title: `Meeting Scheduled: ${newMeeting.title}`,
+        description: `${newMeeting.date} at ${newMeeting.startTime} - ${newMeeting.endTime} (${newMeeting.location || "Online"})`,
+        author: newMeeting.host,
+      });
+    } catch {
+      // fallback
+    }
+  }
+
+  return newMeeting;
+}
+
+export async function updateMeeting(
+  id: string,
+  updates: Partial<CRMMeeting>
+): Promise<CRMMeeting> {
+  ensureInitialized();
+  const mIdx = memoryMeetings.findIndex((m) => m.id === id);
+  if (mIdx === -1) throw new Error(`Meeting ${id} not found.`);
+
+  const existing = memoryMeetings[mIdx];
+  const updated: CRMMeeting = {
+    ...existing,
+    ...updates,
+    id: existing.id,
+    updatedAt: new Date().toISOString(),
+  };
+
+  memoryMeetings[mIdx] = updated;
+  persistStorage(STORAGE_KEY_MEETINGS, memoryMeetings);
+  return updated;
+}
+
+export async function completeMeeting(
+  id: string,
+  outcome: MeetingOutcome,
+  nextSteps?: string[]
+): Promise<CRMMeeting> {
+  ensureInitialized();
+  const mIdx = memoryMeetings.findIndex((m) => m.id === id);
+  if (mIdx === -1) throw new Error(`Meeting ${id} not found.`);
+
+  const meeting = memoryMeetings[mIdx];
+  const updated: CRMMeeting = {
+    ...meeting,
+    status: "completed",
+    outcome,
+    updatedAt: new Date().toISOString(),
+  };
+
+  memoryMeetings[mIdx] = updated;
+  persistStorage(STORAGE_KEY_MEETINGS, memoryMeetings);
+
+  // 1. Log activity to CRM timeline
+  if (meeting.contactId) {
+    try {
+      await logActivity({
+        entityType: "contact",
+        entityId: meeting.contactId,
+        type: "meeting_completed",
+        title: `Meeting Completed: ${meeting.title}`,
+        description: `Outcome: ${outcome.summary} · Sentiment: ${outcome.sentiment.toUpperCase()}`,
+        author: meeting.host,
+      });
+    } catch {
+      // fallback
+    }
+  }
+
+  // 2. If next steps provided, create follow-up task without duplicates
+  if (nextSteps && nextSteps.length > 0) {
+    for (const step of nextSteps) {
+      if (!step.trim()) continue;
+      const today = new Date();
+      today.setDate(today.getDate() + 2);
+      const followUpDate = today.toISOString().split("T")[0];
+
+      await createTask({
+        title: `Follow-up: ${step.trim()}`,
+        description: `Generated from meeting "${meeting.title}" outcome.`,
+        taskType: "follow_up",
+        priority: "high",
+        dueDate: followUpDate,
+        dueTime: "11:00",
+        assignedTo: meeting.host,
+        entityType: meeting.contactId ? "contact" : meeting.leadId ? "lead" : "company",
+        entityId: meeting.contactId || meeting.leadId || meeting.companyId,
+        entityName: meeting.relatedEntityName,
+      });
+    }
+  }
+
+  // 3. Update deal stage if specified
+  if (outcome.updatedDealStage && meeting.dealId) {
+    try {
+      await updateLead(meeting.dealId, { stage: outcome.updatedDealStage as any });
+    } catch {
+      // fallback
+    }
+  }
+
+  return updated;
+}
+
+export async function cancelMeeting(
+  id: string,
+  reason?: string
+): Promise<CRMMeeting> {
+  ensureInitialized();
+  const mIdx = memoryMeetings.findIndex((m) => m.id === id);
+  if (mIdx === -1) throw new Error(`Meeting ${id} not found.`);
+
+  const updated: CRMMeeting = {
+    ...memoryMeetings[mIdx],
+    status: "cancelled",
+    prepNotes: reason
+      ? `${memoryMeetings[mIdx].prepNotes || ""}\nCancelled reason: ${reason}`
+      : memoryMeetings[mIdx].prepNotes,
+    updatedAt: new Date().toISOString(),
+  };
+
+  memoryMeetings[mIdx] = updated;
+  persistStorage(STORAGE_KEY_MEETINGS, memoryMeetings);
+  return updated;
+}
+
+export async function deleteMeeting(id: string): Promise<void> {
+  ensureInitialized();
+  memoryMeetings = memoryMeetings.filter((m) => m.id !== id);
+  persistStorage(STORAGE_KEY_MEETINGS, memoryMeetings);
+}
+
+// ==========================================
+// 13C. Reminders & Local Notifications Methods
+// ==========================================
+
+export async function listReminders(): Promise<CRMReminder[]> {
+  ensureInitialized();
+  return [...memoryReminders].sort((a, b) => b.dueAt.localeCompare(a.dueAt));
+}
+
+export async function markReminderRead(id: string): Promise<void> {
+  ensureInitialized();
+  memoryReminders = memoryReminders.map((r) =>
+    r.id === id ? { ...r, isRead: true } : r
+  );
+  persistStorage(STORAGE_KEY_REMINDERS, memoryReminders);
+}
+
+export async function markAllRemindersRead(): Promise<void> {
+  ensureInitialized();
+  memoryReminders = memoryReminders.map((r) => ({ ...r, isRead: true }));
+  persistStorage(STORAGE_KEY_REMINDERS, memoryReminders);
+}
+
+export async function dismissReminder(id: string): Promise<void> {
+  ensureInitialized();
+  memoryReminders = memoryReminders.map((r) =>
+    r.id === id ? { ...r, isDismissed: true, isRead: true } : r
+  );
+  persistStorage(STORAGE_KEY_REMINDERS, memoryReminders);
+}
+
+export async function snoozeReminder(id: string, minutes: number = 30): Promise<void> {
+  ensureInitialized();
+  const snoozedUntil = new Date(Date.now() + minutes * 60000).toISOString();
+  memoryReminders = memoryReminders.map((r) =>
+    r.id === id ? { ...r, snoozedUntil, isRead: true } : r
+  );
+  persistStorage(STORAGE_KEY_REMINDERS, memoryReminders);
+}
+
+// ==========================================
+// 13D. Smart Follow-up Recommendation Engine
+// ==========================================
+
+export async function getSmartFollowUpRecommendations(): Promise<SmartRecommendation[]> {
+  ensureInitialized();
+  const today = new Date().toISOString().split("T")[0];
+  const recs: SmartRecommendation[] = [];
+
+  // Rule 1: New lead without scheduled follow-up
+  for (const lead of memoryLeads) {
+    if (lead.stage === "new" || lead.stage === "contacted") {
+      const hasTask = memoryTasks.some(
+        (t) => (t.entityId === lead.id || t.entityName?.includes(lead.name)) && t.status !== "completed"
+      );
+      const recId = `rec-lead-${lead.id}`;
+      if (!hasTask && !memoryDismissedRecs.includes(recId)) {
+        recs.push({
+          id: recId,
+          ruleId: "new_lead_no_followup",
+          reason: `New lead "${lead.name}" (${lead.company}) has no upcoming follow-up scheduled.`,
+          suggestedAction: `Schedule introductory qualification call with ${lead.name}`,
+          suggestedDueDate: today,
+          priority: lead.score > 80 ? "urgent" : "high",
+          taskType: "call",
+          entityType: "lead",
+          entityId: lead.id,
+          entityName: `${lead.name} · ${lead.company}`,
+        });
+      }
+    }
+  }
+
+  // Rule 2: Overdue sales tasks (> 24 hours overdue)
+  const overdueTasks = memoryTasks.filter(
+    (t) => t.status !== "completed" && t.status !== "cancelled" && t.dueDate < today
+  );
+  for (const t of overdueTasks) {
+    const recId = `rec-task-overdue-${t.id}`;
+    if (!memoryDismissedRecs.includes(recId)) {
+      recs.push({
+        id: recId,
+        ruleId: "overdue_sales_task",
+        reason: `Task "${t.title}" is overdue since ${t.dueDate}.`,
+        suggestedAction: `Reschedule or complete overdue task for ${t.assignedTo}`,
+        suggestedDueDate: today,
+        priority: "urgent",
+        taskType: t.taskType || "follow_up",
+        entityType: t.entityType || "lead",
+        entityId: t.entityId || t.id,
+        entityName: t.entityName || t.title,
+      });
+    }
+  }
+
+  // Rule 3: Proposal-stage deal without scheduled next step
+  for (const lead of memoryLeads) {
+    if (lead.stage === "proposal") {
+      const hasFutureAction = memoryTasks.some(
+        (t) => t.entityId === lead.id && t.dueDate >= today && t.status !== "completed"
+      );
+      const recId = `rec-proposal-${lead.id}`;
+      if (!hasFutureAction && !memoryDismissedRecs.includes(recId)) {
+        recs.push({
+          id: recId,
+          ruleId: "proposal_no_next_step",
+          reason: `Deal for ${lead.company} (₹${(lead.value || 0).toLocaleString()}) is in Proposal stage with no next step scheduled.`,
+          suggestedAction: `Send proposal follow-up & confirm review timeline with ${lead.name}`,
+          suggestedDueDate: today,
+          priority: "high",
+          taskType: "proposal",
+          entityType: "deal",
+          entityId: lead.id,
+          entityName: `${lead.name} · ${lead.company}`,
+        });
+      }
+    }
+  }
+
+  // Rule 4: Completed meeting without recorded next steps
+  for (const meeting of memoryMeetings) {
+    if (meeting.status === "completed" && (!meeting.outcome || !meeting.outcome.nextSteps || meeting.outcome.nextSteps.length === 0)) {
+      const recId = `rec-meeting-${meeting.id}`;
+      if (!memoryDismissedRecs.includes(recId)) {
+        recs.push({
+          id: recId,
+          ruleId: "meeting_without_next_steps",
+          reason: `Meeting "${meeting.title}" completed without recorded action items or next steps.`,
+          suggestedAction: `Log meeting outcome summary & assign next-step tasks for ${meeting.relatedEntityName || "client"}`,
+          suggestedDueDate: today,
+          priority: "medium",
+          taskType: "follow_up",
+          entityType: "meeting",
+          entityId: meeting.id,
+          entityName: meeting.relatedEntityName || meeting.title,
+        });
+      }
+    }
+  }
+
+  // Rule 5: Inbound conversation awaiting response
+  for (const conv of memoryConversations) {
+    if (conv.status === "open" && conv.unreadCount > 0) {
+      const recId = `rec-conv-${conv.id}`;
+      if (!memoryDismissedRecs.includes(recId)) {
+        recs.push({
+          id: recId,
+          ruleId: "conversation_awaiting_response",
+          reason: `Inbound inquiry from ${conv.participant.name} on ${conv.channel.toUpperCase()} has unread messages.`,
+          suggestedAction: `Send reply to ${conv.participant.name} or convert to CRM lead`,
+          suggestedDueDate: today,
+          priority: "high",
+          taskType: "whatsapp",
+          entityType: "conversation",
+          entityId: conv.id,
+          entityName: `${conv.participant.name} (${conv.channel.toUpperCase()})`,
+        });
+      }
+    }
+  }
+
+  return recs;
+}
+
+export async function dismissRecommendation(id: string): Promise<void> {
+  ensureInitialized();
+  if (!memoryDismissedRecs.includes(id)) {
+    memoryDismissedRecs.push(id);
+    persistStorage(STORAGE_KEY_DISMISSED_RECS, memoryDismissedRecs);
+  }
+}
+
+export async function snoozeRecommendation(id: string, days: number = 2): Promise<void> {
+  ensureInitialized();
+  // Simply add to dismissed for now in demo mode
+  await dismissRecommendation(id);
+}
+
+// ==========================================
+// 13E. ICS Calendar Generator (RFC 5545)
+// ==========================================
+
+export function generateCalendarICS(events: (CRMTask | CRMMeeting)[]): string {
+  const pad = (n: number) => (n < 10 ? `0${n}` : `${n}`);
+  const formatICSDate = (dateStr: string, timeStr?: string) => {
+    const cleanDate = dateStr.replace(/[^0-9]/g, "");
+    if (!timeStr) {
+      return `${cleanDate}`; // All day
+    }
+    const cleanTime = timeStr.replace(/[^0-9]/g, "");
+    return `${cleanDate}T${cleanTime.padEnd(4, "0")}00`;
+  };
+
+  const escapeICS = (str?: string) => {
+    if (!str) return "";
+    return str
+      .replace(/\\/g, "\\\\")
+      .replace(/;/g, "\\;")
+      .replace(/,/g, "\\,")
+      .replace(/\n/g, "\\n");
+  };
+
+  const lines: string[] = [
+    "BEGIN:VCALENDAR",
+    "VERSION:2.0",
+    "PRODID:-//BizLead Revenue OS//Focus Center Calendar 1.0//EN",
+    "CALSCALE:GREGORIAN",
+    "METHOD:PUBLISH",
+    "X-WR-CALNAME:BizLead CRM Schedule",
+    "X-WR-TIMEZONE:Asia/Kolkata",
+  ];
+
+  for (const ev of events) {
+    const isMeeting = "startTime" in ev && "meetingType" in ev;
+    const uid = `${ev.id}@bizlead.io`;
+    const dtstamp = new Date().toISOString().replace(/[-:]/g, "").split(".")[0] + "Z";
+
+    lines.push("BEGIN:VEVENT");
+    lines.push(`UID:${uid}`);
+    lines.push(`DTSTAMP:${dtstamp}`);
+
+    if (isMeeting) {
+      const meet = ev as CRMMeeting;
+      const dtstart = formatICSDate(meet.date, meet.startTime);
+      const dtend = formatICSDate(meet.date, meet.endTime);
+      lines.push(`DTSTART;TZID=Asia/Kolkata:${dtstart}`);
+      lines.push(`DTEND;TZID=Asia/Kolkata:${dtend}`);
+      lines.push(`SUMMARY:${escapeICS(meet.title)}`);
+      lines.push(`DESCRIPTION:${escapeICS(`${meet.agenda}\nHost: ${meet.host}\nLink: ${meet.meetingUrl || meet.location || "N/A"}`)}`);
+      if (meet.location || meet.meetingUrl) {
+        lines.push(`LOCATION:${escapeICS(meet.meetingUrl || meet.location)}`);
+      }
+      lines.push(`STATUS:${meet.status === "completed" ? "CONFIRMED" : meet.status === "cancelled" ? "CANCELLED" : "CONFIRMED"}`);
+    } else {
+      const task = ev as CRMTask;
+      const dtstart = formatICSDate(task.dueDate, task.dueTime);
+      lines.push(`DTSTART:${dtstart}`);
+      lines.push(`SUMMARY:${escapeICS(`[Task] ${task.title}`)}`);
+      lines.push(`DESCRIPTION:${escapeICS(`${task.description || ""}\nPriority: ${task.priority.toUpperCase()}\nAssigned: ${task.assignedTo}`)}`);
+      lines.push(`STATUS:${task.status === "completed" ? "COMPLETED" : "NEEDS-ACTION"}`);
+    }
+
+    lines.push("END:VEVENT");
+  }
+
+  lines.push("END:VCALENDAR");
+  return lines.join("\r\n");
 }
 
 // ==========================================
@@ -2293,6 +3305,9 @@ export async function resetCRMData(): Promise<void> {
   memoryNotes = [...INITIAL_DEMO_NOTES];
   memoryFiles = [...INITIAL_DEMO_FILES];
   memoryTasks = [...INITIAL_DEMO_TASKS];
+  memoryMeetings = [...INITIAL_DEMO_MEETINGS];
+  memoryReminders = [...INITIAL_DEMO_REMINDERS];
+  memoryDismissedRecs = [];
   memoryConversations = [...INITIAL_DEMO_CONVERSATIONS];
   memoryMessages = [...INITIAL_DEMO_MESSAGES];
   memoryTemplates = [...INITIAL_DEMO_TEMPLATES];
@@ -2307,6 +3322,9 @@ export async function resetCRMData(): Promise<void> {
   persistStorage(STORAGE_KEY_NOTES, memoryNotes);
   persistStorage(STORAGE_KEY_FILES, memoryFiles);
   persistStorage(STORAGE_KEY_TASKS, memoryTasks);
+  persistStorage(STORAGE_KEY_MEETINGS, memoryMeetings);
+  persistStorage(STORAGE_KEY_REMINDERS, memoryReminders);
+  persistStorage(STORAGE_KEY_DISMISSED_RECS, memoryDismissedRecs);
   persistStorage(STORAGE_KEY_CONVERSATIONS, memoryConversations);
   persistStorage(STORAGE_KEY_MESSAGES, memoryMessages);
   persistStorage(STORAGE_KEY_TEMPLATES, memoryTemplates);

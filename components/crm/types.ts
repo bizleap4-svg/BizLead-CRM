@@ -129,7 +129,11 @@ export type CRMActivityType =
   | "email"
   | "meeting"
   | "follow_up"
-  | "file_attached";
+  | "file_attached"
+  | "task_created"
+  | "task_completed"
+  | "meeting_scheduled"
+  | "meeting_completed";
 
 export type CRMActivity = {
   id: string;
@@ -163,16 +167,161 @@ export type CRMFile = {
   uploadedAt: string;
 };
 
+// ==========================================
+// Phase 06 — Productivity, Tasks & Calendar
+// ==========================================
+
+export type TaskType =
+  | "follow_up"
+  | "call"
+  | "email"
+  | "whatsapp"
+  | "meeting_prep"
+  | "proposal"
+  | "payment_reminder"
+  | "onboarding"
+  | "internal"
+  | "custom";
+
+export type TaskPriority = "urgent" | "high" | "medium" | "low";
+
+export type TaskStatus =
+  | "todo"
+  | "in_progress"
+  | "waiting"
+  | "completed"
+  | "cancelled"
+  | "pending"; // Backward compatibility alias for 'todo'
+
+export type TaskChecklistItem = {
+  id: string;
+  title: string;
+  completed: boolean;
+};
+
+export type TaskComment = {
+  id: string;
+  author: string;
+  text: string;
+  createdAt: string;
+};
+
+export type RecurrenceRule = {
+  frequency: "daily" | "weekly" | "monthly" | "custom";
+  interval: number; // e.g. every 1 day, 2 weeks
+  endDate?: string;
+  daysOfWeek?: number[]; // 0 = Sun, 1 = Mon ...
+  maxOccurrences?: number;
+};
+
 export type CRMTask = {
   id: string;
-  entityType: "contact" | "company" | "lead" | "deal";
-  entityId: string;
   title: string;
-  dueDate: string;
-  priority: "high" | "medium" | "low";
-  status: "pending" | "completed";
+  description?: string;
+  taskType?: TaskType;
+  priority: TaskPriority;
+  status: TaskStatus;
   assignedTo: string;
+  createdBy?: string;
+  dueDate: string; // YYYY-MM-DD
+  dueTime?: string; // HH:MM
+  startDate?: string;
+  startTime?: string;
+  estimatedDuration?: number; // minutes
+  completedAt?: string;
+  entityType?: "contact" | "company" | "lead" | "deal" | "conversation";
+  entityId?: string;
+  entityName?: string;
+  checklist?: TaskChecklistItem[];
+  comments?: TaskComment[];
+  recurrenceRule?: RecurrenceRule;
+  recurrenceParentId?: string;
+  reminderMinutesBefore?: number;
+  isArchived?: boolean;
+  tags?: string[];
   createdAt: string;
+  updatedAt?: string;
+};
+
+export type MeetingType =
+  | "discovery"
+  | "consultation"
+  | "demo"
+  | "proposal"
+  | "negotiation"
+  | "onboarding"
+  | "internal"
+  | "custom";
+
+export type MeetingStatus = "scheduled" | "completed" | "cancelled" | "no_show";
+
+export type MeetingParticipant = {
+  name: string;
+  email: string;
+  role?: string;
+  avatar?: string;
+};
+
+export type MeetingOutcome = {
+  summary: string;
+  nextSteps: string[];
+  sentiment: "positive" | "neutral" | "cautious";
+  updatedDealStage?: string;
+};
+
+export type CRMMeeting = {
+  id: string;
+  title: string;
+  meetingType: MeetingType;
+  status: MeetingStatus;
+  date: string; // YYYY-MM-DD
+  startTime: string; // HH:MM
+  endTime: string; // HH:MM
+  timezone: string; // default "Asia/Kolkata"
+  host: string;
+  participants: MeetingParticipant[];
+  location?: string;
+  meetingUrl?: string;
+  agenda: string;
+  prepNotes?: string;
+  outcome?: MeetingOutcome;
+  contactId?: string;
+  companyId?: string;
+  dealId?: string;
+  leadId?: string;
+  conversationId?: string;
+  relatedEntityName?: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type CRMReminder = {
+  id: string;
+  title: string;
+  message: string;
+  entityType: "task" | "meeting" | "follow_up";
+  entityId: string;
+  dueAt: string; // ISO string or YYYY-MM-DDTHH:MM
+  isRead: boolean;
+  isDismissed: boolean;
+  snoozedUntil?: string;
+  priority: "urgent" | "high" | "normal";
+  createdAt: string;
+};
+
+export type SmartRecommendation = {
+  id: string;
+  ruleId: string;
+  reason: string;
+  suggestedAction: string;
+  suggestedDueDate: string;
+  priority: TaskPriority;
+  taskType: TaskType;
+  entityType: "lead" | "deal" | "meeting" | "conversation" | "contact" | "company";
+  entityId: string;
+  entityName: string;
+  isDismissed?: boolean;
+  snoozedUntil?: string;
 };
 
 export const DEFAULT_PIPELINE_STAGES: PipelineStage[] = [

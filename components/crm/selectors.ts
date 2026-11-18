@@ -7,6 +7,8 @@ import {
   Conversation,
   Message,
   Channel,
+  CRMTask,
+  CRMMeeting,
 } from "./types";
 
 /** Formats a number to Indian Rupee currency string */
@@ -370,4 +372,93 @@ export function resolveTemplatePlaceholders(
   );
 
   return result;
+}
+
+// ==========================================
+// Phase 06 — Productivity & Focus Center Selectors
+// ==========================================
+
+export function isTaskOverdue(task: CRMTask, referenceDate?: string): boolean {
+  if (task.status === "completed" || task.status === "cancelled") return false;
+  const today = referenceDate || new Date().toISOString().split("T")[0];
+  return task.dueDate < today;
+}
+
+export function formatTaskTime(time?: string): string {
+  if (!time) return "";
+  const parts = time.split(":");
+  if (parts.length < 2) return time;
+  let hour = parseInt(parts[0], 10);
+  const min = parts[1];
+  const ampm = hour >= 12 ? "PM" : "AM";
+  hour = hour % 12 || 12;
+  return `${hour}:${min} ${ampm}`;
+}
+
+export function selectFocusMetrics(
+  tasks: CRMTask[],
+  meetings: CRMMeeting[],
+  referenceDate?: string
+) {
+  const today = referenceDate || new Date().toISOString().split("T")[0];
+
+  const tasksDueToday = tasks.filter(
+    (t) => t.dueDate === today && t.status !== "completed" && t.status !== "cancelled"
+  ).length;
+
+  const tasksCompletedToday = tasks.filter(
+    (t) =>
+      t.status === "completed" &&
+      ((t.completedAt && t.completedAt.startsWith(today)) || t.dueDate === today)
+  ).length;
+
+  const totalTodayScheduled = tasksDueToday + tasksCompletedToday;
+  const completionRate =
+    totalTodayScheduled > 0
+      ? Math.round((tasksCompletedToday / totalTodayScheduled) * 100)
+      : 100;
+
+  const overdueTasks = tasks.filter((t) => isTaskOverdue(t, today)).length;
+
+  const upcomingMeetingsCount = meetings.filter(
+    (m) => (m.date >= today) && m.status === "scheduled"
+  ).length;
+
+  const highPriorityCount = tasks.filter(
+    (t) =>
+      (t.priority === "high" || t.priority === "urgent") &&
+      t.status !== "completed" &&
+      t.status !== "cancelled"
+  ).length;
+
+  const totalPendingFollowUps = tasks.filter(
+    (t) =>
+      (t.taskType === "follow_up" || t.taskType === "call" || t.taskType === "email" || t.taskType === "whatsapp") &&
+      t.status !== "completed" &&
+      t.status !== "cancelled"
+  ).length;
+
+  const tasksByType: Record<string, number> = {};
+  const workloadByExecutive: Record<string, number> = {};
+
+  for (const t of tasks) {
+    const type = t.taskType || "follow_up";
+    tasksByType[type] = (tasksByType[type] || 0) + 1;
+
+    const owner = t.assignedTo || "Unassigned";
+    workloadByExecutive[owner] = (workloadByExecutive[owner] || 0) + 1;
+  }
+
+  return {
+    tasksDueToday,
+    tasksCompletedToday,
+    totalTodayScheduled,
+    completionRate,
+    overdueTasks,
+    upcomingMeetingsCount,
+    highPriorityCount,
+    totalPendingFollowUps,
+    tasksByType,
+    workloadByExecutive,
+  };
 }
