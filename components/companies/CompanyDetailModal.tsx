@@ -103,7 +103,7 @@ export function CompanyDetailModal({
         <div className="bl-hero-metrics-strip" style={{ marginBottom: "20px" }}>
           <div className="bl-hero-metric">
             <span className="bl-metric-title">Closed Won Value</span>
-            <strong className="bl-metric-stat" style={{ color: "#16825B" }}>
+            <strong className="bl-metric-stat" style={{ color: "var(--color-success)" }}>
               {formatINR(summary.wonValue)}
             </strong>
             <small className="bl-metric-hint">Historical booked revenue</small>

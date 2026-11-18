@@ -251,7 +251,7 @@ export function MeetingDrawer() {
           {/* Title */}
           <div className="bl-field-group">
             <label htmlFor="meeting-title">
-              Meeting Title <span style={{ color: "#ef4444" }}>*</span>
+              Meeting Title <span style={{ color: "var(--color-danger)" }}>*</span>
             </label>
             <input
               id="meeting-title"

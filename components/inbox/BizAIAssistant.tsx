@@ -51,21 +51,21 @@ export function BizAIAssistant({
     if (text.includes("pricing") || text.includes("tier") || text.includes("seats")) {
       return {
         label: "Commercial Inquiry — High Intent",
-        badgeColor: "#10B981",
+        badgeColor: "var(--color-success)",
         description: "Customer is asking about seat tiers and pricing structures.",
       };
     }
     if (text.includes("security") || text.includes("iso") || text.includes("compliance")) {
       return {
         label: "Enterprise Security Qualification",
-        badgeColor: "#F59E0B",
+        badgeColor: "var(--color-warning)",
         description: "Customer is conducting technical and compliance due diligence.",
       };
     }
     if (text.includes("track") || text.includes("staging") || text.includes("milestone")) {
       return {
         label: "Sprint Delivery & Milestone Tracking",
-        badgeColor: "#3B82F6",
+        badgeColor: "var(--color-info)",
         description: "Active customer checking on milestone status and deliverables.",
       };
     }
@@ -141,8 +141,8 @@ export function BizAIAssistant({
         </div>
 
         {/* Honest Architecture Disclaimer */}
-        <div className="bl-warning-banner" style={{ background: "rgba(255, 225, 59, 0.12)", borderColor: "rgba(255, 225, 59, 0.4)", color: "var(--text)" }}>
-          <Bot size={15} color="#d97706" />
+        <div className="bl-warning-banner" style={{ background: "color-mix(in srgb, var(--accent) 15%, transparent)", borderColor: "color-mix(in srgb, var(--accent) 40%, transparent)", color: "var(--text)" }}>
+          <Bot size={15} color="var(--accent)" />
           <span style={{ fontSize: "11px" }}>
             <strong>Biz AI Rule-Based Assistant (Phase 05 Prototype):</strong> All suggestions require executive review before transmission. BizLead will never autonomously message customers without user confirmation.
           </span>

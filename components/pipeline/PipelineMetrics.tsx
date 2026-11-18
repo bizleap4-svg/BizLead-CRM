@@ -52,9 +52,9 @@ export function PipelineMetrics() {
       <article className="bl-metric-tile">
         <div className="bl-metric-top">
           <span className="bl-metric-label">Closed Won Value</span>
-          <CheckCircle2 size={15} className="bl-metric-icon" style={{ color: "#16825B" }} />
+          <CheckCircle2 size={15} className="bl-metric-icon" style={{ color: "var(--color-success)" }} />
         </div>
-        <div className="bl-metric-value" style={{ color: "#16825B" }}>
+        <div className="bl-metric-value" style={{ color: "var(--color-success)" }}>
           {formatLakhs(wonValue)}
         </div>
         <div className="bl-metric-sub">

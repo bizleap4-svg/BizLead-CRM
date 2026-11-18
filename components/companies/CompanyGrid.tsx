@@ -71,7 +71,7 @@ export function CompanyGrid({
             <div className="bl-company-metrics-box">
               <div>
                 <span className="bl-company-box-label">Won Revenue</span>
-                <strong className="bl-company-box-val" style={{ color: "#16825B" }}>
+                <strong className="bl-company-box-val" style={{ color: "var(--color-success)" }}>
                   {formatINR(summary.wonValue)}
                 </strong>
               </div>

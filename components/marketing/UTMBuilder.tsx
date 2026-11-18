@@ -143,7 +143,7 @@ export function UTMBuilder({
         {/* Destination URL */}
         <div className="bl-field-group">
           <label htmlFor="utm-dest-url">
-            Destination / Landing Page URL <span style={{ color: "#ef4444" }}>*</span>
+            Destination / Landing Page URL <span style={{ color: "var(--color-danger)" }}>*</span>
           </label>
           <input
             id="utm-dest-url"
@@ -178,7 +178,7 @@ export function UTMBuilder({
         <div className="bl-fields-row">
           <div className="bl-field-group" style={{ flex: 1 }}>
             <label htmlFor="utm-source">
-              Campaign Source (utm_source) <span style={{ color: "#ef4444" }}>*</span>
+              Campaign Source (utm_source) <span style={{ color: "var(--color-danger)" }}>*</span>
             </label>
             <input
               id="utm-source"
@@ -193,7 +193,7 @@ export function UTMBuilder({
 
           <div className="bl-field-group" style={{ flex: 1 }}>
             <label htmlFor="utm-medium">
-              Campaign Medium (utm_medium) <span style={{ color: "#ef4444" }}>*</span>
+              Campaign Medium (utm_medium) <span style={{ color: "var(--color-danger)" }}>*</span>
             </label>
             <input
               id="utm-medium"
@@ -258,7 +258,7 @@ export function UTMBuilder({
             onClick={handleCopy}
             disabled={!generatedUrl || generatedUrl.startsWith("Invalid")}
           >
-            {copied ? <Check size={12} color="#111111" /> : <Copy size={12} />}
+            {copied ? <Check size={12} color="var(--on-accent)" /> : <Copy size={12} />}
             <span>{copied ? "Copied Link!" : "Copy URL"}</span>
           </button>
         </div>

@@ -543,14 +543,14 @@ export default function LeadsPage() {
               <div
                 className="bl-insight"
                 style={{
-                  borderColor: "rgba(16, 185, 129, 0.35)",
-                  background: "rgba(16, 185, 129, 0.08)",
+                  borderColor: "var(--color-success)",
+                  background: "var(--color-success-soft)",
                   marginTop: "10px",
                 }}
               >
-                <CheckCircle2 size={18} color="#10B981" />
+                <CheckCircle2 size={18} color="var(--color-success)" />
                 <div>
-                  <strong style={{ color: "#10B981" }}>Converted Lead</strong>
+                  <strong style={{ color: "var(--color-success)" }}>Converted Lead</strong>
                   <p>
                     Graduated into Contact 360° and Company Intelligence.
                   </p>
@@ -566,8 +566,8 @@ export default function LeadsPage() {
                   gap: "12px",
                   padding: "12px 14px",
                   borderRadius: "10px",
-                  background: "rgba(255, 225, 59, 0.1)",
-                  border: "1px solid rgba(255, 225, 59, 0.3)",
+                  background: "color-mix(in srgb, var(--accent) 12%, transparent)",
+                  border: "1px solid color-mix(in srgb, var(--accent) 30%, transparent)",
                   marginTop: "10px",
                 }}
               >

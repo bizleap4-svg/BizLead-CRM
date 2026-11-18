@@ -50,9 +50,9 @@ export function CompanyMetrics({ companies, deals, stages }: CompanyMetricsProps
       <article className="bl-metric-tile">
         <div className="bl-metric-top">
           <span className="bl-metric-label">Total Won Revenue</span>
-          <TrendingUp size={15} className="bl-metric-icon" style={{ color: "#16825B" }} />
+          <TrendingUp size={15} className="bl-metric-icon" style={{ color: "var(--color-success)" }} />
         </div>
-        <div className="bl-metric-value" style={{ color: "#16825B" }}>
+        <div className="bl-metric-value" style={{ color: "var(--color-success)" }}>
           {formatLakhs(metrics.totalWonValue)}
         </div>
         <div className="bl-metric-sub">Booked lifetime customer revenue</div>

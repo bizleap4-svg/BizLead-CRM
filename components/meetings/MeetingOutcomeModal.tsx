@@ -94,7 +94,7 @@ export function MeetingOutcomeModal({
       >
         <div className="bl-modal-header bl-between">
           <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-            <div className="bl-icon-badge" style={{ background: "rgba(16, 185, 129, 0.15)", color: "#10b981" }}>
+            <div className="bl-icon-badge" style={{ background: "var(--color-success-soft)", color: "var(--color-success)" }}>
               <FileCheck size={20} />
             </div>
             <div>
@@ -115,7 +115,7 @@ export function MeetingOutcomeModal({
           {/* Executive Summary */}
           <div className="bl-field-group">
             <label htmlFor="outcome-summary">
-              Executive Summary <span style={{ color: "#ef4444" }}>*</span>
+              Executive Summary <span style={{ color: "var(--color-danger)" }}>*</span>
             </label>
             <textarea
               id="outcome-summary"

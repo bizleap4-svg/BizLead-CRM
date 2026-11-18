@@ -82,7 +82,7 @@ export function CompanyTable({
 
                   <td>{formatINR(summary.openPipeline)}</td>
 
-                  <td style={{ fontWeight: 600, color: "#16825B" }}>
+                  <td style={{ fontWeight: 600, color: "var(--color-success)" }}>
                     {formatINR(summary.wonValue)}
                   </td>
 

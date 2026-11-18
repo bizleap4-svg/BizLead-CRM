@@ -137,7 +137,7 @@ export function MessageBubble({ message, quotedMessage }: MessageBubbleProps) {
             <div className="bl-delivery-status-indicator" title={`Delivery: ${message.deliveryStatus || "sent"}`}>
               {message.deliveryStatus === "read" && (
                 <span className="bl-status-read">
-                  <CheckCheck size={14} color="#3B82F6" />
+                  <CheckCheck size={14} color="var(--color-info)" />
                 </span>
               )}
               {message.deliveryStatus === "delivered" && (
@@ -191,8 +191,8 @@ export function MessageBubble({ message, quotedMessage }: MessageBubbleProps) {
               </button>
             </div>
 
-            <div className="bl-warning-banner" style={{ background: "rgba(59, 130, 246, 0.08)", borderColor: "rgba(59, 130, 246, 0.25)", color: "var(--text)" }}>
-              <Info size={15} color="#3B82F6" />
+            <div className="bl-warning-banner" style={{ background: "var(--color-info-soft)", borderColor: "color-mix(in srgb, var(--color-info) 30%, transparent)", color: "var(--text)" }}>
+              <Info size={15} color="var(--color-info)" />
               <span style={{ fontSize: "11px" }}>
                 <strong>Client-Side Verified Attachment:</strong> File type and size are validated. Production binary storage & cloud delivery via WhatsApp / SendGrid / Meta Graph requires backend bucket integration.
               </span>

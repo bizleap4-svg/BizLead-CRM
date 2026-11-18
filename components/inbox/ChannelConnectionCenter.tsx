@@ -63,13 +63,13 @@ export function ChannelConnectionCenter({
         <div
           className="bl-warning-banner"
           style={{
-            background: "rgba(59, 130, 246, 0.08)",
-            borderColor: "rgba(59, 130, 246, 0.25)",
+            background: "var(--color-info-soft)",
+            borderColor: "color-mix(in srgb, var(--color-info) 30%, transparent)",
             color: "var(--text)",
             marginBottom: "18px",
           }}
         >
-          <Lock size={16} color="#3B82F6" />
+          <Lock size={16} color="var(--color-info)" />
           <div style={{ fontSize: "11.5px", lineHeight: 1.5 }}>
             <strong>Enterprise Credential Security:</strong> In Phase 05, all channels run in audited <strong>Demo Mode (Local Simulation)</strong> to guarantee privacy and state integrity. Real WhatsApp/Meta API keys, webhooks, and SMTP secrets must be handled strictly on a protected backend server — never exposed in browser JavaScript.
           </div>
@@ -147,7 +147,7 @@ export function ChannelConnectionCenter({
                 <div className="bl-capabilities-list">
                   {selectedChannel.capabilities.map((cap) => (
                     <div key={cap} className="bl-cap-item">
-                      <CheckCircle2 size={13} color="#10B981" />
+                      <CheckCircle2 size={13} color="var(--color-success)" />
                       <span>{cap}</span>
                     </div>
                   ))}

@@ -266,7 +266,7 @@ export function CampaignImportWizard({
               </div>
 
               {validationErrors.length > 0 && (
-                <div className="bl-error-box" style={{ marginTop: "12px", padding: "8px 12px", background: "rgba(239, 68, 68, 0.1)", borderRadius: "6px", color: "#ef4444", fontSize: "12px" }}>
+                <div className="bl-error-box" style={{ marginTop: "12px", padding: "8px 12px", background: "var(--color-danger-soft)", borderRadius: "6px", color: "var(--color-danger)", fontSize: "12px" }}>
                   {validationErrors.map((err, i) => (
                     <div key={i}>• {err}</div>
                   ))}
@@ -393,7 +393,7 @@ export function CampaignImportWizard({
               </div>
 
               {validationErrors.length > 0 && (
-                <div className="bl-error-box" style={{ marginTop: "12px", padding: "8px 12px", background: "rgba(239, 68, 68, 0.1)", borderRadius: "6px", color: "#ef4444", fontSize: "12px" }}>
+                <div className="bl-error-box" style={{ marginTop: "12px", padding: "8px 12px", background: "var(--color-danger-soft)", borderRadius: "6px", color: "var(--color-danger)", fontSize: "12px" }}>
                   {validationErrors.map((err, i) => (
                     <div key={i}>• {err}</div>
                   ))}
@@ -442,7 +442,7 @@ export function CampaignImportWizard({
           {/* STEP 4: SUMMARY */}
           {step === "summary" && (
             <div className="bl-import-step-summary" style={{ textAlign: "center", padding: "20px 0" }}>
-              <CheckCircle size={40} style={{ color: "#10b981", margin: "0 auto 12px" }} />
+              <CheckCircle size={40} style={{ color: "var(--color-success)", margin: "0 auto 12px" }} />
               <h4 style={{ margin: "0 0 6px 0", fontSize: "16px" }}>Import Complete!</h4>
               <p style={{ margin: "0 0 16px 0", fontSize: "13px", color: "var(--muted)" }}>
                 Successfully processed <strong>{importedCount}</strong> performance metric records without duplicating overlapping dates.

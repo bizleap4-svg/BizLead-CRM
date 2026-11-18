@@ -55,11 +55,11 @@ export function MeetingList({ meetings }: MeetingListProps) {
   const getSentimentIcon = (sentiment?: string) => {
     switch (sentiment) {
       case "positive":
-        return <Smile size={13} color="#10b981" />;
+        return <Smile size={13} color="var(--color-success)" />;
       case "cautious":
-        return <Frown size={13} color="#ef4444" />;
+        return <Frown size={13} color="var(--color-danger)" />;
       default:
-        return <Meh size={13} color="#f59e0b" />;
+        return <Meh size={13} color="var(--color-warning)" />;
     }
   };
 
@@ -136,7 +136,7 @@ export function MeetingList({ meetings }: MeetingListProps) {
                   {m.outcome && (
                     <div className="bl-meeting-outcome-preview">
                       <div className="bl-outcome-preview-top">
-                        <FileCheck size={13} color="#10b981" />
+                        <FileCheck size={13} color="var(--color-success)" />
                         <strong>Logged Outcome:</strong>
                         <span className="bl-outcome-sentiment">
                           {getSentimentIcon(m.outcome.sentiment)}
@@ -225,7 +225,7 @@ export function MeetingList({ meetings }: MeetingListProps) {
                     }}
                     title="Cancel meeting"
                   >
-                    <XCircle size={14} color="#ef4444" />
+                    <XCircle size={14} color="var(--color-danger)" />
                   </button>
                 )}
               </div>

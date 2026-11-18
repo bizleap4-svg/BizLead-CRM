@@ -143,7 +143,7 @@ export function TasksManager({
                 aria-label={isDone ? "Mark pending" : "Mark complete"}
               >
                 {isDone ? (
-                  <CheckCircle2 size={16} style={{ color: "#16825B" }} />
+                  <CheckCircle2 size={16} style={{ color: "var(--color-success)" }} />
                 ) : (
                   <Circle size={16} opacity={0.5} />
                 )}

@@ -234,7 +234,7 @@ export function TaskDrawer() {
           {/* Title */}
           <div className="bl-field-group">
             <label htmlFor="task-title">
-              Task Title <span style={{ color: "#ef4444" }}>*</span>
+              Task Title <span style={{ color: "var(--color-danger)" }}>*</span>
             </label>
             <input
               id="task-title"

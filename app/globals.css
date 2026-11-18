@@ -42,7 +42,7 @@ body {
   --text: #151515;
   --on-primary: #ffffff;
   --on-accent: #151515;
-  --muted: color-mix(in srgb, var(--text) 62%, var(--surface));
+  --muted: color-mix(in srgb, var(--text) 70%, var(--surface));
   --soft-neutral: color-mix(in srgb, var(--text) 9%, var(--surface));
   --border: color-mix(in srgb, var(--text) 11%, var(--surface));
 

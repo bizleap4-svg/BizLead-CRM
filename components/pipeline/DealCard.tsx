@@ -44,9 +44,9 @@ export function DealCard({
 
   const priorityColor =
     deal.priority === "high"
-      ? "#e53935"
+      ? "var(--color-danger)"
       : deal.priority === "medium"
-      ? "#fb8c00"
+      ? "var(--color-warning)"
       : "var(--muted)";
 
   return (
@@ -91,7 +91,7 @@ export function DealCard({
         </span>
 
         <span className="bl-deal-score">
-          {deal.score >= 80 && <Flame size={12} style={{ color: "#e65100" }} />}
+          {deal.score >= 80 && <Flame size={12} style={{ color: "var(--color-warning)" }} />}
           Score {deal.score}
         </span>
 

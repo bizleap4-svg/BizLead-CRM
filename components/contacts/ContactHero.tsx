@@ -172,9 +172,9 @@ export function ContactHero({
               style={{
                 color:
                   contact.relationshipScore >= 80
-                    ? "#16825B"
+                    ? "var(--color-success)"
                     : contact.relationshipScore >= 60
-                    ? "#fb8c00"
+                    ? "var(--color-warning)"
                     : "var(--text)",
               }}
             >

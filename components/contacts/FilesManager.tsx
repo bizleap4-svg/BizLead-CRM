@@ -179,8 +179,8 @@ export function FilesManager({
                 </button>
               </div>
 
-              <div className="bl-warning-banner" style={{ background: "rgba(59, 130, 246, 0.08)", borderColor: "rgba(59, 130, 246, 0.25)", color: "var(--text)" }}>
-                <Info size={15} color="#3B82F6" />
+              <div className="bl-warning-banner" style={{ background: "var(--color-info-soft)", borderColor: "color-mix(in srgb, var(--color-info) 30%, transparent)", color: "var(--text)" }}>
+                <Info size={15} color="var(--color-info)" />
                 <span style={{ fontSize: "11px" }}>
                   <strong>Prototype Document Record (Metadata Only):</strong> Binary files are validated client-side and tracked with metadata. Production cloud storage (S3/GCS) integration is provisioned in the backend phase to prevent storing large binaries in browser storage.
                 </span>

@@ -128,7 +128,7 @@ export const Tabs: React.FC<TabsProps> = ({
             top: 0,
             bottom: 0,
             width: "28px",
-            background: "linear-gradient(to right, var(--surface, #ffffff), transparent)",
+            background: "linear-gradient(to right, var(--surface), transparent)",
             pointerEvents: "none",
             zIndex: 2,
           }}
@@ -275,7 +275,7 @@ export const Tabs: React.FC<TabsProps> = ({
             top: 0,
             bottom: 0,
             width: "28px",
-            background: "linear-gradient(to left, var(--surface, #ffffff), transparent)",
+            background: "linear-gradient(to left, var(--surface), transparent)",
             pointerEvents: "none",
             zIndex: 2,
           }}
