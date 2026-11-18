@@ -45,6 +45,7 @@ import * as repo from "./repository";
 import * as mktRepo from "../marketing/MarketingRepository";
 import { AutomationRepository } from "../automations/AutomationRepository";
 import { WorkflowEngine } from "../automations/WorkflowEngine";
+import { useControlCenter } from "../settings/ControlCenterContext";
 
 type CRMContextType = {
   leads: Lead[];
@@ -137,6 +138,7 @@ type CRMContextType = {
   // Leads
   createLead: (data: Omit<Lead, "id" | "createdAt">) => Promise<Lead>;
   updateLead: (id: string, updates: Partial<Lead>) => Promise<Lead>;
+  deleteLead: (id: string) => Promise<void>;
   moveLead: (id: string, stageId: string) => Promise<Lead>;
   convertLead: (params: repo.ConvertLeadParams) => Promise<{
     contact?: Contact;
@@ -164,6 +166,7 @@ type CRMContextType = {
     data: Omit<Deal, "id" | "createdAt" | "updatedAt">
   ) => Promise<Deal>;
   updateDeal: (id: string, updates: Partial<Deal>) => Promise<Deal>;
+  deleteDeal: (id: string) => Promise<void>;
 
   // Stages
   updateStages: (stages: PipelineStage[]) => Promise<PipelineStage[]>;
@@ -298,6 +301,7 @@ export function CRMProvider({ children }: { children: ReactNode }) {
 
   const [loading, setLoading] = useState(true);
   const [selectedDealId, setSelectedDealId] = useState<string | null>(null);
+  const { canCreate, canEdit, canDelete, activeRole } = useControlCenter();
 
   const loadData = async () => {
     try {
@@ -377,6 +381,9 @@ export function CRMProvider({ children }: { children: ReactNode }) {
 
   // Leads
   const createLead = async (data: Omit<Lead, "id" | "createdAt">) => {
+    if (!canCreate("leads")) {
+      throw new Error(`Unauthorized: Role '${activeRole.name}' lacks permission to create leads`);
+    }
     const created = await repo.createLead(data);
     await loadData();
     setTimeout(() => {
@@ -391,9 +398,20 @@ export function CRMProvider({ children }: { children: ReactNode }) {
   };
 
   const updateLead = async (id: string, updates: Partial<Lead>) => {
+    if (!canEdit("leads")) {
+      throw new Error(`Unauthorized: Role '${activeRole.name}' lacks permission to edit leads`);
+    }
     const updated = await repo.updateLead(id, updates);
     await loadData();
     return updated;
+  };
+
+  const deleteLead = async (id: string) => {
+    if (!canDelete("leads")) {
+      throw new Error(`Unauthorized: Role '${activeRole.name}' lacks permission to delete leads`);
+    }
+    await repo.deleteLead(id);
+    await loadData();
   };
 
   const moveLead = async (id: string, stageId: string) => {
@@ -420,18 +438,27 @@ export function CRMProvider({ children }: { children: ReactNode }) {
   const createContact = async (
     data: Omit<Contact, "id" | "createdAt" | "updatedAt">
   ) => {
+    if (!canCreate("contacts")) {
+      throw new Error(`Unauthorized: Role '${activeRole.name}' lacks permission to create contacts`);
+    }
     const created = await repo.createContact(data);
     await loadData();
     return created;
   };
 
   const updateContact = async (id: string, updates: Partial<Contact>) => {
+    if (!canEdit("contacts")) {
+      throw new Error(`Unauthorized: Role '${activeRole.name}' lacks permission to edit contacts`);
+    }
     const updated = await repo.updateContact(id, updates);
     await loadData();
     return updated;
   };
 
   const deleteContact = async (id: string) => {
+    if (!canDelete("contacts")) {
+      throw new Error(`Unauthorized: Role '${activeRole.name}' lacks permission to delete contacts`);
+    }
     await repo.deleteContact(id);
     await loadData();
   };
@@ -440,18 +467,27 @@ export function CRMProvider({ children }: { children: ReactNode }) {
   const createCompany = async (
     data: Omit<Company, "id" | "createdAt" | "updatedAt">
   ) => {
+    if (!canCreate("companies")) {
+      throw new Error(`Unauthorized: Role '${activeRole.name}' lacks permission to create companies`);
+    }
     const created = await repo.createCompany(data);
     await loadData();
     return created;
   };
 
   const updateCompany = async (id: string, updates: Partial<Company>) => {
+    if (!canEdit("companies")) {
+      throw new Error(`Unauthorized: Role '${activeRole.name}' lacks permission to edit companies`);
+    }
     const updated = await repo.updateCompany(id, updates);
     await loadData();
     return updated;
   };
 
   const deleteCompany = async (id: string) => {
+    if (!canDelete("companies")) {
+      throw new Error(`Unauthorized: Role '${activeRole.name}' lacks permission to delete companies`);
+    }
     await repo.deleteCompany(id);
     await loadData();
   };
@@ -460,6 +496,9 @@ export function CRMProvider({ children }: { children: ReactNode }) {
   const createDeal = async (
     data: Omit<Deal, "id" | "createdAt" | "updatedAt">
   ) => {
+    if (!canCreate("pipeline")) {
+      throw new Error(`Unauthorized: Role '${activeRole.name}' lacks permission to create deals`);
+    }
     const created = await repo.createDeal(data);
     await loadData();
     setTimeout(() => {
@@ -474,6 +513,9 @@ export function CRMProvider({ children }: { children: ReactNode }) {
   };
 
   const updateDeal = async (id: string, updates: Partial<Deal>) => {
+    if (!canEdit("pipeline")) {
+      throw new Error(`Unauthorized: Role '${activeRole.name}' lacks permission to edit deals`);
+    }
     const updated = await repo.updateDeal(id, updates);
     await loadData();
     if (updates.stage) {
@@ -502,6 +544,14 @@ export function CRMProvider({ children }: { children: ReactNode }) {
       }, 0);
     }
     return updated;
+  };
+
+  const deleteDeal = async (id: string) => {
+    if (!canDelete("pipeline")) {
+      throw new Error(`Unauthorized: Role '${activeRole.name}' lacks permission to delete deals`);
+    }
+    await repo.deleteDeal(id);
+    await loadData();
   };
 
   // Stages
@@ -562,30 +612,45 @@ export function CRMProvider({ children }: { children: ReactNode }) {
 
   // Phase 06 — Tasks & Productivity Methods
   const createTask = async (task: Partial<CRMTask> & { title: string }) => {
+    if (!canCreate("tasks")) {
+      throw new Error(`Unauthorized: Role '${activeRole.name}' lacks permission to create tasks`);
+    }
     const created = await repo.createTask(task);
     await loadData();
     return created;
   };
 
   const updateTask = async (id: string, updates: Partial<CRMTask>) => {
+    if (!canEdit("tasks")) {
+      throw new Error(`Unauthorized: Role '${activeRole.name}' lacks permission to edit tasks`);
+    }
     const updated = await repo.updateTask(id, updates);
     await loadData();
     return updated;
   };
 
   const toggleTask = async (id: string) => {
+    if (!canEdit("tasks")) {
+      throw new Error(`Unauthorized: Role '${activeRole.name}' lacks permission to edit tasks`);
+    }
     const toggled = await repo.toggleTask(id);
     await loadData();
     return toggled;
   };
 
   const rescheduleTask = async (id: string, newDueDate: string, newDueTime?: string) => {
+    if (!canEdit("tasks")) {
+      throw new Error(`Unauthorized: Role '${activeRole.name}' lacks permission to edit tasks`);
+    }
     const updated = await repo.rescheduleTask(id, newDueDate, newDueTime);
     await loadData();
     return updated;
   };
 
   const deleteTask = async (id: string) => {
+    if (!canDelete("tasks")) {
+      throw new Error(`Unauthorized: Role '${activeRole.name}' lacks permission to delete tasks`);
+    }
     await repo.deleteTask(id);
     await loadData();
   };
@@ -607,30 +672,45 @@ export function CRMProvider({ children }: { children: ReactNode }) {
   const createMeeting = async (
     data: Partial<CRMMeeting> & { title: string; date: string; startTime: string; endTime: string }
   ) => {
+    if (!canCreate("meetings")) {
+      throw new Error(`Unauthorized: Role '${activeRole.name}' lacks permission to create meetings`);
+    }
     const created = await repo.createMeeting(data);
     await loadData();
     return created;
   };
 
   const updateMeeting = async (id: string, updates: Partial<CRMMeeting>) => {
+    if (!canEdit("meetings")) {
+      throw new Error(`Unauthorized: Role '${activeRole.name}' lacks permission to edit meetings`);
+    }
     const updated = await repo.updateMeeting(id, updates);
     await loadData();
     return updated;
   };
 
   const completeMeeting = async (id: string, outcome: MeetingOutcome, nextSteps?: string[]) => {
+    if (!canEdit("meetings")) {
+      throw new Error(`Unauthorized: Role '${activeRole.name}' lacks permission to edit meetings`);
+    }
     const updated = await repo.completeMeeting(id, outcome, nextSteps);
     await loadData();
     return updated;
   };
 
   const cancelMeeting = async (id: string, reason?: string) => {
+    if (!canEdit("meetings")) {
+      throw new Error(`Unauthorized: Role '${activeRole.name}' lacks permission to edit meetings`);
+    }
     const updated = await repo.cancelMeeting(id, reason);
     await loadData();
     return updated;
   };
 
   const deleteMeeting = async (id: string) => {
+    if (!canDelete("meetings")) {
+      throw new Error(`Unauthorized: Role '${activeRole.name}' lacks permission to delete meetings`);
+    }
     await repo.deleteMeeting(id);
     await loadData();
   };
@@ -1127,6 +1207,50 @@ export function CRMProvider({ children }: { children: ReactNode }) {
 
   const selectedDeal = leads.find((l) => l.id === selectedDealId) || null;
 
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      (window as any).__BIZLEAD_ACTIONS__ = {
+        createLead,
+        updateLead,
+        deleteLead,
+        createContact,
+        updateContact,
+        deleteContact,
+        createCompany,
+        updateCompany,
+        deleteCompany,
+        createDeal,
+        updateDeal,
+        deleteDeal,
+        createTask,
+        updateTask,
+        deleteTask,
+        createMeeting,
+        updateMeeting,
+        deleteMeeting,
+      };
+    }
+  }, [
+    createLead,
+    updateLead,
+    deleteLead,
+    createContact,
+    updateContact,
+    deleteContact,
+    createCompany,
+    updateCompany,
+    deleteCompany,
+    createDeal,
+    updateDeal,
+    deleteDeal,
+    createTask,
+    updateTask,
+    deleteTask,
+    createMeeting,
+    updateMeeting,
+    deleteMeeting,
+  ]);
+
   return (
     <CRMContext.Provider
       value={{
@@ -1139,6 +1263,7 @@ export function CRMProvider({ children }: { children: ReactNode }) {
         selectedDeal,
         createLead,
         updateLead,
+        deleteLead,
         moveLead,
         convertLead,
         createContact,
@@ -1149,6 +1274,7 @@ export function CRMProvider({ children }: { children: ReactNode }) {
         deleteCompany,
         createDeal,
         updateDeal,
+        deleteDeal,
         updateStages,
         logActivity,
         getActivitiesFor,

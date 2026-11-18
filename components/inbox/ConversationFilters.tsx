@@ -10,6 +10,7 @@ import {
   BookOpen,
 } from "lucide-react";
 import { Channel } from "@/components/crm/types";
+import { Tabs } from "../ui/Tabs";
 
 interface ConversationFiltersProps {
   statusFilter: string;
@@ -56,19 +57,15 @@ export function ConversationFilters({
     <div className="bl-inbox-filters-card">
       <div className="bl-inbox-filters-row">
         {/* Status / Scope Chips */}
-        <div className="bl-chips-scroll" role="tablist" aria-label="Conversation Scope">
-          {STATUS_CHIPS.map((chip) => (
-            <button
-              key={chip.id}
-              type="button"
-              role="tab"
-              aria-selected={statusFilter === chip.id}
-              className={`bl-chip-pill ${statusFilter === chip.id ? "active" : ""}`}
-              onClick={() => onStatusFilterChange(chip.id)}
-            >
-              {chip.label}
-            </button>
-          ))}
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <Tabs
+            items={STATUS_CHIPS}
+            activeTab={statusFilter}
+            onChange={onStatusFilterChange}
+            variant="pills"
+            size="sm"
+            ariaLabel="Conversation Scope"
+          />
         </div>
 
         {/* Right Action Tools: Sort + Templates + Channels Setup */}

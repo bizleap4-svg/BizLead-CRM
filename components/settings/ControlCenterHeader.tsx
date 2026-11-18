@@ -35,6 +35,7 @@ export function ControlCenterHeader({
   } = useControlCenter();
   const { openStudio } = useTheme();
   const [switcherOpen, setSwitcherOpen] = useState(false);
+  const isDemoMode = process.env.NEXT_PUBLIC_DEMO_MODE === "true" || process.env.NEXT_PUBLIC_DEMO_MODE === "1";
 
   const handleDownloadBackup = async () => {
     try {
@@ -69,31 +70,53 @@ export function ControlCenterHeader({
         </div>
 
         <div className="bl-settings-header-actions">
-          {/* Active Testing Role Switcher */}
+          {/* Active Identity Display / Demo Mode Role Switcher */}
           <div className="bl-role-switcher-container">
-            <button
-              type="button"
-              className="bl-role-switcher-button"
-              onClick={() => setSwitcherOpen(!switcherOpen)}
-              title="Switch Active Testing Identity to test roles & permissions"
-            >
-              <div className="bl-role-switcher-avatar">{activeMember.avatar}</div>
-              <div className="bl-role-switcher-info">
-                <span className="bl-role-switcher-name">{activeMember.name}</span>
-                <span
-                  className="bl-role-switcher-badge"
-                  style={{
-                    backgroundColor: `${activeRole.color || "var(--accent)"}22`,
-                    color: activeRole.color || "var(--accent)",
-                  }}
-                >
-                  {activeRole.name}
-                </span>
+            {isDemoMode ? (
+              <button
+                type="button"
+                className="bl-role-switcher-button"
+                onClick={() => setSwitcherOpen(!switcherOpen)}
+                title="Switch Active Testing Identity to test roles & permissions (Demo Mode Active)"
+              >
+                <div className="bl-role-switcher-avatar">{activeMember.avatar}</div>
+                <div className="bl-role-switcher-info">
+                  <span className="bl-role-switcher-name">{activeMember.name}</span>
+                  <span
+                    className="bl-role-switcher-badge"
+                    style={{
+                      backgroundColor: `${activeRole.color || "var(--accent)"}22`,
+                      color: activeRole.color || "var(--accent)",
+                    }}
+                  >
+                    {activeRole.name}
+                  </span>
+                </div>
+                <ChevronDown size={14} className="bl-chevron-muted" />
+              </button>
+            ) : (
+              <div
+                className="bl-role-switcher-button"
+                style={{ cursor: "default" }}
+                title={`Active Identity: ${activeMember.name} (${activeRole.name})`}
+              >
+                <div className="bl-role-switcher-avatar">{activeMember.avatar}</div>
+                <div className="bl-role-switcher-info">
+                  <span className="bl-role-switcher-name">{activeMember.name}</span>
+                  <span
+                    className="bl-role-switcher-badge"
+                    style={{
+                      backgroundColor: `${activeRole.color || "var(--accent)"}22`,
+                      color: activeRole.color || "var(--accent)",
+                    }}
+                  >
+                    {activeRole.name}
+                  </span>
+                </div>
               </div>
-              <ChevronDown size={14} className="bl-chevron-muted" />
-            </button>
+            )}
 
-            {switcherOpen && (
+            {isDemoMode && switcherOpen && (
               <div className="bl-role-switcher-dropdown">
                 <div className="bl-role-dropdown-header">
                   <span>TEST IDENTITY & PERMISSIONS</span>

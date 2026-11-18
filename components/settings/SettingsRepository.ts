@@ -488,7 +488,11 @@ function loadStorage<T>(key: string, fallback: T): T {
   try {
     const raw = localStorage.getItem(key);
     if (!raw) return fallback;
-    return JSON.parse(raw) as T;
+    try {
+      return JSON.parse(raw) as T;
+    } catch {
+      return raw as unknown as T;
+    }
   } catch (err) {
     console.warn(`[SettingsRepository] Failed to read ${key}:`, err);
     return fallback;
@@ -704,9 +708,7 @@ export class SettingsRepository {
   }
 
   static getActiveMemberId(): string {
-    if (!memoryActiveMemberId) {
-      memoryActiveMemberId = loadStorage<string>(STORAGE_KEY_ACTIVE_MEMBER_ID, "mem-1");
-    }
+    memoryActiveMemberId = loadStorage<string>(STORAGE_KEY_ACTIVE_MEMBER_ID, "mem-1");
     return memoryActiveMemberId;
   }
 

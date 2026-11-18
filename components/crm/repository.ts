@@ -1732,7 +1732,8 @@ function ensureInitialized() {
   }
 }
 
-function getStageDefaultProbability(stageId: string): number {
+function getStageDefaultProbability(stageId?: string): number {
+  if (!stageId) return 20;
   switch (stageId.toLowerCase()) {
     case "new":
       return 20;
@@ -1815,6 +1816,12 @@ export async function updateLead(
   memoryLeads[index] = updated;
   persistStorage(STORAGE_KEY_LEADS, memoryLeads);
   return updated;
+}
+
+export async function deleteLead(id: string): Promise<void> {
+  ensureInitialized();
+  memoryLeads = memoryLeads.filter((l) => l.id !== id);
+  persistStorage(STORAGE_KEY_LEADS, memoryLeads);
 }
 
 export async function moveLead(id: string, stageId: string): Promise<Lead> {
@@ -2373,6 +2380,12 @@ export async function updateDeal(
   }
 
   return updated;
+}
+
+export async function deleteDeal(id: string): Promise<void> {
+  ensureInitialized();
+  memoryDeals = memoryDeals.filter((d) => d.id !== id);
+  persistStorage(STORAGE_KEY_DEALS, memoryDeals);
 }
 
 // ==========================================

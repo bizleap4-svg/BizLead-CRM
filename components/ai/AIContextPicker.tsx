@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { AIContext } from "./types";
 import { Lead, Deal, MarketingCampaign, Contact, Company } from "../crm/types";
+import { Tabs } from "../ui/Tabs";
 import {
   Paperclip,
   X,
@@ -109,18 +110,20 @@ export const AIContextPicker: React.FC<AIContextPickerProps> = ({
           </div>
 
           {/* Type Tabs */}
-          <div className="flex p-1 rounded-lg bg-muted border text-[11px] font-medium">
-            {(["lead", "deal", "company", "campaign"] as const).map((t) => (
-              <button
-                key={t}
-                onClick={() => setTab(t)}
-                className={`flex-1 py-1 rounded capitalize transition-colors ${
-                  tab === t ? "bg-card text-foreground font-bold shadow-xs" : "text-muted-foreground"
-                }`}
-              >
-                {t}s
-              </button>
-            ))}
+          <div style={{ margin: "2px 0 8px" }}>
+            <Tabs
+              items={[
+                { id: "lead", label: "Leads" },
+                { id: "deal", label: "Deals" },
+                { id: "company", label: "Companies" },
+                { id: "campaign", label: "Campaigns" },
+              ]}
+              activeTab={tab}
+              onChange={(t) => setTab(t as any)}
+              variant="pills"
+              size="sm"
+              ariaLabel="Context entity type"
+            />
           </div>
 
           {/* Search */}

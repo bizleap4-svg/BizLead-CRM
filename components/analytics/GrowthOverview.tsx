@@ -20,6 +20,7 @@ import { ConversionFunnel } from "./ConversionFunnel";
 import { LeadQualityPanel } from "./LeadQualityPanel";
 import { CampaignInsightsBanner } from "./CampaignInsightsBanner";
 import { CreativeLibrary } from "../marketing/CreativeLibrary";
+import { Tabs } from "../ui/Tabs";
 import {
   TrendingUp,
   Filter,
@@ -138,37 +139,19 @@ export const GrowthOverview: React.FC = () => {
       <CampaignMetrics metrics={executiveMetrics} hideBudget={hideBudget} />
 
       {/* View Tabs */}
-      <div className="flex items-center gap-2 border-b border-border pb-2">
-        <button
-          onClick={() => setActiveTab("overview")}
-          className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
-            activeTab === "overview"
-              ? "bg-primary text-primary-foreground"
-              : "text-muted-foreground hover:text-foreground"
-          }`}
-        >
-          Executive Overview & Funnel
-        </button>
-        <button
-          onClick={() => setActiveTab("channels")}
-          className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
-            activeTab === "channels"
-              ? "bg-primary text-primary-foreground"
-              : "text-muted-foreground hover:text-foreground"
-          }`}
-        >
-          Channel Attribution
-        </button>
-        <button
-          onClick={() => setActiveTab("creatives")}
-          className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
-            activeTab === "creatives"
-              ? "bg-primary text-primary-foreground"
-              : "text-muted-foreground hover:text-foreground"
-          }`}
-        >
-          Creative Performance
-        </button>
+      <div style={{ marginBottom: "16px" }}>
+        <Tabs
+          items={[
+            { id: "overview", label: "Executive Overview & Funnel" },
+            { id: "channels", label: "Channel Attribution" },
+            { id: "creatives", label: "Creative Performance" },
+          ]}
+          activeTab={activeTab}
+          onChange={(tabId) => setActiveTab(tabId as any)}
+          variant="underline"
+          size="md"
+          ariaLabel="Growth Analytics Views"
+        />
       </div>
 
       {/* Tab 1: Overview */}

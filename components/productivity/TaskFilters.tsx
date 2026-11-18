@@ -12,6 +12,7 @@ import {
   Flame,
   Calendar,
 } from "lucide-react";
+import { Tabs } from "../ui/Tabs";
 
 export type ViewMode = "focus" | "list" | "board";
 
@@ -134,17 +135,15 @@ export function TaskFilters({
 
       <div className="bl-task-filters-bottom bl-between">
         {/* Quick Filter Pills */}
-        <div className="bl-filter-pills-row">
-          {filterPills.map((pill) => (
-            <button
-              key={pill.id}
-              type="button"
-              className={`bl-filter-pill ${activeFilter === pill.id ? "active" : ""}`}
-              onClick={() => onFilterChange(pill.id)}
-            >
-              {pill.label}
-            </button>
-          ))}
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <Tabs
+            items={filterPills}
+            activeTab={activeFilter}
+            onChange={onFilterChange}
+            variant="pills"
+            size="sm"
+            ariaLabel="Quick task filters"
+          />
         </div>
 
         {/* Dropdowns */}

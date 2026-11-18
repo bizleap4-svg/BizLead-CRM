@@ -18,6 +18,7 @@ import {
 import { useControlCenter } from "./ControlCenterContext";
 import { useCRM } from "../crm/CRMProvider";
 import { PipelineStage, StageKind } from "../crm/types";
+import { Tabs, TabItem } from "../ui/Tabs";
 
 export function CRMConfigurationPanel() {
   const { crmConfig, updateCRMConfig, canManageAdmin } = useControlCenter();
@@ -210,49 +211,22 @@ export function CRMConfigurationPanel() {
       )}
 
       {/* Sub Tabs */}
-      <div className="bl-crm-config-subtabs">
-        <button
-          type="button"
-          className={`bl-crm-subtab ${activeTab === "pipeline" ? "selected" : ""}`}
-          onClick={() => setActiveTab("pipeline")}
-        >
-          Pipeline Stages ({stages.length})
-        </button>
-        <button
-          type="button"
-          className={`bl-crm-subtab ${activeTab === "sources" ? "selected" : ""}`}
-          onClick={() => setActiveTab("sources")}
-        >
-          Lead Sources ({crmConfig.leadSources.length})
-        </button>
-        <button
-          type="button"
-          className={`bl-crm-subtab ${activeTab === "lost_reasons" ? "selected" : ""}`}
-          onClick={() => setActiveTab("lost_reasons")}
-        >
-          Deal Lost Reasons ({crmConfig.dealLostReasons.length})
-        </button>
-        <button
-          type="button"
-          className={`bl-crm-subtab ${activeTab === "tags" ? "selected" : ""}`}
-          onClick={() => setActiveTab("tags")}
-        >
-          CRM Tags ({crmConfig.tags.length})
-        </button>
-        <button
-          type="button"
-          className={`bl-crm-subtab ${activeTab === "custom_fields" ? "selected" : ""}`}
-          onClick={() => setActiveTab("custom_fields")}
-        >
-          Custom Fields ({crmConfig.customFields.length})
-        </button>
-        <button
-          type="button"
-          className={`bl-crm-subtab ${activeTab === "scoring" ? "selected" : ""}`}
-          onClick={() => setActiveTab("scoring")}
-        >
-          Scoring Rules
-        </button>
+      <div style={{ marginBottom: "20px" }}>
+        <Tabs
+          items={[
+            { id: "pipeline", label: "Pipeline Stages", count: stages.length },
+            { id: "sources", label: "Lead Sources", count: crmConfig.leadSources.length },
+            { id: "lost_reasons", label: "Deal Lost Reasons", count: crmConfig.dealLostReasons.length },
+            { id: "tags", label: "CRM Tags", count: crmConfig.tags.length },
+            { id: "custom_fields", label: "Custom Fields", count: crmConfig.customFields.length },
+            { id: "scoring", label: "Scoring Rules" },
+          ]}
+          activeTab={activeTab}
+          onChange={(id) => setActiveTab(id as any)}
+          variant="pills"
+          size="sm"
+          ariaLabel="CRM Configuration Subtabs"
+        />
       </div>
 
       {/* Tab 1: Pipeline Stages */}
