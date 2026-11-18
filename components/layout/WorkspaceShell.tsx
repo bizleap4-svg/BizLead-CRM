@@ -15,6 +15,8 @@ import {
   Video,
   ChartNoAxesCombined,
   Workflow,
+  Target,
+  FileText,
   Palette,
   Settings2,
   Sparkles,
@@ -33,6 +35,7 @@ import { BizLeadIcon } from "../brand/BizLeadIcon";
 import { BizLeadLogo } from "../brand/BizLeadLogo";
 import { useCRM } from "../crm/CRMProvider";
 import { ReminderCenter } from "../productivity/ReminderCenter";
+import { CampaignDrawer } from "../marketing/CampaignDrawer";
 
 const navigation = [
   { name: "Overview", route: "/dashboard", icon: LayoutDashboard, ready: true },
@@ -44,7 +47,9 @@ const navigation = [
   { name: "Tasks", route: "/tasks", icon: CheckSquare, ready: true },
   { name: "Calendar", route: "/calendar", icon: CalendarDays, ready: true },
   { name: "Meetings", route: "/meetings", icon: Video, ready: true },
-  { name: "Analytics", route: "/analytics", icon: ChartNoAxesCombined, ready: false },
+  { name: "Campaigns", route: "/campaigns", icon: Target, ready: true },
+  { name: "Analytics", route: "/analytics", icon: ChartNoAxesCombined, ready: true },
+  { name: "Reports", route: "/reports", icon: FileText, ready: true },
   { name: "Automations", route: "/automations", icon: Workflow, ready: false },
 ];
 
@@ -55,7 +60,12 @@ export default function WorkspaceShell({
 }) {
   const pathname = usePathname();
   const { openStudio, studioOpen } = useTheme();
-  const { unreadRemindersCount } = useCRM();
+  const {
+    unreadRemindersCount,
+    isCampaignDrawerOpen,
+    campaignDrawerCampaignId,
+    closeCampaignDrawer,
+  } = useCRM();
   const [reminderOpen, setReminderOpen] = useState(false);
 
   const current = navigation.find(
@@ -186,6 +196,14 @@ export default function WorkspaceShell({
 
         {children}
       </main>
+
+      {isCampaignDrawerOpen && (
+        <CampaignDrawer
+          isOpen={isCampaignDrawerOpen}
+          onClose={closeCampaignDrawer}
+          campaignId={campaignDrawerCampaignId}
+        />
+      )}
 
       {studioOpen && <ThemeStudio />}
     </>

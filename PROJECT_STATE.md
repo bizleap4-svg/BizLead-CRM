@@ -1,20 +1,20 @@
 # BizLead Revenue OS — Project State Documentation
-**Current Phase:** Phase 06 Complete · Ready for Phase 07  
+**Current Phase:** Phase 07 Complete · Ready for Phase 08  
 **Workspace:** `E:\BizLead`  
 **Last Audited:** November 18, 2026  
-**Roadmap Progress:** 60% (6 of 10 Phases Complete)
+**Roadmap Progress:** 70% (7 of 10 Phases Complete)
 
 ---
 
 ## 1. System Architecture Overview
 
-BizLead Revenue OS is built with Next.js 15 App Router, React 19, TypeScript, and CSS variables. The system features a centralized CRM state layer, persistent theme system, floating dock navigation, modular CRM suites, an omnichannel communication engine, and a complete sales productivity command center (Focus Center, Calendar Studio, and Meeting Workspace).
+BizLead Revenue OS is built with Next.js 15 App Router, React 19, TypeScript, and CSS variables. The system features a centralized CRM state layer, persistent theme system, floating dock navigation, modular CRM suites, an omnichannel communication engine, a sales productivity command center, and a complete marketing intelligence ecosystem (Campaign Manager, Growth Intelligence, closed-loop attribution, and Report Studio).
 
 ```
 E:/BizLead/
 ├── app/
 │   ├── layout.tsx                      # Root layout with DM Sans & Manrope fonts
-│   ├── globals.css                     # Design tokens, themes, layouts, animations, Phase 06 styles
+│   ├── globals.css                     # Design tokens, themes, layouts, animations, Phase 07 print styles
 │   └── (workspace)/
 │       ├── layout.tsx                  # Wraps workspace with ThemeProvider & CRMProvider
 │       ├── dashboard/page.tsx          # Overview: Bento dashboard, revenue chart, priority deals
@@ -25,7 +25,10 @@ E:/BizLead/
 │       ├── inbox/page.tsx              # Phase 05: Unified Inbox 3-column omnichannel workspace
 │       ├── tasks/page.tsx              # Phase 06: Focus Center (Bento momentum, task list, Kanban board, drawers)
 │       ├── calendar/page.tsx           # Phase 06: Calendar Studio (Month, Week, Day, Agenda views, sync modal)
-│       └── meetings/page.tsx           # Phase 06: Meeting Workspace (Hero upcoming card, prep brief, outcome modal)
+│       ├── meetings/page.tsx           # Phase 06: Meeting Workspace (Hero upcoming card, prep brief, outcome modal)
+│       ├── campaigns/page.tsx          # Phase 07: Campaign Manager ("Every campaign counts." grid & table)
+│       ├── analytics/page.tsx          # Phase 07: Growth Intelligence ("Growth, decoded." executive bento)
+│       └── reports/page.tsx            # Phase 07: Report Studio ("Performance, made clear." A4 PDF print-ready)
 ├── components/
 │   ├── brand/
 │   │   ├── BizLeadIcon.tsx             # Vector logo icon with theme-reactive accent
@@ -33,110 +36,94 @@ E:/BizLead/
 │   ├── theme/
 │   │   └── ThemeProvider.tsx           # Theme context, 7 verified palettes, custom picker, live preview
 │   ├── layout/
-│   │   └── WorkspaceShell.tsx          # Floating dock, header, theme studio drawer, notifications bell & active nav
+│   │   └── WorkspaceShell.tsx          # Floating dock, header, theme studio, CampaignDrawer, notifications bell
 │   ├── crm/
-│   │   ├── types.ts                    # Extended CRMTask, CRMMeeting, CRMReminder, SmartRecommendation, etc.
-│   │   ├── repository.ts               # Storage facade with tasks/meetings CRUD, ICS export, recommendations
-│   │   ├── selectors.ts                # Selectors: selectFocusMetrics, isTaskOverdue, formatTaskTime, etc.
-│   │   └── CRMProvider.tsx             # Global CRM context provider (useCRM hook with full productivity suite)
-│   ├── productivity/
-│   │   ├── FocusHeader.tsx             # Module switcher (/tasks, /calendar, /meetings) + quick action triggers
-│   │   ├── DailyMomentum.tsx           # Bento hero card: execution cadence, dynamic motivation, streak, progress
-│   │   ├── FocusMetrics.tsx            # KPI row: Today's Priorities, Overdue, Upcoming Meetings, Completion Rate
-│   │   ├── FollowUpIntelligence.tsx    # Rule-based Smart Follow-up banner with 1-click task creation & snooze
-│   │   ├── TaskFilters.tsx             # Search, view mode switcher (Focus/List/Board), quick filter pills & dropdowns
-│   │   ├── TaskCard.tsx                # Interactive task card: checkbox, priority pills, type badge, entity chip
-│   │   ├── TaskList.tsx                # Grouped list: Overdue, Today's Priorities, Upcoming, Completed
-│   │   ├── TaskBoard.tsx               # Kanban task board: To Do, In Progress, Waiting, Completed with drag & move
-│   │   ├── TaskDrawer.tsx              # Slide-in drawer for task creation/editing with CRM record linking & checklists
-│   │   ├── ReminderCenter.tsx          # Header notification popover: snooze +30m, mark read, browser desktop alerts
-│   │   └── ExternalSyncModal.tsx       # Universal RFC 5545 .ics download + GCal, Outlook, Zoom connection guides
-│   ├── calendar/
-│   │   ├── CalendarWorkspace.tsx       # Main calendar controller managing active date, view modes, and event filters
-│   │   ├── CalendarToolbar.tsx         # Month/Week/Day/Agenda switcher, navigation arrows, today button, date header
-│   │   ├── MonthView.tsx               # 7-day month grid with today highlight, overflow count, and day-cell quick add
-│   │   ├── WeekView.tsx                # 7-day columns with hourly timeline (8 AM - 8 PM) and event chip blocks
-│   │   ├── DayView.tsx                 # Detailed single day view with all-day task bar and detailed meeting blocks
-│   │   ├── AgendaView.tsx              # Chronological list of events grouped by date with quick actions
-│   │   └── CalendarEventCard.tsx       # Colored event chip for tasks and meetings with click-to-drawer
-│   ├── meetings/
-│   │   ├── MeetingHero.tsx             # Next upcoming meeting highlight card with countdown, attendees, and action buttons
-│   │   ├── MeetingList.tsx             # Searchable meeting list with status filters (Scheduled, Completed, Cancelled)
-│   │   ├── MeetingBrief.tsx            # Contextual pre-call prep modal with Contact 360, Deal info, and checklist
-│   │   ├── MeetingOutcomeModal.tsx     # Post-call outcome logger: summary, sentiment, next steps, deal stage advance
-│   │   └── MeetingDrawer.tsx           # Schedule / edit meeting drawer with CRM opportunity linking and attendee list
+│   │   ├── types.ts                    # Extended MarketingCampaign, CampaignDailyMetric, Touchpoint, Report, etc.
+│   │   ├── repository.ts               # Storage facade with CRM + Marketing CRUD and deterministic seeds
+│   │   ├── selectors.ts                # Selectors: selectCampaignPerformanceList, selectGrowthExecutiveMetrics, etc.
+│   │   └── CRMProvider.tsx             # Global CRM context provider (useCRM hook with full marketing suite)
+│   ├── marketing/
+│   │   ├── MarketingRepository.ts      # Storage keys, seed campaigns, 30-day metrics, creatives, and touchpoints
+│   │   ├── CampaignMetrics.tsx         # Executive KPI cards (Attributed Won Value, Spend, CRM Leads, Value-to-Spend)
+│   │   ├── CampaignGrid.tsx            # Visual cards with spend vs budget progress bar, CTR, CPL, Won deals
+│   │   ├── CampaignTable.tsx           # Sortable table (Spend, Clicks, CTR, CRM Leads, CPL, CPQL, Won Value, ROAS)
+│   │   ├── CampaignDrawer.tsx          # Flyout drawer for creating & editing campaigns with UTM parameters & tags
+│   │   ├── CreativeLibrary.tsx         # Ad creatives grid (image, video, copy) with thumbnail, CTR, CTA preview
+│   │   ├── BudgetTracker.tsx           # Monthly budget pacing monitor with utilization %, burn rate, and alerts
+│   │   ├── UTMBuilder.tsx              # Standard UTM campaign link builder with presets & parameter preservation
+│   │   ├── CampaignImportWizard.tsx    # CSV upload wizard with formula injection protection and date format parser
+│   │   ├── AttributionEngine.ts        # First-Touch and Last-Touch deterministic closed-loop attribution engine
+│   │   └── AdvertisingIntegrationCenter.tsx # Meta, Google Ads, LinkedIn APIs in demo mode with compliance disclosure
+│   ├── analytics/
+│   │   ├── metricCalculators.ts        # Performance formulas (CTR, CPC, CPM, CPL, CPQL, ROAS) with safe 0-denominator
+│   │   ├── InsightEngine.ts            # 5 deterministic rule-based marketing insights (Spend without leads, scale, etc.)
+│   │   ├── GrowthOverview.tsx          # Main executive dashboard ("Growth, decoded.") with period selector & tabs
+│   │   ├── PerformanceTrend.tsx        # Interactive SVG daily spend, impressions, and clicks trajectory chart
+│   │   ├── ConversionFunnel.tsx        # Full-funnel visualization (Impressions -> Clicks -> Leads -> QL -> Won)
+│   │   ├── LeadQualityPanel.tsx        # Qualification rate breakdown and disposition matrix by source
+│   │   └── CampaignInsightsBanner.tsx  # Insight cards with 1-click follow-up task generation in Focus Center
+│   ├── reports/
+│   │   ├── ReportBuilder.tsx           # Report Studio workspace with pre-built templates and "Hide Budget" toggle
+│   │   └── ReportPreview.tsx           # Print-ready A4 executive document layout (@media print CSS support)
+│   ├── productivity/                   # Phase 06: Focus Center, Daily Momentum, Reminders, Sync modals
+│   ├── calendar/                       # Phase 06: Calendar Studio components
+│   ├── meetings/                       # Phase 06: Meeting Workspace components
 │   ├── communications/                 # Phase 05: Omnichannel adapters and messaging types
 │   ├── inbox/                          # Phase 05: Unified Inbox components
-│   ├── contacts/                       # Phase 04: Contact 360° components & TasksManager
+│   ├── contacts/                       # Phase 04: Contact 360° components
 │   ├── companies/                      # Phase 04: Company Intelligence components
 │   └── leads/                          # Phase 02: Lead Intelligence components
+└── qa_evidence/
+    └── phase_07/                       # 15 High-resolution behavioral QA screenshots committed in repo
 ```
 
 ---
 
-## 2. Phase 06 Implementation & Verification Matrix
+## 2. Phase 07 Implementation & Verification Matrix
 
-| Feature | Status | Details |
+| Capability / Module | Status | Verification & Functional Highlights |
 |---|---|---|
-| **Focus Center Workspace (`/tasks`)** | **Completed** | Bento layout featuring Daily Momentum, Focus Metrics, Smart Follow-ups, and Multi-View Task execution. |
-| **Daily Momentum Hero Card** | **Completed** | Dark carbon Bento card (`#151515`) with dynamic motivation copy, progress track, execution streak, and interactive stat pills. |
-| **Focus Metrics (KPIs)** | **Completed** | Real-time counters: Today's Priorities, Overdue Items, Upcoming Meetings, and Today's Completion Rate percentage. |
-| **Smart Follow-up Intelligence** | **Completed** | 5 deterministic rules: new uncontacted leads, overdue tasks, stalled proposals, unscheduled meeting follow-ups, and unanswered chats. Includes 1-click task creation, snooze, and dismiss. Clearly labeled "Rule-Based Engine". |
-| **Task Lifecycle & Management** | **Completed** | TaskDrawer with full validation, priority badges (Urgent, High, Medium, Low), task types (Call, Email, WhatsApp, Proposal, Prep), checklist sub-items, and CRM entity linking (Lead, Contact, Company, Deal). |
-| **Kanban Task Board** | **Completed** | 4 columns (`To Do`, `In Progress`, `Waiting`, `Completed`) with HTML5 Drag-and-Drop AND accessible directional move buttons. |
-| **Calendar Studio (`/calendar`)** | **Completed** | 4 coordinated views: Month view (7x5/6 grid), Week view (hourly columns), Day view (hourly slots + all-day bar), and Agenda view (chronological date grouping). |
-| **Universal RFC 5545 .ics Export** | **Completed** | `generateCalendarICS()` generates valid RFC 5545 calendar files with IST timezone (`Asia/Kolkata`); 1-click browser download in ExternalSyncModal. |
-| **External Calendar Sync Center** | **Completed** | Google Calendar, Microsoft Outlook, and Zoom connection cards displaying honest enterprise roadmap status with zero fake OAuth simulation. |
-| **Meeting Workspace (`/meetings`)** | **Completed** | Next Upcoming Meeting Hero card, attendee chips, time indicators, and searchable list with status filters (Scheduled, Completed, Cancelled). |
-| **Meeting Preparation Brief** | **Completed** | `MeetingBrief.tsx` pulls live Contact 360 details (designation, email, phone, notes), Deal data (stage, value), agenda, and interactive prep checklist. |
-| **Meeting Outcome & Stage Advancement** | **Completed** | `MeetingOutcomeModal.tsx` records executive summary, sentiment (Positive, Neutral, Cautious), automatically advances Deal pipeline stage, and creates next-step follow-up tasks in Focus Center. |
-| **Reminder Center & Notifications** | **Completed** | Header Bell popover with unread counter badge, +30m snooze, mark as read, and graceful browser native desktop notification permission request. |
-| **Floating Dock Navigation** | **Completed** | Navigation dock updated: `Tasks` (`/tasks`, `ready: true`), `Calendar` (`/calendar`, `ready: true`), and `Meetings` (`/meetings`, `ready: true`). |
-| **Production Build Validation** | **Completed** | `npm run build` succeeds with zero errors; all 13 static pages generated cleanly. |
+| **Campaign Manager (`/campaigns`)** | **Completed** | Full campaign management workspace with headline `"Every campaign counts."`, 4 executive KPI cards, search, platform filter, status filter, and live drawer. |
+| **Grid & Table Views** | **Completed** | Seamless view toggling between visual campaign cards (with budget progress bars and utilization %) and a sortable data table (Spend, Clicks, CTR, CRM Leads, CPL, CPQL, Won Value, ROAS). |
+| **Campaign Lifecycle (Drawer)** | **Completed** | `CampaignDrawer.tsx` supports launching new campaigns and editing existing ones: platform, account, objective, budget type, planned budget, dates, target audience/location, UTM parameters, tags, and strategic notes. |
+| **UTM Campaign Link Builder** | **Completed** | `UTMBuilder.tsx` generates standard tracking URLs with presets (Meta, Google Search, LinkedIn InMail, Instagram Bio, WhatsApp Broadcast), query parameter preservation, and copy toast. |
+| **CSV Import Wizard** | **Completed** | `CampaignImportWizard.tsx` with formula injection escaping (`'`, `+`, `-`, `@`), column mapping, date parser, and duplicate date replacement preventing double-counting. |
+| **Advertising Integration Center** | **Completed** | `AdvertisingIntegrationCenter.tsx` features transparent compliance labeling: Meta Marketing API, Google Ads, and LinkedIn are explicitly badged as "Demo Mode Active" for the Phase 10 Cloud Milestone. Zero fake OAuth tokens or credentials stored in browser storage. |
+| **Growth Intelligence (`/analytics`)** | **Completed** | Executive bento dashboard with headline `"Growth, decoded."` and subtitle `"From the first impression to the final conversion."` supporting 7D, 30D, and 90D periods. |
+| **Full-Funnel Conversion Journey** | **Completed** | `ConversionFunnel.tsx` visualizes Impressions -> Clicks -> Captured Leads -> Qualified Leads -> Won Customers with stage-to-stage drop-off % and conversion from top. |
+| **Performance Trend Chart** | **Completed** | `PerformanceTrend.tsx` renders responsive SVG daily trajectory for Spend, Clicks, and Impressions with interactive hover inspection tooltips. |
+| **Channel Attribution Matrix** | **Completed** | Side-by-side comparison across Meta Ads, Google Ads, LinkedIn, and Organic/Direct with spend, leads, qualified leads, attributed won value, and ROAS. |
+| **Lead Quality Intelligence** | **Completed** | `LeadQualityPanel.tsx` breaks down sales qualification rates by marketing acquisition source to isolate high-intent channels from vanity volume. |
+| **Creative Asset Library** | **Completed** | `CreativeLibrary.tsx` displays cross-channel ad creatives (image, video, carousel, text) with format badge, headline, copy preview, CTA button, impressions, clicks, CTR, and new creative creation modal. |
+| **Deterministic Campaign Insights** | **Completed** | `InsightEngine.ts` executes 5 deterministic marketing rules (Zero Qualified Leads on High Spend, Low Qualification Rate, Budget Exhaustion, Scale Opportunities, Unattributed Inbound Leads). `CampaignInsightsBanner.tsx` provides 1-click "Create Task" which logs directly into the Focus Center. |
+| **Report Studio (`/reports`)** | **Completed** | Headline `"Performance, made clear."`, pre-built report templates (Executive Summary, Monthly Marketing ROI, Lead Quality Audit), campaign multi-selection, and CSV export. |
+| **"Hide Budget" Agency Mode** | **Completed** | Toggle completely suppresses spend, budget, CPL, CPQL, and cost-per-customer figures from reports and analytics, replacing them with client-safe impression, click, and qualification rates to protect agency margins. |
+| **Print-Ready A4 PDF Layout** | **Completed** | `ReportPreview.tsx` paired with `@media print` CSS rules in `globals.css` triggers clean `window.print()` without sidebar, header, or buttons. |
+| **Deterministic Attribution Engine** | **Completed** | `AttributionEngine.ts` implements First-Touch and Last-Touch models with deal value capping so that no single deal is attributed for more than 100% of its won revenue. |
+| **Safe Mathematics & Zero Denominators** | **Completed** | `metricCalculators.ts` unit tested (14/14 tests passed); zero denominators format as `"N/A"` rather than `Infinity` or `NaN`. Ratios across aggregated entities sum numerators and denominators first rather than averaging individual ratios. |
+| **Dock Navigation & Shell Sync** | **Completed** | Dock updated: `Campaigns` (`/campaigns`, `ready: true`), `Analytics` (`/analytics`, `ready: true`), and `Reports` (`/reports`, `ready: true`). |
+| **Production Build Validation** | **Completed** | `npm run build` succeeds with zero errors; all 16 static pages generated cleanly. |
+| **Behavioral QA Suite** | **Completed** | `run_phase07_qa.js` executed in an isolated incognito browser session passing all 14 end-to-end flows and 9 core regression routes with 15 screenshots saved directly to `qa_evidence/phase_07/`. |
 
 ---
 
 ## 3. Brand Identity Specifications
 
-- **Wordmark:** `BIZLEAD`
-  - `BIZ`: Styled with `var(--text)` (Black `#151515` by default; White `#F5F5F5` on dark theme).
-  - `LEAD`: Styled with `var(--accent)` (Electric Yellow `#FFE13B` by default).
-  - Size: `clamp(30px, 2.8vw, 38px)`, weight `900`.
-- **Tagline:** `"The Intelligence Behind Growth."`
-  - Font: Manrope, `11.5px`, weight `600`, letter-spacing `0.2px`.
-  - Color: `var(--text)` with CSS color transition for 100% readability in light and dark modes.
-  - Spacing & Alignment: `marginTop: -2px`, `paddingLeft: 2.5px` (flush with the left vertical spine of 'B').
+- **Wordmark:** `BIZLEAD` (Bold sans uppercase `#151515` in light mode, `#FFFFFF` in dark mode, with `LEAD` in `var(--accent)`).
+- **Tagline:** `"The Intelligence Behind Growth."` (Adaptive subtitle positioned beneath the wordmark).
+- **Global Theme Studio:** 7 verified preset palettes (Electric Yellow, Tech Violet, Deep Teal, Emerald Growth, Warm Terracotta, Cobalt Enterprise, Monolith Dark) with live preview and custom picker.
 
 ---
 
-## 4. Roadmap Status
+## 4. Development Roadmap Progress
 
-- [x] **Phase 01 — Workspace & Global Theme Studio:** Completed
-- [x] **Phase 02 — Lead Intelligence:** Completed
-- [x] **Phase 03 — Pipeline Studio:** Completed
-- [x] **Phase 04 — Contact 360° & Company Intelligence:** Completed
-- [x] **Phase 05 — Unified Inbox & Omnichannel Communication:** Completed
-- [x] **Phase 06 — Focus Center (Tasks, Calendar, Meetings & Smart Follow-ups):** Completed & Verified (Behavioral QA 100% Passed)
-- [ ] **Phase 07 — Campaign Intelligence & Analytics:** Up next
-- [ ] **Phase 08 — Automation Studio:** Pending
-- [ ] **Phase 09 — Biz AI:** Pending
-- [ ] **Phase 10 — Administration & Permissions:** Pending
-
----
-
-## 5. Phase 06 Behavioral QA & Regression Verification Evidence
-
-All 10 test flows were executed end-to-end against real browser runtime (Chrome via `puppeteer-core`) using an isolated browser session without clearing user storage. All 10 screenshots are preserved directly inside the repository at `E:\BizLead\qa_evidence\phase_06/`.
-
-| Test Flow / Module | Verification Action | Result | Repository Screenshot Evidence |
-|---|---|---|---|
-| **Flow 1: Focus Center & Bento Layout** | Navigated to `/tasks`, asserted Daily Momentum hero, motivational copy, streak badge, and 4 KPI cards | **PASSED** — Hero rendered with accurate progress track and stats | `qa_evidence/phase_06/qa_flow1_focus_center.png` |
-| **Flow 2: Task Lifecycle & Completion** | Opened TaskDrawer via "+ New Task", created urgent follow-up task, verified list render, toggled checkbox, verified move to Completed | **PASSED** — Task created, toggled, and reactive state updated | `qa_evidence/phase_06/qa_flow2_task_lifecycle.png` |
-| **Flow 3: Kanban Task Board** | Switched view mode to Board, verified 4 columns (To Do, In Progress, Waiting, Completed), clicked move button to shift task right | **PASSED** — Task moved to In Progress column | `qa_evidence/phase_06/qa_flow3_task_board.png` |
-| **Flow 4: Smart Follow-up Engine** | Evaluated rule-based recommendations, tested 1-click "Create Task" prefill, verified drawer opening, closed drawer | **PASSED** — Recommendations displayed with prefilled action triggers | `qa_evidence/phase_06/qa_flow4_recommendations.png` |
-| **Flow 5: Calendar Studio Multi-View** | Navigated to `/calendar`, validated Month grid (35 cells + 8 events), Week hourly slots, Day timeline, and Agenda grouping | **PASSED** — All 4 views rendered with event cards and time indicators | `qa_evidence/phase_06/qa_flow5_calendar_views.png` |
-| **Flow 6: Calendar Sync & RFC 5545 Export** | Opened Sync / Export modal, asserted Universal .ics download button, WebCal feed, and 3 provider cards (GCal, Outlook, Zoom) | **PASSED** — RFC 5545 export verified; zero simulated credentials | `qa_evidence/phase_06/qa_flow6_calendar_sync_modal.png` |
-| **Flow 7: Meeting Prep Brief** | Navigated to `/meetings`, asserted Next Meeting Hero, opened Prep Brief modal, checked Contact 360 & Deal data | **PASSED** — Prep Brief displayed linked contact designation, phone, email, notes | `qa_evidence/phase_06/qa_flow7_meeting_prep_brief.png` |
-| **Flow 8: Meeting Outcome & Deal Stage** | Logged meeting outcome with positive sentiment, advanced deal stage to proposal, added next step, saved outcome | **PASSED** — Meeting marked completed, outcome preview rendered in list | `qa_evidence/phase_06/qa_flow8_meeting_outcome_completed.png` |
-| **Flow 9: Reminder Center & Header Bell** | Clicked header Bell icon, verified popover with 3 reminders, tested snooze & browser notification banner | **PASSED** — Reminder Center opened with unread counter badge | `qa_evidence/phase_06/qa_flow9_reminder_center.png` |
-| **Flow 10: Regression Verification** | Verified `/dashboard`, `/leads`, `/pipeline`, `/contacts`, `/companies`, `/inbox` | **PASSED** — All 6 prior modules returned HTTP 200 with BIZLEAD logo and tagline intact | `qa_evidence/phase_06/qa_flow10_regression.png` |
+1. **Phase 01 — Workspace & Global Theme Studio:** Completed  
+2. **Phase 02 — Lead Intelligence:** Completed  
+3. **Phase 03 — Pipeline Studio:** Completed  
+4. **Phase 04 — Contact 360° & Company Intelligence:** Completed  
+5. **Phase 05 — Unified Inbox:** Completed  
+6. **Phase 06 — Focus Center — Tasks, Calendar, Meetings & Smart Follow-ups:** Completed  
+7. **Phase 07 — Campaign Intelligence & Analytics:** Completed  
+8. **Phase 08 — Automation Studio:** Up next  
+9. **Phase 09 — Biz AI:** Pending  
+10. **Phase 10 — Administration & Permissions:** Pending  

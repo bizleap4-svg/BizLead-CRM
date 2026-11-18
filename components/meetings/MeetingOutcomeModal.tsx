@@ -37,6 +37,7 @@ export function MeetingOutcomeModal({
   const [sentiment, setSentiment] = useState<"positive" | "neutral" | "cautious">(
     meeting.outcome?.sentiment || "positive"
   );
+  const [shouldAdvanceStage, setShouldAdvanceStage] = useState(false);
   const [dealStage, setDealStage] = useState(
     linkedDeal ? linkedDeal.stage : "proposal"
   );
@@ -71,7 +72,7 @@ export function MeetingOutcomeModal({
         summary: summary.trim(),
         sentiment,
         nextSteps,
-        updatedDealStage: linkedDeal ? dealStage : undefined,
+        updatedDealStage: linkedDeal && shouldAdvanceStage ? dealStage : undefined,
       };
 
       await completeMeeting(meeting.id, outcome, createFollowUpTasks ? nextSteps : []);
@@ -163,21 +164,28 @@ export function MeetingOutcomeModal({
           {/* Deal Stage Advancement (if deal linked) */}
           {linkedDeal && (
             <div className="bl-field-group">
-              <label htmlFor="outcome-deal-stage">
-                Advance Pipeline Stage for: <strong>{linkedDeal.title}</strong>
+              <label style={{ display: "flex", alignItems: "center", gap: "8px", cursor: "pointer", marginBottom: "6px" }}>
+                <input
+                  type="checkbox"
+                  checked={shouldAdvanceStage}
+                  onChange={(e) => setShouldAdvanceStage(e.target.checked)}
+                />
+                <span>Explicitly advance pipeline stage for deal: <strong>{linkedDeal.title}</strong></span>
               </label>
-              <select
-                id="outcome-deal-stage"
-                value={dealStage}
-                onChange={(e) => setDealStage(e.target.value)}
-                className="bl-select"
-              >
-                {stages.map((stage) => (
-                  <option key={stage.id} value={stage.id}>
-                    {stage.name}
-                  </option>
-                ))}
-              </select>
+              {shouldAdvanceStage && (
+                <select
+                  id="outcome-deal-stage"
+                  value={dealStage}
+                  onChange={(e) => setDealStage(e.target.value)}
+                  className="bl-select"
+                >
+                  {stages.map((stage) => (
+                    <option key={stage.id} value={stage.id}>
+                      {stage.name}
+                    </option>
+                  ))}
+                </select>
+              )}
             </div>
           )}
 

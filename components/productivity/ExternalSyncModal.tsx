@@ -101,34 +101,20 @@ export function ExternalSyncModal({ onClose }: ExternalSyncModalProps) {
             </div>
           </div>
 
-          {/* Calendar Feed Subscription */}
-          <div style={{ marginTop: "16px" }}>
-            <label style={{ fontSize: "12px", fontWeight: 600, display: "block", marginBottom: "6px" }}>
-              Universal WebCal Subscription Feed (Demo Mode)
-            </label>
-            <div style={{ display: "flex", gap: "8px" }}>
-              <input
-                type="text"
-                readOnly
-                value="webcal://bizlead.local/calendar/feed.ics?token=demo_sub_token"
-                style={{
-                  flex: 1,
-                  padding: "8px 12px",
-                  fontSize: "12px",
-                  borderRadius: "6px",
-                  background: "var(--surface)",
-                  border: "1px solid var(--border)",
-                  color: "var(--text)",
-                }}
-              />
-              <button
-                type="button"
-                className="bl-secondary bl-btn-sm"
-                onClick={handleCopyFeed}
-              >
-                {copied ? <Check size={14} color="#10b981" /> : <Copy size={14} />}
-                <span>{copied ? "Copied" : "Copy"}</span>
-              </button>
+          {/* Calendar Feed Subscription Status */}
+          <div style={{ marginTop: "16px", padding: "12px 14px", borderRadius: "10px", background: "var(--background)", border: "1px solid var(--border)" }}>
+            <div className="bl-between">
+              <div>
+                <strong style={{ fontSize: "13px", display: "block" }}>
+                  WebCal / CalDAV Subscription Feed
+                </strong>
+                <span style={{ fontSize: "11.5px", color: "var(--muted)" }}>
+                  Live HTTP WebCal subscriptions require a persistent cloud server endpoint (Phase 10 milestone). Universal offline RFC 5545 .ics export is fully functional above.
+                </span>
+              </div>
+              <span className="bl-status-chip pending" style={{ alignSelf: "flex-start", marginLeft: "10px" }}>
+                Cloud Milestone
+              </span>
             </div>
           </div>
 

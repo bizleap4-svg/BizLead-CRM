@@ -29,8 +29,15 @@ import {
   ConversationStatus,
   ConversationPriority,
   Attachment,
+  MarketingCampaign,
+  CampaignDailyMetric,
+  AdCreative,
+  CampaignTouchpoint,
+  MarketingImport,
+  ReportDefinition,
 } from "./types";
 import * as repo from "./repository";
+import * as mktRepo from "../marketing/MarketingRepository";
 
 type CRMContextType = {
   leads: Lead[];
@@ -40,6 +47,25 @@ type CRMContextType = {
   stages: PipelineStage[];
   loading: boolean;
   selectedDeal: Lead | null;
+
+  // Phase 07 — Campaign Intelligence & Analytics
+  campaigns: MarketingCampaign[];
+  dailyMetrics: CampaignDailyMetric[];
+  creatives: AdCreative[];
+  touchpoints: CampaignTouchpoint[];
+  reports: ReportDefinition[];
+  createCampaign: (data: Omit<MarketingCampaign, "id" | "createdAt" | "updatedAt">) => Promise<MarketingCampaign>;
+  updateCampaign: (id: string, updates: Partial<MarketingCampaign>) => Promise<MarketingCampaign>;
+  archiveCampaign: (id: string) => Promise<MarketingCampaign>;
+  deleteCampaign: (id: string) => Promise<void>;
+  importDailyMetrics: (metrics: CampaignDailyMetric[]) => Promise<MarketingImport>;
+  createCreative: (creative: Omit<AdCreative, "id">) => Promise<AdCreative>;
+  recordTouchpoint: (tp: Omit<CampaignTouchpoint, "id" | "timestamp">) => Promise<CampaignTouchpoint>;
+  saveReport: (report: Omit<ReportDefinition, "id" | "createdAt">) => Promise<ReportDefinition>;
+  isCampaignDrawerOpen: boolean;
+  campaignDrawerCampaignId: string | null;
+  openCampaignDrawer: (campaignId?: string) => void;
+  closeCampaignDrawer: () => void;
 
   // Phase 06 — Productivity, Tasks & Calendar
   tasks: CRMTask[];
@@ -230,6 +256,15 @@ export function CRMProvider({ children }: { children: ReactNode }) {
   const [reminders, setReminders] = useState<CRMReminder[]>([]);
   const [recommendations, setRecommendations] = useState<SmartRecommendation[]>([]);
 
+  // Phase 07 — Campaign Intelligence & Marketing State
+  const [campaigns, setCampaigns] = useState<MarketingCampaign[]>([]);
+  const [dailyMetrics, setDailyMetrics] = useState<CampaignDailyMetric[]>([]);
+  const [creatives, setCreatives] = useState<AdCreative[]>([]);
+  const [touchpoints, setTouchpoints] = useState<CampaignTouchpoint[]>([]);
+  const [reports, setReports] = useState<ReportDefinition[]>([]);
+  const [isCampaignDrawerOpen, setIsCampaignDrawerOpen] = useState(false);
+  const [campaignDrawerCampaignId, setCampaignDrawerCampaignId] = useState<string | null>(null);
+
   // Drawer Management
   const [isTaskDrawerOpen, setIsTaskDrawerOpen] = useState(false);
   const [taskDrawerTaskId, setTaskDrawerTaskId] = useState<string | null>(null);
@@ -257,6 +292,11 @@ export function CRMProvider({ children }: { children: ReactNode }) {
         meetingsRes,
         remindersRes,
         recsRes,
+        campaignsRes,
+        metricsRes,
+        creativesRes,
+        touchpointsRes,
+        reportsRes,
       ] = await Promise.all([
         repo.listLeads(),
         repo.listContacts(),
@@ -270,6 +310,11 @@ export function CRMProvider({ children }: { children: ReactNode }) {
         repo.listMeetings(),
         repo.listReminders(),
         repo.getSmartFollowUpRecommendations(),
+        mktRepo.listCampaigns(),
+        mktRepo.listDailyMetrics(),
+        mktRepo.listCreatives(),
+        mktRepo.listTouchpoints(),
+        mktRepo.listReports(),
       ]);
       setLeads(leadsRes);
       setContacts(contactsRes);
@@ -283,6 +328,11 @@ export function CRMProvider({ children }: { children: ReactNode }) {
       setMeetings(meetingsRes);
       setReminders(remindersRes);
       setRecommendations(recsRes);
+      setCampaigns(campaignsRes);
+      setDailyMetrics(metricsRes);
+      setCreatives(creativesRes);
+      setTouchpoints(touchpointsRes);
+      setReports(reportsRes);
 
       setActiveConversationId((prev) => {
         if (prev && convsRes.some((c) => c.id === prev)) return prev;
@@ -565,6 +615,73 @@ export function CRMProvider({ children }: { children: ReactNode }) {
     setMeetingDrawerPrefill(null);
   };
 
+  // Phase 07 — Campaign Intelligence Actions
+  const createCampaign = async (
+    data: Omit<MarketingCampaign, "id" | "createdAt" | "updatedAt">
+  ) => {
+    const res = await mktRepo.createCampaign(data);
+    await loadData();
+    return res;
+  };
+
+  const updateCampaign = async (
+    id: string,
+    updates: Partial<MarketingCampaign>
+  ) => {
+    const res = await mktRepo.updateCampaign(id, updates);
+    await loadData();
+    return res;
+  };
+
+  const archiveCampaign = async (id: string) => {
+    const res = await mktRepo.archiveCampaign(id);
+    await loadData();
+    return res;
+  };
+
+  const deleteCampaign = async (id: string) => {
+    await mktRepo.deleteCampaign(id);
+    await loadData();
+  };
+
+  const importDailyMetrics = async (metrics: CampaignDailyMetric[]) => {
+    const res = await mktRepo.importDailyMetrics(metrics);
+    await loadData();
+    return res;
+  };
+
+  const createCreative = async (creative: Omit<AdCreative, "id">) => {
+    const res = await mktRepo.createCreative(creative);
+    await loadData();
+    return res;
+  };
+
+  const recordTouchpoint = async (
+    tp: Omit<CampaignTouchpoint, "id" | "timestamp">
+  ) => {
+    const res = await mktRepo.recordTouchpoint(tp);
+    await loadData();
+    return res;
+  };
+
+  const saveReport = async (
+    report: Omit<ReportDefinition, "id" | "createdAt">
+  ) => {
+    const res = await mktRepo.saveReport(report);
+    await loadData();
+    return res;
+  };
+
+  const openCampaignDrawer = (campaignId?: string) => {
+    setCampaignDrawerCampaignId(campaignId || null);
+    setIsCampaignDrawerOpen(true);
+  };
+
+  const closeCampaignDrawer = () => {
+    setIsCampaignDrawerOpen(false);
+    setCampaignDrawerCampaignId(null);
+  };
+
   const unreadRemindersCount = reminders.filter(
     (r) => !r.isRead && !r.isDismissed
   ).length;
@@ -765,6 +882,25 @@ export function CRMProvider({ children }: { children: ReactNode }) {
         meetingDrawerPrefill,
         openMeetingDrawer,
         closeMeetingDrawer,
+
+        // Phase 07 — Campaign Intelligence & Analytics
+        campaigns,
+        dailyMetrics,
+        creatives,
+        touchpoints,
+        reports,
+        createCampaign,
+        updateCampaign,
+        archiveCampaign,
+        deleteCampaign,
+        importDailyMetrics,
+        createCreative,
+        recordTouchpoint,
+        saveReport,
+        isCampaignDrawerOpen,
+        campaignDrawerCampaignId,
+        openCampaignDrawer,
+        closeCampaignDrawer,
 
         openDealDrawer,
         closeDealDrawer,

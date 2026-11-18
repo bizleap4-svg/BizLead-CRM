@@ -42,6 +42,14 @@ export type Lead = {
   convertedCompanyId?: string;
   convertedDealId?: string;
   createdAt: string;
+  campaignId?: string;
+  utmSource?: string;
+  utmMedium?: string;
+  utmCampaign?: string;
+  utmTerm?: string;
+  utmContent?: string;
+  status?: string;
+  contactId?: string;
 };
 
 export type ContactLifecycle = "lead" | "prospect" | "customer" | "evangelist" | "churned";
@@ -229,7 +237,7 @@ export type CRMTask = {
   startTime?: string;
   estimatedDuration?: number; // minutes
   completedAt?: string;
-  entityType?: "contact" | "company" | "lead" | "deal" | "conversation";
+  entityType?: "contact" | "company" | "lead" | "deal" | "conversation" | "campaign";
   entityId?: string;
   entityName?: string;
   checklist?: TaskChecklistItem[];
@@ -317,7 +325,7 @@ export type SmartRecommendation = {
   suggestedDueDate: string;
   priority: TaskPriority;
   taskType: TaskType;
-  entityType: "lead" | "deal" | "meeting" | "conversation" | "contact" | "company";
+  entityType: "lead" | "deal" | "meeting" | "conversation" | "contact" | "company" | "campaign";
   entityId: string;
   entityName: string;
   isDismissed?: boolean;
@@ -416,3 +424,211 @@ export const COMPANY_INDUSTRIES = [
 
 // Re-export communication entities for unified CRM state
 export * from "../communications/types";
+
+// ==========================================
+// Phase 07 — Campaign Intelligence & Analytics
+// ==========================================
+
+export type MarketingPlatform =
+  | "meta"
+  | "google"
+  | "linkedin"
+  | "organic"
+  | "instagram_organic"
+  | "facebook_organic"
+  | "website"
+  | "organic_search"
+  | "direct"
+  | "email"
+  | "whatsapp"
+  | "referral"
+  | "custom"
+  | "unattributed";
+
+export type CampaignObjective =
+  | "lead_generation"
+  | "conversions"
+  | "brand_awareness"
+  | "traffic"
+  | "messages"
+  | "sales"
+  | "custom";
+
+export type CampaignStatus =
+  | "draft"
+  | "scheduled"
+  | "active"
+  | "paused"
+  | "completed"
+  | "archived";
+
+export type BudgetType = "daily" | "lifetime";
+
+export type MarketingAccount = {
+  id: string;
+  name: string;
+  platform: MarketingPlatform;
+  currency: string;
+  timezone: string;
+  status: "connected" | "disconnected" | "demo";
+  accountType: "paid" | "organic";
+  externalAccountId?: string;
+  createdAt: string;
+};
+
+export type MarketingCampaign = {
+  id: string;
+  name: string;
+  platform: MarketingPlatform;
+  accountId: string;
+  accountName: string;
+  externalCampaignId?: string;
+  objective: CampaignObjective;
+  status: CampaignStatus;
+  startDate: string; // YYYY-MM-DD
+  endDate?: string;  // YYYY-MM-DD
+  owner: string;
+  targetLocation?: string;
+  targetAudience?: string;
+  budgetType: BudgetType;
+  plannedBudget: number;
+  budget?: number;
+  currency: string;
+  landingPageUrl?: string;
+  utmCampaign?: string;
+  utmParameters?: {
+    source: string;
+    medium: string;
+    campaign: string;
+    content?: string;
+    term?: string;
+  };
+  notes?: string;
+  tags: string[];
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type AdGroup = {
+  id: string;
+  campaignId: string;
+  name: string;
+  status: "active" | "paused" | "completed";
+  externalAdGroupId?: string;
+  targeting?: string;
+};
+
+export type AdCreative = {
+  id: string;
+  campaignId: string;
+  adGroupId?: string;
+  name: string;
+  creativeType: "image" | "video" | "carousel" | "text";
+  thumbnailUrl?: string;
+  headline: string;
+  primaryText: string;
+  cta: string;
+  landingPageUrl: string;
+  status: "active" | "paused" | "archived";
+  notes?: string;
+  metrics?: {
+    impressions: number;
+    clicks: number;
+    spend: number;
+    leads: number;
+  };
+};
+
+export type CampaignDailyMetric = {
+  id: string;
+  campaignId: string;
+  date: string; // YYYY-MM-DD
+  impressions: number;
+  reach?: number;
+  clicks: number;
+  linkClicks?: number;
+  spend: number;
+  currency: string;
+  providerLeads: number;
+  providerConversions: number;
+  providerConversionValue: number;
+  source: "manual" | "csv_import" | "api_sync" | "demo";
+};
+
+export type CampaignTouchpoint = {
+  id: string;
+  timestamp: string; // ISO
+  leadId?: string;
+  contactId?: string;
+  dealId?: string;
+  campaignId?: string;
+  channel: MarketingPlatform;
+  utmSource?: string;
+  utmMedium?: string;
+  utmCampaign?: string;
+  utmContent?: string;
+  utmTerm?: string;
+  landingPage?: string;
+  clickId?: string;
+};
+
+export type AttributionModel = "first_touch" | "last_touch" | "manual";
+
+export type LeadAttribution = {
+  leadId: string;
+  campaignId?: string;
+  campaignName?: string;
+  touchpointId?: string;
+  model: AttributionModel;
+  firstTouchDate?: string;
+  lastTouchDate?: string;
+};
+
+export type DealAttribution = {
+  dealId: string;
+  campaignId?: string;
+  campaignName?: string;
+  attributionWeight: number; // 0 to 1.0 (never exceeds 100% total per deal)
+  attributedValue: number;
+  model: AttributionModel;
+};
+
+export type ConversionEvent = {
+  id: string;
+  eventName: "lead_captured" | "lead_qualified" | "appointment_booked" | "deal_won" | "custom";
+  timestamp: string;
+  leadId?: string;
+  dealId?: string;
+  value?: number;
+  currency: string;
+  status: "recorded_locally" | "ready_for_sync" | "synced";
+};
+
+export type MarketingImport = {
+  id: string;
+  fileName: string;
+  importedAt: string;
+  rowCount: number;
+  dataType: "performance_metrics" | "leads";
+  platform: MarketingPlatform;
+  status: "success" | "partial" | "failed";
+  errors?: string[];
+};
+
+export type ReportDefinition = {
+  id: string;
+  title: string;
+  type: "performance" | "monthly" | "lead_quality" | "acquisition" | "funnel" | "executive" | "custom";
+  dateRange: {
+    start: string;
+    end: string;
+    preset?: string;
+  };
+  attributionModel: AttributionModel;
+  hideSpend: boolean;
+  campaignIds: string[];
+  notes?: string;
+  createdAt: string;
+  snapshotData?: any;
+};
+

@@ -7614,3 +7614,60 @@ body {
     grid-template-columns: 1fr;
   }
 }
+
+/* ==========================================================================
+   Phase 07: Campaign Intelligence, Analytics & Print-Ready Report Styles
+   ========================================================================== */
+
+.bl-report-paper {
+  background: var(--surface, #ffffff);
+  color: var(--text, #151515);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
+}
+
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 12mm 15mm;
+  }
+
+  body {
+    background: #ffffff !important;
+    color: #000000 !important;
+    font-size: 11pt !important;
+  }
+
+  .bl-dock,
+  .bl-header,
+  .bl-dock-bottom,
+  .bl-theme-studio,
+  .print\\:hidden,
+  button:not(.bl-print-keep) {
+    display: none !important;
+  }
+
+  .bl-main {
+    margin-left: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+  }
+
+  .bl-report-paper {
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    max-width: 100% !important;
+    width: 100% !important;
+    background: transparent !important;
+    page-break-after: avoid;
+  }
+
+  table {
+    page-break-inside: avoid;
+  }
+
+  tr {
+    page-break-inside: avoid;
+    page-break-after: auto;
+  }
+}
