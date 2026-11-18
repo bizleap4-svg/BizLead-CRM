@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState, type ReactNode } from "react";
+import { useState, useEffect, useRef, useCallback, type ReactNode } from "react";
+import { createPortal } from "react-dom";
 import {
   LayoutDashboard,
   UsersRound,
@@ -21,6 +22,9 @@ import {
   Settings2,
   Sparkles,
   Bell,
+  PanelLeftOpen,
+  PanelLeftClose,
+  ChevronRight,
   Zap,
   X,
   Check,
@@ -40,22 +44,38 @@ import { GlobalAssistant } from "../ai/GlobalAssistant";
 import { useControlCenter } from "../settings/ControlCenterContext";
 import { useGlobalAI } from "../ai/GlobalAIContext";
 
-const navigation = [
-  { name: "Overview", route: "/dashboard", icon: LayoutDashboard, ready: true },
-  { name: "Leads", route: "/leads", icon: UsersRound, ready: true },
-  { name: "Pipeline", route: "/pipeline", icon: Kanban, ready: true },
-  { name: "Contacts", route: "/contacts", icon: ContactRound, ready: true },
-  { name: "Companies", route: "/companies", icon: Building2, ready: true },
-  { name: "Inbox", route: "/inbox", icon: Inbox, ready: true },
-  { name: "Tasks", route: "/tasks", icon: CheckSquare, ready: true },
-  { name: "Calendar", route: "/calendar", icon: CalendarDays, ready: true },
-  { name: "Meetings", route: "/meetings", icon: Video, ready: true },
-  { name: "Campaigns", route: "/campaigns", icon: Target, ready: true },
-  { name: "Analytics", route: "/analytics", icon: ChartNoAxesCombined, ready: true },
-  { name: "Reports", route: "/reports", icon: FileText, ready: true },
-  { name: "Automations", route: "/automations", icon: Workflow, ready: true },
-  { name: "Biz AI", route: "/ai", icon: Sparkles, ready: true },
+const navigation: Array<{
+  name: string;
+  route: string;
+  icon: React.ComponentType<{ size?: number; className?: string; strokeWidth?: number }>;
+  ready: boolean;
+  desc: string;
+}> = [
+  { name: "Overview", route: "/dashboard", icon: LayoutDashboard, ready: true, desc: "Executive business & revenue metrics" },
+  { name: "Leads", route: "/leads", icon: UsersRound, ready: true, desc: "Capture, qualify & convert prospects" },
+  { name: "Pipeline", route: "/pipeline", icon: Kanban, ready: true, desc: "Visual deal stages & velocity" },
+  { name: "Contacts", route: "/contacts", icon: ContactRound, ready: true, desc: "Unified customer & relationship 360" },
+  { name: "Companies", route: "/companies", icon: Building2, ready: true, desc: "Accounts, organizations & firmographics" },
+  { name: "Inbox", route: "/inbox", icon: Inbox, ready: true, desc: "Omnichannel customer conversations" },
+  { name: "Tasks", route: "/tasks", icon: CheckSquare, ready: true, desc: "Daily focus, follow-ups & to-dos" },
+  { name: "Calendar", route: "/calendar", icon: CalendarDays, ready: true, desc: "Schedules, appointments & agenda" },
+  { name: "Meetings", route: "/meetings", icon: Video, ready: true, desc: "Client calls, prep briefs & outcomes" },
+  { name: "Campaigns", route: "/campaigns", icon: Target, ready: true, desc: "Multi-channel marketing & ad spend" },
+  { name: "Analytics", route: "/analytics", icon: ChartNoAxesCombined, ready: true, desc: "Attribution, funnels & conversion" },
+  { name: "Reports", route: "/reports", icon: FileText, ready: true, desc: "Custom financial & pipeline reports" },
+  { name: "Automations", route: "/automations", icon: Workflow, ready: true, desc: "Visual workflow builder & triggers" },
+  { name: "Biz AI", route: "/ai", icon: Sparkles, ready: true, desc: "Autonomous CRM intelligence & actions" },
 ];
+
+interface MagneticHoverTarget {
+  name: string;
+  desc?: string;
+  route?: string;
+  icon: React.ComponentType<{ size?: number; className?: string; strokeWidth?: number }>;
+  rect: DOMRect;
+  selected: boolean;
+  action?: () => void;
+}
 
 export default function WorkspaceShell({
   children,
@@ -73,14 +93,72 @@ export default function WorkspaceShell({
   const { activeMember, activeRole } = useControlCenter();
   const { isAIOpen } = useGlobalAI();
   const [reminderOpen, setReminderOpen] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(false);
+  const [mounted, setMounted] = useState(false);
+  const [hoverTarget, setHoverTarget] = useState<MagneticHoverTarget | null>(null);
+  const leaveTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+  useEffect(() => {
+    setMounted(true);
+    try {
+      const saved = localStorage.getItem("bizlead_sidebar_expanded");
+      if (saved === "true") {
+        setIsExpanded(true);
+      }
+    } catch {
+      // ignore
+    }
+  }, []);
+
+  const toggleSidebar = useCallback(() => {
+    setIsExpanded((prev) => {
+      const next = !prev;
+      try {
+        localStorage.setItem("bizlead_sidebar_expanded", String(next));
+      } catch {
+        // ignore
+      }
+      setHoverTarget(null);
+      return next;
+    });
+  }, []);
 
   const current = navigation.find(
     (item) => pathname === item.route || pathname.startsWith(item.route + "/")
   );
 
+  const handleMouseEnterItem = (
+    item: { name: string; desc?: string; route?: string; icon: any },
+    element: HTMLElement,
+    action?: () => void
+  ) => {
+    if (isExpanded) return;
+    if (leaveTimerRef.current) {
+      clearTimeout(leaveTimerRef.current);
+      leaveTimerRef.current = null;
+    }
+    const rect = element.getBoundingClientRect();
+    const isSelected = item.route ? (current?.route === item.route || pathname.startsWith(item.route + "/")) : false;
+    setHoverTarget({
+      name: item.name,
+      desc: item.desc,
+      route: item.route,
+      icon: item.icon,
+      rect,
+      selected: isSelected,
+      action,
+    });
+  };
+
+  const handleMouseLeaveItem = () => {
+    leaveTimerRef.current = setTimeout(() => {
+      setHoverTarget(null);
+    }, 120);
+  };
+
   return (
     <>
-      <aside className="bl-dock">
+      <aside className={`bl-dock ${isExpanded ? "bl-dock-expanded" : ""}`}>
         <Link href="/dashboard" className="bl-logo-icon" title="BizLead Home">
           <BizLeadIcon
             size={28}
@@ -91,8 +169,8 @@ export default function WorkspaceShell({
         </Link>
 
         <nav className="bl-navigation">
-          {navigation.map(({ name, route, icon: Icon, ready }) => {
-            const selected = current?.route === route;
+          {navigation.map(({ name, route, icon: Icon, ready, desc }) => {
+            const selected = current?.route === route || pathname.startsWith(route + "/");
 
             return ready ? (
               <Link
@@ -100,21 +178,27 @@ export default function WorkspaceShell({
                 href={route}
                 aria-label={name}
                 aria-current={selected ? "page" : undefined}
-                title={name}
                 className={`bl-nav-item ${selected ? "active" : ""}`}
+                onMouseEnter={(e) =>
+                  handleMouseEnterItem(
+                    { name, desc, route, icon: Icon },
+                    e.currentTarget
+                  )
+                }
+                onMouseLeave={handleMouseLeaveItem}
               >
-                <Icon size={21} strokeWidth={1.7} />
-                <span className="bl-tooltip">{name}</span>
+                <Icon size={20} strokeWidth={selected ? 2.2 : 1.7} className="bl-nav-item-icon" />
+                {isExpanded && <span className="bl-nav-item-label">{name}</span>}
               </Link>
             ) : (
               <button
                 key={route}
                 disabled
-                title={`${name} — coming soon`}
                 className="bl-nav-item"
                 aria-label={`${name} — coming soon`}
               >
-                <Icon size={21} strokeWidth={1.7} />
+                <Icon size={20} strokeWidth={1.7} className="bl-nav-item-icon" />
+                {isExpanded && <span className="bl-nav-item-label">{name}</span>}
               </button>
             );
           })}
@@ -126,9 +210,21 @@ export default function WorkspaceShell({
             onClick={openStudio}
             title="Theme Studio"
             aria-label="Theme Studio"
+            onMouseEnter={(e) =>
+              handleMouseEnterItem(
+                {
+                  name: "Theme Studio",
+                  desc: "Personalize workspace appearance",
+                  icon: Palette,
+                },
+                e.currentTarget,
+                openStudio
+              )
+            }
+            onMouseLeave={handleMouseLeaveItem}
           >
-            <Palette size={21} />
-            <span className="bl-tooltip">Theme Studio</span>
+            <Palette size={20} strokeWidth={1.7} className="bl-nav-item-icon" />
+            {isExpanded && <span className="bl-nav-item-label">Appearance</span>}
           </button>
 
           <Link
@@ -136,23 +232,104 @@ export default function WorkspaceShell({
             className={`bl-nav-item ${pathname.startsWith("/settings") ? "active" : ""}`}
             title="Control Center & Settings"
             aria-label="Control Center"
+            onMouseEnter={(e) =>
+              handleMouseEnterItem(
+                {
+                  name: "Control Center",
+                  desc: "Teams, roles, permissions & org",
+                  icon: Settings2,
+                  route: "/settings",
+                },
+                e.currentTarget
+              )
+            }
+            onMouseLeave={handleMouseLeaveItem}
           >
-            <Settings2 size={21} strokeWidth={1.7} />
-            <span className="bl-tooltip">Settings</span>
+            <Settings2 size={20} strokeWidth={1.7} className="bl-nav-item-icon" />
+            {isExpanded && <span className="bl-nav-item-label">Control Center</span>}
           </Link>
 
-          <Link
-            href="/settings?tab=preferences"
-            className="bl-avatar"
-            title={`Active User: ${activeMember.name} (${activeRole.name})`}
-            style={{ textDecoration: "none" }}
+          {/* Dedicated Expand / Collapse Control Above Profile */}
+          <button
+            type="button"
+            className="bl-nav-item bl-sidebar-toggle-btn"
+            onClick={toggleSidebar}
+            title={isExpanded ? "Collapse sidebar" : "Expand sidebar"}
+            aria-label={isExpanded ? "Collapse sidebar" : "Expand sidebar"}
+            aria-expanded={isExpanded}
+            onMouseEnter={(e) =>
+              !isExpanded &&
+              handleMouseEnterItem(
+                {
+                  name: "Expand Sidebar",
+                  desc: "Expand sidebar navigation (240px)",
+                  icon: PanelLeftOpen,
+                },
+                e.currentTarget,
+                toggleSidebar
+              )
+            }
+            onMouseLeave={handleMouseLeaveItem}
           >
-            {activeMember.avatar}
-          </Link>
+            {isExpanded ? (
+              <>
+                <PanelLeftClose size={20} strokeWidth={1.7} className="bl-nav-item-icon" />
+                <span className="bl-nav-item-label">Collapse</span>
+              </>
+            ) : (
+              <PanelLeftOpen size={20} strokeWidth={1.7} className="bl-nav-item-icon" />
+            )}
+          </button>
+
+          {/* User Profile */}
+          {isExpanded ? (
+            <Link
+              href="/settings?tab=preferences"
+              className="bl-user-profile-row"
+              title={`Active User: ${activeMember.name} (${activeRole.name})`}
+            >
+              <div className="bl-avatar">{activeMember.avatar}</div>
+              <div className="bl-user-profile-info">
+                <span className="bl-user-profile-name">{activeMember.name}</span>
+                <span
+                  className="bl-user-profile-role"
+                  style={{ color: activeRole.color || "var(--accent)" }}
+                >
+                  {activeRole.name}
+                </span>
+              </div>
+            </Link>
+          ) : (
+            <Link
+              href="/settings?tab=preferences"
+              className="bl-avatar"
+              title={`Active User: ${activeMember.name} (${activeRole.name})`}
+              style={{ textDecoration: "none" }}
+            >
+              {activeMember.avatar}
+            </Link>
+          )}
         </div>
       </aside>
 
-      <main className={`bl-main ${isAIOpen ? "bl-main-ai-open" : ""}`}>
+      {/* Floating Magnetic Glass Reveal Portal (Active only when collapsed and hovered) */}
+      {mounted && hoverTarget && !isExpanded && typeof document !== "undefined" &&
+        createPortal(
+          <MagneticGlassReveal
+            target={hoverTarget}
+            onClose={() => setHoverTarget(null)}
+            onKeepAlive={() => {
+              if (leaveTimerRef.current) {
+                clearTimeout(leaveTimerRef.current);
+                leaveTimerRef.current = null;
+              }
+            }}
+          />,
+          document.body
+        )
+      }
+
+      <main className={`bl-main ${isExpanded ? "bl-main-sidebar-expanded" : ""} ${isAIOpen ? "bl-main-ai-open" : ""}`}>
         <header className="bl-header">
           <div className="bl-brand-group">
             <Link
@@ -443,5 +620,94 @@ function ThemeStudio() {
         </button>
       </div>
     </aside>
+  );
+}
+
+function MagneticGlassReveal({
+  target,
+  onClose,
+  onKeepAlive,
+}: {
+  target: MagneticHoverTarget;
+  onClose: () => void;
+  onKeepAlive: () => void;
+}) {
+  const [mousePos, setMousePos] = useState({ x: 40, y: 22 });
+  const [isClosing, setIsClosing] = useState(false);
+  const Icon = target.icon;
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    const x = e.clientX - target.rect.left;
+    const y = e.clientY - target.rect.top;
+    setMousePos({ x, y });
+  };
+
+  const handleLeave = () => {
+    setIsClosing(true);
+    setTimeout(() => {
+      onClose();
+    }, 180);
+  };
+
+  const handleClick = () => {
+    if (target.action) {
+      target.action();
+    }
+    onClose();
+  };
+
+  const pillContent = (
+    <div
+      className={`bl-magnetic-pill ${target.selected ? "active" : ""}`}
+      style={{
+        "--mouse-x": `${mousePos.x}px`,
+        "--mouse-y": `${mousePos.y}px`,
+      } as React.CSSProperties}
+      onClick={handleClick}
+    >
+      {/* Originating Connected Icon Area */}
+      <div className={`bl-magnetic-icon-box ${target.selected ? "active" : ""}`}>
+        <Icon size={20} strokeWidth={target.selected ? 2.2 : 1.8} />
+      </div>
+
+      {/* Subtle Yellow Accent Line */}
+      <div className="bl-magnetic-accent-line" />
+
+      {/* Module Title & Description */}
+      <div className="bl-magnetic-content">
+        <span className="bl-magnetic-title">{target.name}</span>
+        {target.desc && <span className="bl-magnetic-desc">{target.desc}</span>}
+      </div>
+
+      {/* Small Directional Arrow */}
+      <div className="bl-magnetic-arrow">
+        <ChevronRight size={14} strokeWidth={2.2} />
+      </div>
+    </div>
+  );
+
+  return (
+    <div
+      className={`bl-magnetic-portal ${isClosing ? "bl-closing" : ""}`}
+      style={{
+        top: Math.round(target.rect.top - 2),
+        left: Math.round(target.rect.left - 2),
+      }}
+      onMouseEnter={onKeepAlive}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleLeave}
+    >
+      {target.route ? (
+        <Link
+          href={target.route}
+          style={{ textDecoration: "none", color: "inherit", display: "block" }}
+          onClick={handleClick}
+        >
+          {pillContent}
+        </Link>
+      ) : (
+        pillContent
+      )}
+    </div>
   );
 }
